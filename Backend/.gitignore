@@ -1,2 +1,6 @@
 env1
 .env
+/Backend/__pycache__
+/Backend/migrations
+/HandymanHive/__pycache__
+/HandymanHive/migrations
