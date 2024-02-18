@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import axios from "axios";
 
 export const AuthContext =createContext();
 
@@ -8,8 +9,10 @@ export const AuthProvider =({children}) => {
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
 
-    const login = ()=>{
+    const login = async (username,password)=>{
         setIsLoading(true);
+        // const response=await axios.post('/login',{username,password});
+        // console.log(response.data);
         setUserToken('RandomToken');
         AsyncStorage.setItem('userToken',"RandValue");
         setIsLoading(false)
@@ -32,6 +35,9 @@ export const AuthProvider =({children}) => {
             alert("error",e);
         }
     }
+    useEffect(()=>{
+        isLoggedIn();
+    },[]);
     return (
         <AuthContext.Provider value={{login,logout,userToken,isLoading,test}}>
             {children}

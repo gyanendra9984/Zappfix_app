@@ -3,23 +3,27 @@ import { Button, View ,Text} from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthContext } from "../context/AuthContext";
+import Home from "../screens/Home";
 
 // HomeScreen component
 function HomeScreen({ navigation }) {
   const {logout,userToken} =React.useContext(AuthContext);
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>{userToken}</Text>
-      <Button onPress={logout} title="LOGOUT" />
-      <Button
-        onPress={() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Notifications" }],
-          });
-        }}
-        title="Go to notifications"
-      />
+    // <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    //   <Text>{userToken}</Text>
+    //   <Button onPress={logout} title="LOGOUT" />
+    //   <Button
+    //     onPress={() => {
+    //       navigation.reset({
+    //         index: 0,
+    //         routes: [{ name: "Notifications" }],
+    //       });
+    //     }}
+    //     title="Go to notifications"
+    //   />
+    // </View>
+    <View>
+      <Home/>
     </View>
   );
 }
