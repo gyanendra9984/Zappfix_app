@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import CustomWorker
 
-# Register your models here.
+admin.site.register(CustomWorker)
+
+
