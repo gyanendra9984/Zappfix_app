@@ -1,36 +1,72 @@
 import * as React from "react";
-import { Button, View } from "react-native";
+import { Button, View ,Text} from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createStackNavigator } from "@react-navigation/stack";
+import { AuthContext } from "../context/AuthContext";
+import Home from "../screens/Home";
 
 // HomeScreen component
 function HomeScreen({ navigation }) {
+  const {logout,userToken} =React.useContext(AuthContext);
+  return (
+    // <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    //   <Text>{userToken}</Text>
+    //   <Button onPress={logout} title="LOGOUT" />
+    //   <Button
+    //     onPress={() => {
+    //       navigation.reset({
+    //         index: 0,
+    //         routes: [{ name: "Notifications" }],
+    //       });
+    //     }}
+    //     title="Go to notifications"
+    //   />
+    // </View>
+    <View>
+      <Home/>
+    </View>
+  );
+}
+  
+  // NotificationsScreen component
+  function NotificationsScreen({ navigation }) {
+    const { logout } = React.useContext(AuthContext);
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Button onPress={logout} title="LOGOUT" />
         <Button
-          onPress={() => navigation.navigate("Notifications")}
-          title="Go to notifications"
+          onPress={() => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            });
+          }}
+          title="Go Back Home"
         />
       </View>
     );
   }
   
-  // NotificationsScreen component
-  function NotificationsScreen({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Button onPress={() => navigation.navigate("Home")} title="Go back home" />
-      </View>
-    );
-  }
-  
 
-const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
 export default function AppStack() {
   return (
-    <Drawer.Navigator initialRouteName="Home">
-      <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Notifications" component={NotificationsScreen} />
-    </Drawer.Navigator>
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerLeft: null, // This will hide the back button
+        }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerLeft: null, // This will hide the back button
+        }}
+      />
+    </Stack.Navigator>
   );
 }

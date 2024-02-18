@@ -8,14 +8,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthStack from './navigation/AuthStack';
 import Home from './screens/Home';
 import AppStack from './navigation/AppStack';
+import { AuthProvider } from './context/AuthContext';
+import AppNav from './navigation/AppNav';
 
 
 function App() {
   return (
-    <NavigationContainer>
-      {/* <AppStack /> */}
-      <AuthStack />
-    </NavigationContainer>
+    <AuthProvider>
+      <AppNav/>
+    </AuthProvider>
   );
 }
 

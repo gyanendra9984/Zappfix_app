@@ -1,17 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Input, NativeBaseProvider, Button, Icon, Box, Image, AspectRatio } from 'native-base';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
 
 function Login() {
     const navigation = useNavigation();
+    const {login}=useContext(AuthContext);
   return (
     <View style={styles.container}>
       <View style={styles.Middle}>
         <Text style={styles.LoginText}>Login</Text>
+        {/* <Text>{test}</Text> */}
       </View>
       <View style={styles.text2}>
         <Text>Don't have an account? </Text>
@@ -50,7 +53,7 @@ function Login() {
       </View>
       {/* Button */}
       <View style={styles.buttonStyle}>
-        <Button style={styles.buttonDesign}>
+        <Button style={styles.buttonDesign} onPress={login}>
             Send OTP
         </Button>
       </View>
