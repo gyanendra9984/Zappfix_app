@@ -54,7 +54,7 @@ export default function AppStack() {
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
-        name="Home"
+        name="A"
         component={HomeScreen}
         options={{
           headerLeft: null, // This will hide the back button
