@@ -50,3 +50,57 @@ export const categories = [
         image:'../assets/icon.png',
     },
 ]
+=======
+export const categories = [
+    {
+        id:1,
+        name:"Electronics",
+        image:'../assets/icon.png',
+    },
+    {
+        id:2,
+        name:"Fashion",
+        image:'../assets/icon.png',
+    },
+    {
+        id:3,
+        name:"Home",
+        image:'../assets/icon.png',
+    },
+    {
+        id:4,
+        name:"Sports",
+        image:'../assets/icon.png',
+    },
+    {
+        id:5,
+        name:"Plumbers",
+        image:'../assets/icon.png',
+    },
+    {
+        id:6,
+        name:"Others",
+        image:'../assets/icon.png',
+    },
+    {
+        id:7,
+        name:"Games",
+        image:'../assets/icon.png',
+    },
+    {
+        id:8,
+        name:"Cars",
+        image:'../assets/icon.png',
+    },
+    {
+        id:9,
+        name:"Books",
+        image:'../assets/icon.png',
+    },
+    {
+        id:10,
+        name:"Movies",
+        image:'../assets/icon.png',
+    },
+]
+
