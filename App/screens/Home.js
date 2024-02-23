@@ -35,15 +35,7 @@ export default function Home() {
         {/* categories */}
         <Categories/>
 
-        {/* Featured */}
-        <View className="mt-5">
-          {
-            [featured, featured, featured].map((item,index)=>
-            return(
-              <FeaturedRow/>
-            ))
-          }
-        </View>
+        
 
       </View>
 
