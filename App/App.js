@@ -15,7 +15,7 @@ import AppNav from './navigation/AppNav';
 function App() {
   return (
     <AuthProvider>
-      <AppNav/>
+      <Home/>
     </AuthProvider>
   );
 }
