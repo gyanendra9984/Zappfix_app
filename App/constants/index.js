@@ -50,3 +50,4 @@ export const categories = [
         image:'../assets/icon.png',
     },
 ]
+
