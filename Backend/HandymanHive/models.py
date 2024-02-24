@@ -3,40 +3,58 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.contrib.auth.models import User
 
 
-class WorkerManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        if not phone_number:
-            raise ValueError('The phone number field must be set')
-        user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_password(password)
+class OTPModel(models.Model):
+    email = models.EmailField(unique=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_valid_till = models.DateTimeField(null=True, blank=True)
+    worker_details = models.TextField(null=True, blank=True)    
+
+    def __str__(self):
+        return self.email
+    
+class CustomWorkerManager(BaseUserManager):
+    def create_user(self, email, **extra_fields):
+        if not email:
+            raise ValueError(_('The Email field must be set'))
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_unusable_password()
         user.save(using=self._db)
         return user
-
-    def create_superuser(self, phone_number, password=None, **extra_fields):
+    def create_superuser(self, email, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self.create_user(phone_number, password, **extra_fields)
-
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError(_('Superuser must have is_staff=True.'))
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError(_('Superuser must have is_superuser=True.'))
+        user= self.create_user(email, **extra_fields)
+        user.save()
+        return user
 
 # Model to store worker profile.
 class CustomWorker(AbstractBaseUser, PermissionsMixin):
-    phone_number = models.CharField(max_length=15, unique=True, primary_key=True)    
+    email = models.EmailField(primary_key=True,max_length=255, unique=True) 
+    phone_number = models.CharField(max_length=15, unique=True)    
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     age = models.IntegerField()
-    gender = models.CharField(max_length=10)
-    email = models.EmailField(max_length=20)
+    gender = models.CharField(max_length=10)   
     address = models.TextField()
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     zip_code = models.CharField(max_length=10)
-    is_active = models.BooleanField(default=True)
+    otp= models.CharField(max_length=6, null=True, blank=True)
+    otp_valid_till = models.DateTimeField(null=True, blank=True)    
     is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False) 
+      
+    objects = CustomWorkerManager()
 
-    objects = WorkerManager()
-
-    USERNAME_FIELD = 'phone_number'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'gender']
+
+
 
     def __str__(self):
         return self.email
