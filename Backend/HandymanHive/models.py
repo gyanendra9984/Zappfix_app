@@ -3,39 +3,33 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.contrib.auth.models import User
 
 
-class WorkerManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        if not phone_number:
-            raise ValueError('The phone number field must be set')
-        user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+class OTPModel(models.Model):
+    email = models.EmailField(unique=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_valid_till = models.DateTimeField(null=True, blank=True)
+    worker_details = models.TextField(null=True, blank=True)    
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(phone_number, password, **extra_fields)
+    def __str__(self):
+        return self.email
 
 
 # Model to store worker profile.
-class CustomWorker(AbstractBaseUser, PermissionsMixin):
-    phone_number = models.CharField(max_length=15, unique=True, primary_key=True)    
+class CustomWorker(AbstractBaseUser):
+    email = models.EmailField(primary_key=True,max_length=255, unique=True) 
+    phone_number = models.CharField(max_length=15, unique=True)    
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     age = models.IntegerField()
-    gender = models.CharField(max_length=10)
-    email = models.EmailField(max_length=20)
+    gender = models.CharField(max_length=10)   
     address = models.TextField()
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     zip_code = models.CharField(max_length=10)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    otp= models.CharField(max_length=6, null=True, blank=True)
+    otp_valid_till = models.DateTimeField(null=True, blank=True)
+      
 
-    objects = WorkerManager()
-
-    USERNAME_FIELD = 'phone_number'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'gender']
 
     def __str__(self):
