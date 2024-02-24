@@ -46,7 +46,7 @@ def worker_signup(request):
         
         if OTPModel.objects.filter(email=email).exists():
             try:
-                print('a')
+                
                 user = OTPModel.objects.get(email=email)
                 otp = generate_otp()
                 user.otp = otp
@@ -57,7 +57,7 @@ def worker_signup(request):
                 send_otp_email(email, otp)
                 return JsonResponse({'message': 'OTP sent successfully'})            
             except Exception as e:
-                print("def",e)
+                
                 return JsonResponse({'error': 'Error sending OTP'})
 
         try:
@@ -69,7 +69,7 @@ def worker_signup(request):
             send_otp_email(email, otp)
             return JsonResponse({'message': 'OTP sent successfully'})
         except Exception as e:
-            print("abc",e)
+            
             return JsonResponse({'error': 'Error sending OTP'})  
 
 
@@ -94,7 +94,7 @@ def verify_otp(request):
                 # Create user
                 user_data = json.loads(user.worker_details)
                 print(user_data)
-                worker = CustomWorker.objects.create(
+                worker = CustomWorker.objects.create_user(
                     phone_number=user_data['phone_number'], 
                     first_name=user_data['first_name'], 
                     last_name=user_data['last_name'], 
@@ -106,15 +106,16 @@ def verify_otp(request):
                     state=user_data['state'],
                     zip_code=user_data['zip_code']
                 )  
+                print(worker)
                 
                 return JsonResponse({'message': 'OTP verified successfully'})         
             elif user.otp_valid_till < timezone.now():
                 return JsonResponse({'error': 'OTP expired'})
             else:
-                print('a',user.otp)
+                
                 return JsonResponse({'error': 'Invalid OTP'})
         except Exception as e:
-            print(e)
+           
             return JsonResponse({'error': 'Error Sending OTP'})
     else:
         return JsonResponse({'error': 'Invalid request method'})
