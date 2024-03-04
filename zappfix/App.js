@@ -1,15 +1,19 @@
 import React from 'react';
-import 'react-native-gesture-handler';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Home from './screens/Home';
+import AppNav from './navigation/AppNav';
+import { AuthProvider } from './context/AuthContext';
 
 
 function App() {
   return (
-    <Home/>
+    <AuthProvider>
+        <AppNav/>
+    </AuthProvider>
+    
   );
 }
 
