@@ -6,10 +6,10 @@ import { useState } from 'react'
 // Helper function to dynamically resolve image names
 const resolveImage = (imageName) => {
     switch (imageName) {
-        case 'image1': return require('../assets/icon.png');
-        case 'image2': return require('../assets/icon.png');
+        case 'image1': return require('../assets/tp1.jpg');
+        case 'image2': return require('../assets/tp2.jpg');
         // Add more cases for other image names
-        default: return require('../assets/icon.png');
+        default: return require('../assets/tp1.jpg');
     }
 };
 
