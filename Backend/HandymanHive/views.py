@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta
+import statistics
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
@@ -25,8 +26,8 @@ def generate_otp(length=6):
     otp = ''.join(random.choice(characters) for _ in range(length))
     return otp
 
-def send_otp_email(email, otp):
-    subject = 'Your OTP for Login'
+def send_otp_email(email, otp, type='Login'):
+    subject = 'Your OTP for {type}'
     message = f'Your OTP is: {otp}'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
@@ -54,11 +55,11 @@ def worker_signup(request):
                 user.save()
 
                 # Send OTP to user
-                send_otp_email(email, otp)
+                send_otp_email(email, otp, 'Signup')
                 return JsonResponse({'message': 'OTP sent successfully'})            
             except Exception as e:
-                
-                return JsonResponse({'error': 'Error sending OTP'})
+                print(e)
+                return JsonResponse({'error': 'Error sending OTP'}, status=500)
 
         try:
             user = OTPModel.objects.create(email=email, otp_valid_till=timezone.now() + timedelta(minutes=5),worker_details=json.dumps(data))            
@@ -69,12 +70,12 @@ def worker_signup(request):
             send_otp_email(email, otp)
             return JsonResponse({'message': 'OTP sent successfully'})
         except Exception as e:
-            
-            return JsonResponse({'error': 'Error sending OTP'})  
+            print(e)
+            return JsonResponse({'error': 'Error sending OTP'}, status=500)  
 
 
 
-    return JsonResponse({'error': 'Invalid request method'})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 @csrf_exempt
@@ -85,7 +86,7 @@ def verify_otp(request):
         otp = data.get('otp')
 
         if CustomWorker.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already exists'})
+            return JsonResponse({'error': 'Email already exists'}, status=500)
 
         try:
             user = OTPModel.objects.get(email=email)
@@ -110,15 +111,13 @@ def verify_otp(request):
                 
                 return JsonResponse({'message': 'OTP verified successfully'})         
             elif user.otp_valid_till < timezone.now():
-                return JsonResponse({'error': 'OTP expired'})
-            else:
-                
-                return JsonResponse({'error': 'Invalid OTP'})
-        except Exception as e:
-           
-            return JsonResponse({'error': 'Error Sending OTP'})
+                return JsonResponse({'error': 'OTP expired'}, status=300)
+            else:                
+                return JsonResponse({'error': 'Invalid OTP'}, status=300)
+        except Exception as e:           
+            return JsonResponse({'error': 'Error Sending OTP'}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid request method'})
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
     
 
 @csrf_exempt
@@ -137,12 +136,39 @@ def delete_entry(request):
 
         return JsonResponse({'message': 'Entry deleted successfully'})
 
+      
 
-        
 
 @csrf_exempt
 def worker_login(request):
-    return JsonResponse({'msg':'Hello World'})
+    if request.method == 'POST':
+
+        try: 
+            data = json.loads(request.body)
+            email = data.get('email')
+            
+            user = CustomWorker.objects.get(email=email)  
+            otp = generate_otp()
+            user.otp = otp
+            user.otp_valid_till = timezone.now() + timedelta(minutes=5)
+            user.save()
+            
+            send_otp_email(email, otp)
+
+            return JsonResponse({'message': 'OTP sent successfully'})
+        except CustomWorker.DoesNotExist:
+                return JsonResponse({'error': 'User with this email does not exist.'}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error sending OTP'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def verify_login_otp(request):
+    return JsonResponse({'message': 'OTP verified successfully'})
+
                 
 
 
