@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Image,StyleSheet } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -6,6 +6,8 @@ import * as Icon from 'react-native-feather';
 import { themeColors } from '../theme';
 // import { ScrollView } from 'react-native-gesture-handler';
 import Categories from '../components/categories';
+import ProfileImage from '../assets/Profile.png'; // Adjust the path accordingly
+
 // import FeaturedRow from '../components/featuredRow';
 export default function Home() {
   return (
@@ -21,8 +23,9 @@ export default function Home() {
             <Text className="text-gray-700">Delhi</Text>
           </View>
         </View>
-        <View style={{backgroundColor: themeColors.bgColor(1)}} className="p-3 rounded-full">
-          <Icon.Sliders height="20" width="20" stroke="white" strokeWidth={2.5}/>
+        <View style={{backgroundColor: themeColors.bgColor(1)}} className=" rounded-full">
+          {/* <Icon.Sliders height="20" width="20" stroke="white" strokeWidth={2.5}/> */}
+          <Image source={ProfileImage} style={{ width: 50, height: 50,borderRadius:50 }} strokeWidth={2.5} />
         </View>
       </View>
 
