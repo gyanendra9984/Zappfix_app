@@ -11,6 +11,7 @@ from django.conf import settings
 from .models import CustomWorker, Service, Certification, Location, WorkerDetails, OTPModel
 import jwt
 import json
+import jwt
 import random
 import string
 from django.core.mail import send_mail
@@ -189,8 +190,7 @@ def verify_login_otp(request):
             user = CustomWorker.objects.get(email=email)
             if user.otp == otp and user.otp_valid_till > timezone.now():
                 # Get user
-                print(user.otp)
-                print(otp)
+
                 payload={                    
                     'email': user.email,
                     'exp': datetime.utcnow() + timedelta(days=1),
@@ -204,18 +204,17 @@ def verify_login_otp(request):
                 return response
 
             elif user.otp_valid_till < timezone.now():
-                return JsonResponse({'error': 'OTP expired'}, status=403)
+                return JsonResponse({'error': 'OTP expired'}, status=500)
             else:
                 print(user.otp)
-                return JsonResponse({'error': 'Invalid OTP'}, status=400)            
+                return JsonResponse({'error': 'Invalid OTP'})            
         except CustomWorker.DoesNotExist:
                 return JsonResponse({'error': 'User with this email does not exist.'}, status=404)
         except Exception as e:
             print(e)
             return JsonResponse({'error': 'Invalid OTP'})
     else:
-        return JsonResponse({'error': 'Invalid request method'})
-
+        return JsonResponse({'error': 'Invalid request method'})
                 
 
 
