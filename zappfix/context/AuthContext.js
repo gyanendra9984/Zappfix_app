@@ -8,6 +8,7 @@ export const AuthProvider =({children}) => {
     const [test,setTest]=useState('Test Value');
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
+    const API="http://127.0.0.1:8000/"
 
     const login = async (username,password)=>{
         setIsLoading(true);
@@ -17,6 +18,26 @@ export const AuthProvider =({children}) => {
         AsyncStorage.setItem('userToken',"RandValue");
         setIsLoading(false)
     }
+    const verifyOtp = async (email,otp)=>{
+        setIsLoading(true);
+        const response = await fetch(`http://172.23.4.155:8000/verify_otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: email,
+            otp:otp
+           }),
+        });
+        alert("axios done")
+
+      const result = await response.json();
+        // console.log(response.data);
+        // setUserToken('RandomToken');
+        AsyncStorage.setItem('userToken',"RandValue");
+        setIsLoading(false)
+    } 
     const logout=()=>{
         setIsLoading(true);
         AsyncStorage.removeItem('userToken');
@@ -38,8 +59,9 @@ export const AuthProvider =({children}) => {
     useEffect(()=>{
         isLoggedIn();
     },[]);
+
     return (
-        <AuthContext.Provider value={{login,logout,userToken,isLoading,test}}>
+        <AuthContext.Provider value={{login,logout,verifyOtp,userToken,isLoading,test}}>
             {children}
         </AuthContext.Provider>
     );

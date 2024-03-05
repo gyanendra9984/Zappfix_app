@@ -52,9 +52,9 @@ const Stack = createStackNavigator();
 
 export default function AppStack() {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
       <Stack.Screen
-        name="A"
+        name="ZappFix"
         component={HomeScreen}
         options={{
           headerLeft: null, // This will hide the back button

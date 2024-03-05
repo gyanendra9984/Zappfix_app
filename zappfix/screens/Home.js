@@ -6,6 +6,8 @@ import * as Icon from 'react-native-feather';
 import { themeColors } from '../theme';
 // import { ScrollView } from 'react-native-gesture-handler';
 import Categories from '../components/categories';
+import ProfileImage from '../assets/Profile.png'; // Adjust the path accordingly
+
 // import FeaturedRow from '../components/featuredRow';
 import { Divider } from '@rneui/themed';
 
