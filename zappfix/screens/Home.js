@@ -22,7 +22,6 @@ export default function Home() {
       <View className="flex-row items-center space-x-2 px-4 pb-2">
         <View className="flex-row items-center flex-1 bg-gray-200 p-3 rounded-full border border-gray-300">
           <Icon.Search height="25" width="25" stroke="gray" />
-          <Icon.Search height="25" width="25" stroke="gray" />
           <TextInput placeholder="Search" className="ml-2 flex-1" />
           <View className="flex-row items-center space-x-1 border-0">
             <Icon.MapPin height="20" widht="20" stroke="gray" />
@@ -40,17 +39,13 @@ export default function Home() {
       </View>
       <ScrollView>
       {/*main*/}
-      <View
-      <ScrollView>
-      {/*main*/}
+      
       <View
         horizontal
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 15 }}
-        contentContainerStyle={{ paddingBottom: 15 }}
       >
         {/* categories */}
-        <Categories />
         <Categories />
 
         {/* <Divider width={2} insetType="left"/> */}

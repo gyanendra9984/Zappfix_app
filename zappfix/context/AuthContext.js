@@ -16,7 +16,7 @@ export const AuthProvider =({children}) => {
         // console.log(response.data);
         setUserToken('RandomToken');
         AsyncStorage.setItem('userToken',"RandValue");
-        setIsLoading(false)
+        setIsLoading(false);
     }
      
     const logout=()=>{
