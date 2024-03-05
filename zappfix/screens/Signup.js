@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
+import { useContext } from "react";
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import {
   Input,
   NativeBaseProvider,
@@ -13,15 +14,27 @@ import {
 } from "native-base";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+import Login from "./Login";
 
 function Signup() {
-  const [name, setName] = React.useState("");
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [selectedGender, setSelectedGender] = React.useState("");
   const [phoneNumberError, setPhoneNumberError] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
+  const [city, setCity] = React.useState("");
+  const [state, setState] = React.useState("");
+  const [zipcode,setZipCode]= React.useState("");
+  const [age,setAge]= React.useState("");
+  const [address,setAddress]= React.useState("");
+  const [isOtpSent, setIsOtpSent]=React.useState(0);
+  const [otp, setOtp]=React.useState("");
 
+  const API="http://172.23.4.155:8000"
 
   const navigation = useNavigation();
   const isPhoneNumberValid = (number) => {
@@ -35,182 +48,450 @@ function Signup() {
     return emailPattern.test(email);
   };
   
+  const verifyOtp = async () =>{
+    try {
+      const response = await fetch(`http://172.23.4.155:8000/verify_otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: email,
+            otp:otp
+           }),
+        });
+        alert("axios done")
 
-  const handleSignUp = () => {
-    // Perform your signup logic here
-
-
-    if (!isEmailValid(email)) {
-        setEmailError("Please enter a valid IITRPR email address");
-        return; // Stop the signup process if the email is not valid
+      const result = await response.json();
+      console.log("result of verifying otp=",result);
+      if(response.ok){
+        alert("Otp Verified Successfully you may proceed to login page!!")
+        // navigator.navigate("Login");
       }
+      else{
+        alert(result.message);
+      }
+    } catch (error) {
+      alert("Error verifying otp!!");
+    }
+  }
+  const handleSignUp = async () => {
+    // Perform your signup logic here
+  
+    if (!isEmailValid(email)) {
+      setEmailError("Please enter a valid IITRPR email address");
+      alert("Please enter a valid IITRPR email address");
+      return; // Stop the signup process if the email is not valid
+    }
     // Phone number validation
     if (!isPhoneNumberValid(phoneNumber)) {
       setPhoneNumberError("Please enter a valid phone number");
+      alert("Please enter a valid phone number");
       return; // Stop the signup process if the phone number is not valid
     }
+  
+    
 
-    // Continue with the signup process if the phone number is valid
+    try {
+      // Send a POST request to the backend with the user's information
+      // alert("evrything here")
+      const response = await fetch(`http://172.23.4.155:8000/worker_signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ first_name: firstName,
+            last_name:lastName,
+            phone_number:phoneNumber,
+            email: email,
+            age:age,
+            gender:selectedGender,
+            address:address,
+            city:city,
+            state:state,
+            zip_code:zipcode
+           }),
+        });
+        alert("axios done")
 
-    console.log("Name:", name);
+      const result = await response.json();
+
+  
+      // Handle the response from the backend
+      console.log("Response:", response.data);
+  
+      // Check if the OTP needs to be sent
+      if (response.ok) {
+        setIsOtpSent(1);
+        console.log("OTP sent successfully");
+        alert("OTP sent successfully")
+      } else {
+        console.log("Failed to send OTP");
+        alert("Failed to send OTP")
+        // Handle the case where OTP sending fails
+      }
+    } catch (error) {
+      console.error("Error signing up:", error);
+      alert("Error sending otp")
+      // Handle errors from the backend
+    }
+  
+    // Continue with the signup process if needed
+    console.log("Name:", firstName, lastName);
     console.log("Email:", email);
     console.log("Phone Number:", phoneNumber);
     console.log("Gender:", selectedGender);
-    // Add additional logic for password and confirm password if needed
   };
   return (
-    <View style={styles.container}>
-      <View style={styles.Middle}>
-        <Text style={styles.LoginText}>Signup</Text>
-      </View>
-      <View style={styles.text2}>
-        <Text>Already have account? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.signupText}> Login </Text>
-        </TouchableOpacity>
-      </View>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <View style={styles.Middle}>
+          <Text style={styles.LoginText}>Signup</Text>
+        </View>
+        <View style={styles.text2}>
+          <Text>Already have account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <Text style={styles.signupText}> Login </Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        {/* Username or Email Input Field */}
+        {/* Form  */}
+        
+
+        {/* Button */}
+        
+
+        {isOtpSent ? (
+        <View>
+        <View style={styles.buttonStyleX}>
+          <View style={styles.emailInput}>
+            <Input
+              variant="outline"
+              placeholder="Enter OTP"
+              _light={{
+                placeholderTextColor: "blueGray.400",
+              }}
+              _dark={{
+                placeholderTextColor: "blueGray.50",
+              }}
+              onChangeText={(text) => {
+                // Handle OTP input
+                setOtp(text);
+              }}
+            />
+          </View>
+        </View>
         <View style={styles.buttonStyle}>
-          <View style={styles.emailInput}>
-            <Input
-              InputLeftElement={
-                <Icon
-                  as={<FontAwesome5 name="user-secret" />}
-                  size="sm"
-                  m={2}
-                  _light={{
-                    color: "black",
-                  }}
-                  _dark={{
-                    color: "gray.300",
-                  }}
-                />
-              }
-              variant="outline"
-              placeholder="Name"
-              _light={{
-                placeholderTextColor: "blueGray.400",
-              }}
-              _dark={{
-                placeholderTextColor: "blueGray.50",
-              }}
-              onChangeText={(text) => setName(text)}
-            />
-          </View>
+          <Button style={styles.buttonDesign} onPress={verifyOtp}>
+            VERIFY OTP
+          </Button>
         </View>
+        </View>
+      ) : (
+        <View>
+        <View style={styles.buttonContainer}>
+          {/* First Name  Input Field */}
+          <View style={styles.buttonStyle}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<FontAwesome5 name="user-secret" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="First Name"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => setFirstName(text)}
+              />
+              
+            </View>
+          </View>
 
-        <View style={styles.buttonStyleX}>
-          <View style={styles.emailInput}>
-            <Select
-              InputLeftElement={
-                <Icon
-                  as={<FontAwesome5 name="venus-mars" />}
-                  size="sm"
-                  m={2}
-                  _light={{
-                    color: "black",
-                  }}
-                  _dark={{
-                    color: "gray.300",
-                  }}
-                />
-              }
-              selectedValue={selectedGender}
-              onValueChange={(itemValue) => setSelectedGender(itemValue)}
-              variant="outline"
-              placeholder="Select Gender"
-            >
-              <Select.Item label="Male" value="male" />
-              <Select.Item label="Female" value="female" />
-              <Select.Item label="Other" value="other" />
-            </Select>
+          {/* Last Name  Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<FontAwesome5 name="envelope" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="Last Name"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setLastName(text);}}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* Username or Email Input Field */}
-        <View style={styles.buttonStyleX}>
-          <View style={styles.emailInput}>
-            <Input
-              InputLeftElement={
-                <Icon
-                  as={<FontAwesome5 name="envelope" />}
-                  size="sm"
-                  m={2}
-                  _light={{
-                    color: "black",
-                  }}
-                  _dark={{
-                    color: "gray.300",
-                  }}
-                />
-              }
-              variant="outline"
-              placeholder="Email"
-              _light={{
-                placeholderTextColor: "blueGray.400",
-              }}
-              _dark={{
-                placeholderTextColor: "blueGray.50",
-              }}
-              onChangeText={(text) => {
-                setEmail(text);
-                setEmailError(""); // Clear the validation error when the user starts typing
-              }}
-            />
+          {/* Email Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<FontAwesome5 name="envelope" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="Email"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setEmailError(""); // Clear the validation error when the user starts typing
+                }}
+              />
+            </View>
           </View>
-        </View>
-        {emailError !== "" && (
-          <Text style={styles.errorText}>{emailError}</Text>
-        )}
+          {emailError !== "" && (
+            <Text style={styles.errorText}>{emailError}</Text>
+          )}
 
-        {/* Username or Email Input Field */}
-        <View style={styles.buttonStyleX}>
-          <View style={styles.emailInput}>
-            <Input
-              InputLeftElement={
-                <Icon
-                  as={<MaterialCommunityIcons name="phone" />}
-                  size="sm"
-                  m={2}
-                  _light={{
-                    color: "black",
-                  }}
-                  _dark={{
-                    color: "gray.300",
-                  }}
-                />
-              }
-              variant="outline"
-              placeholder="Phone Number"
-              _light={{
-                placeholderTextColor: "blueGray.400",
-              }}
-              _dark={{
-                placeholderTextColor: "blueGray.50",
-              }}
-              onChangeText={(text) => {
-                setPhoneNumber(text);
-                setPhoneNumberError(""); // Clear the validation error when the user starts typing
-              }}
-            />
+          {/* Phone Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<MaterialCommunityIcons name="phone" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="Phone Number"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setPhoneNumber(text);
+                  setPhoneNumberError(""); // Clear the validation error when the user starts typing
+                }}
+              />
+            </View>
           </View>
+          {phoneNumberError !== "" && (
+            <Text style={styles.errorText}>{phoneNumberError}</Text>
+          )}
+          
+          {/* Age Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<MaterialCommunityIcons name="phone" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="Age"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setAge(text);}}
+              />
+            </View>
+          </View>
+
+          {/* Gender Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Select
+                InputLeftElement={
+                  <Icon
+                    as={<FontAwesome5 name="venus-mars" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                selectedValue={selectedGender}
+                onValueChange={(itemValue) => setSelectedGender(itemValue)}
+                variant="outline"
+                placeholder="Select Gender"
+              >
+                <Select.Item label="Male" value="male" />
+                <Select.Item label="Female" value="female" />
+                <Select.Item label="Other" value="other" />
+              </Select>
+            </View>
+          </View>
+
+          {/* Address Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<MaterialCommunityIcons name="phone" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="Address"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setAddress(text); }}
+              />
+            </View>
+          </View>
+
+
+          {/* City Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<MaterialCommunityIcons name="phone" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="City"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setCity(text);}}
+              />
+            </View>
+          </View>
+
+          {/* State Input Field */}
+          <View style={styles.buttonStyleX}>
+            <View style={styles.emailInput}>
+              <Input
+                InputLeftElement={
+                  <Icon
+                    as={<MaterialCommunityIcons name="phone" />}
+                    size="sm"
+                    m={2}
+                    _light={{
+                      color: "black",
+                    }}
+                    _dark={{
+                      color: "gray.300",
+                    }}
+                  />
+                }
+                variant="outline"
+                placeholder="State"
+                _light={{
+                  placeholderTextColor: "blueGray.400",
+                }}
+                _dark={{
+                  placeholderTextColor: "blueGray.50",
+                }}
+                onChangeText={(text) => {
+                  setState(text);}}
+              />
+            </View>
+          </View>
+
         </View>
-        {phoneNumberError !== "" && (
-          <Text style={styles.errorText}>{phoneNumberError}</Text>
-        )}
+        <View style={styles.buttonStyle}>
+          <Button style={styles.buttonDesign} onPress={handleSignUp}>
+            REGISTER NOW
+          </Button>
+        </View>
+        </View>
+      )}
+
+      
+
+        <StatusBar style="auto" />
       </View>
-
-      {/* Button */}
-      <View style={styles.buttonStyle}>
-        <Button style={styles.buttonDesign} onPress={handleSignUp}>
-          REGISTER NOW
-        </Button>
-      </View>
-
-      <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -223,6 +504,9 @@ export default () => {
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -256,6 +540,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginLeft: 15,
     marginRight: 15,
+    marginBottom:15,
   },
   buttonStyleX: {
     marginTop: 12,
