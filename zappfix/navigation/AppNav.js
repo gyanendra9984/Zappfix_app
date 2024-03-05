@@ -6,6 +6,7 @@ import AuthStack from "./AuthStack";
 // import Home from "./screens/Home"; 
 import AppStack from "./AppStack";
 import { AuthContext } from '../context/AuthContext';
+import Map from '../screens/Map';
 
 const AppNav = () => {
     const {isLoading,userToken}= useContext(AuthContext);
@@ -20,9 +21,10 @@ const AppNav = () => {
     }
     return (
       <NavigationContainer>
-        {/* { userToken!=null ? <AppStack/>:<AuthStack/>} */}
+        { userToken!=null ? <AppStack/>:<AuthStack/>}
         {/* <AppStack /> */}
-        <AuthStack />
+        {/* <AuthStack /> */}
+        {/* <Map/> */}
       </NavigationContainer>
     );
 }

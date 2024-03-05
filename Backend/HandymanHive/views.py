@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
 from .models import CustomWorker, Service, Certification, Location, WorkerDetails, OTPModel
+import jwt
 import json
 import random
 import string
@@ -43,7 +44,7 @@ def worker_signup(request):
 
 
         if CustomWorker.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already exists'})
+            return JsonResponse({'error': 'Email already exists'}, status=405)
         
         if OTPModel.objects.filter(email=email).exists():
             try:
@@ -109,13 +110,24 @@ def verify_otp(request):
                 )  
                 print(worker)
                 
-                return JsonResponse({'message': 'OTP verified successfully'})         
+                payload={
+                    'email':worker.email,
+                    'exp': datetime.utcnow()+timedelta(days=1),
+                    'iat': datetime.utcnow()
+                }  
+                
+                response = JsonResponse({'message': 'OTP verified successfully'})
+                token=jwt.encode(payload,'Hello world',algorithm='HS256')
+            
+                response.set_cookie('token', token, expires=payload['exp'], secure=True, httponly=True)
+                return response
+        
             elif user.otp_valid_till < timezone.now():
                 return JsonResponse({'error': 'OTP expired'}, status=300)
             else:                
                 return JsonResponse({'error': 'Invalid OTP'}, status=300)
         except Exception as e:           
-            return JsonResponse({'error': 'Error Sending OTP'}, status=500)
+            return JsonResponse({'error': 'Error Verifying OTP'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     
@@ -166,8 +178,43 @@ def worker_login(request):
 
 
 @csrf_exempt
-def verify_login_otp(request):
-    return JsonResponse({'message': 'OTP verified successfully'})
+def verify_login_otp(request):    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        otp = data.get('otp')
+
+
+        try:
+            user = CustomWorker.objects.get(email=email)
+            if user.otp == otp and user.otp_valid_till > timezone.now():
+                # Get user
+                print(user.otp)
+                print(otp)
+                payload={                    
+                    'email': user.email,
+                    'exp': datetime.utcnow() + timedelta(days=1),
+                    'iat': datetime.utcnow()                    
+                }
+
+                response= JsonResponse({'message': 'OTP verified successfully',})
+                token = jwt.encode(payload, 'helloworld', algorithm='HS256')
+
+                response.set_cookie('token', token, expires=payload['exp'], secure=True, httponly=True)
+                return response
+
+            elif user.otp_valid_till < timezone.now():
+                return JsonResponse({'error': 'OTP expired'}, status=403)
+            else:
+                print(user.otp)
+                return JsonResponse({'error': 'Invalid OTP'}, status=400)            
+        except CustomWorker.DoesNotExist:
+                return JsonResponse({'error': 'User with this email does not exist.'}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Invalid OTP'})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})
 
                 
 

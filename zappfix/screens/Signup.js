@@ -34,7 +34,7 @@ function Signup() {
   const [isOtpSent, setIsOtpSent]=React.useState(0);
   const [otp, setOtp]=React.useState("");
 
-  const API="http://172.23.4.155:8000"
+  const {setIsLoading,API}= useContext(AuthContext)
 
   const navigation = useNavigation();
   const isPhoneNumberValid = (number) => {
@@ -49,8 +49,9 @@ function Signup() {
   };
   
   const verifyOtp = async () =>{
+    setIsLoading(true);
     try {
-      const response = await fetch(`http://172.23.4.155:8000/verify_otp`, {
+      const response = await fetch(`${API}/verify_otp`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -60,7 +61,6 @@ function Signup() {
             otp:otp
            }),
         });
-        alert("axios done")
 
       const result = await response.json();
       console.log("result of verifying otp=",result);
@@ -72,8 +72,9 @@ function Signup() {
         alert(result.message);
       }
     } catch (error) {
-      alert("Error verifying otp!!");
+      alert(error);
     }
+    setIsLoading(false);
   }
   const handleSignUp = async () => {
     // Perform your signup logic here
@@ -94,8 +95,8 @@ function Signup() {
 
     try {
       // Send a POST request to the backend with the user's information
-      // alert("evrything here")
-      const response = await fetch(`http://172.23.4.155:8000/worker_signup`, {
+      alert("Evrything here")
+      const response = await fetch(`${API}/worker_signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -112,10 +113,9 @@ function Signup() {
             zip_code:zipcode
            }),
         });
-        alert("axios done")
 
       const result = await response.json();
-
+      console.log(result)
   
       // Handle the response from the backend
       console.log("Response:", response.data);
@@ -136,11 +136,6 @@ function Signup() {
       // Handle errors from the backend
     }
   
-    // Continue with the signup process if needed
-    console.log("Name:", firstName, lastName);
-    console.log("Email:", email);
-    console.log("Phone Number:", phoneNumber);
-    console.log("Gender:", selectedGender);
   };
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -154,12 +149,6 @@ function Signup() {
             <Text style={styles.signupText}> Login </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Form  */}
-        
-
-        {/* Button */}
-        
 
         {isOtpSent ? (
         <View>
