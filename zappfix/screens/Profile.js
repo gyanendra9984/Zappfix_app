@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlexLayout } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Example icon library
@@ -139,7 +140,6 @@ const Profile = () => {
           <Icon name="edit" size={20} color="#fff" />
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
           <Icon name="exit-to-app" size={20} color="#fff" />
           <Text style={styles.buttonText}>Logout</Text>
