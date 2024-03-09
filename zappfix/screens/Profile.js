@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlexLayout } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Example icon library
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { AuthContext } from '../context/AuthContext';
 
 
 const Profile = () => {
   const [profile, setProfile] = useState({
     //photo: require('./assets/dummy-profile.png'), // Replace with your dummy image path
     photo: require('../assets/icon6.jpg'),
-    name: 'John Doe',
+    name: 'Gopal Bansal',
     id: '123456',
     rating: 4.8, // Dummy rating
   });
+  const {logout}=useContext(AuthContext);
 
 
 
@@ -26,16 +29,16 @@ const Profile = () => {
   };
 
   const user = {
-    firstName: 'John',
-    lastName: 'Doe',
-    phoneNumber: '123-456-7890',
-    email: 'john.doe@example.com',
-    age: 25,
+    firstName: 'Gopal',
+    lastName: 'Bansal',
+    phoneNumber: '9914089948',
+    email: '2021csb1089@iitrpr.ac.in',
+    age: 21,
     gender: 'Male',
-    address: '123 Main St',
-    city: 'Cityville',
-    state: 'CA',
-    zipCode: '12345',
+    address: '19 Gurdarshan Nagar',
+    city: 'Patiala',
+    state: 'Punjab',
+    zipCode: '147001',
     profilePhoto: 'https://example.com/profile-photo.jpg', // Replace with the actual URL of the profile photo
   };
 
@@ -71,7 +74,7 @@ const Profile = () => {
         {/* <Image source={profile.photo} style={styles.profileImage} />
         <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text> */}
         <View style={styles1.profileInfo} className='mt-[50px] flex items-center'>
-          <Image source={profile.photo} style={styles1.profileImage} />
+          <Image source={require('../assets/Profile.png')} style={styles1.profileImage} />
            <View style={styles1.profileDetails} className='flex flex-col justify-center items-center mt-4'>
              <Text style={styles1.profileName}>{profile.name}</Text>
              <Text style={styles.profileId}>ID: {profile.id}</Text>
@@ -137,8 +140,7 @@ const Profile = () => {
           <Icon name="edit" size={20} color="#fff" />
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={handleLogout}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
           <Icon name="exit-to-app" size={20} color="#fff" />
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>

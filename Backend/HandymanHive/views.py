@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
 from .models import CustomWorker, Service, Certification, Location, WorkerDetails, OTPModel
+import jwt
 import json
 import jwt
 import random
@@ -44,7 +45,7 @@ def worker_signup(request):
 
 
         if CustomWorker.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already exists'})
+            return JsonResponse({'error': 'Email already exists'}, status=405)
         
         if OTPModel.objects.filter(email=email).exists():
             try:

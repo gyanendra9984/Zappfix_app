@@ -8,11 +8,106 @@ import { AuthContext } from '../context/AuthContext';
 
 
 function Login() {
-    const navigation = useNavigation();
-    const {login}=useContext(AuthContext);
+  const navigation = useNavigation();
+  const {API,verifyLoginOtp,setIsLoading}=useContext(AuthContext);
+  const [email, setEmail] = React.useState("");
+  const [emailError, setEmailError] = React.useState("");
+  const [isOtpSent, setIsOtpSent]=React.useState(0);
+  const [otp, setOtp]=React.useState("");
+
+
+  const isEmailValid = (email) => {
+    // You can implement your email validation logic here
+    const emailPattern = /^[a-zA-Z0-9._-]+@iitrpr.ac.in$/;
+    return emailPattern.test(email);
+  };
+  const sendOtp = async () => {
+    // Perform your signup logic here
+  
+    if (!isEmailValid(email)) {
+      setEmailError("Please enter a valid IITRPR email address");
+      alert("Please enter a valid IITRPR email address");
+      return; // Stop the signup process if the email is not valid
+    }
+    
+    try {
+      // Send a POST request to the backend with the user's information
+      // setIsLoading(true);
+      const response = await fetch(`${API}/worker_login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email}),
+        });
+
+      const result = await response.json();
+
+      // setIsLoading(false);
+      // Handle the response from the backend
+      console.log("Response:", response.data);
+  
+      // Check if the OTP needs to be sent
+      if (response.ok) {
+        setIsOtpSent(1);
+        console.log("OTP sent successfully");
+        alert("OTP sent successfully")
+      } else {
+        console.log("Failed to send OTP");
+        alert("Failed to send OTP")
+        // Handle the case where OTP sending fails
+      }
+    } catch (error) {
+      console.error("Error signing up:", error);
+      alert("Error sending otp")
+      // Handle errors from the backend
+    }
+  
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+        await verifyLoginOtp(email, otp); // Assuming you have email and otp state variables
+    } catch (error) {
+        console.error("Error verifying OTP:", error);
+        // Handle error if needed
+    }
+};
   return (
     <View style={styles.container}>
-      <View style={styles.Middle}>
+      {isOtpSent ? (
+        <View>
+        <View style={styles.Middle}>
+        <Text style={styles.LoginText}>VERIFY OTP</Text>
+        {/* <Text>{test}</Text> */}
+        </View>
+        <View style={styles.buttonStyleX}>
+          <View style={styles.emailInput}>
+            <Input
+              variant="outline"
+              placeholder="Enter OTP"
+              _light={{
+                placeholderTextColor: "blueGray.400",
+              }}
+              _dark={{
+                placeholderTextColor: "blueGray.50",
+              }}
+              onChangeText={(text) => {
+                // Handle OTP input
+                setOtp(text);
+              }}
+            />
+          </View>
+        </View>
+        <View style={styles.buttonStyle}>
+          <Button style={styles.buttonDesign} onPress={handleVerifyOTP}>
+            VERIFY OTP
+          </Button>
+        </View>
+        </View>
+      ):(
+        <View>
+        <View style={styles.Middle}>
         <Text style={styles.LoginText}>Login</Text>
         {/* <Text>{test}</Text> */}
       </View>
@@ -20,8 +115,7 @@ function Login() {
         <Text>Don't have an account? </Text>
         <TouchableOpacity onPress={() => navigation.navigate("Signup")} ><Text style={styles.signupText}> Sign up</Text></TouchableOpacity>
       </View>
-
-      {/* Username or Email Input Field */}
+          {/* Username or Email Input Field */}
       <View style={styles.buttonStyle}>
         
         <View style={styles.emailInput}>
@@ -47,18 +141,28 @@ function Login() {
             _dark={{
               placeholderTextColor: "blueGray.50",
             }}
+            onChangeText={(text) => {
+                  setEmail(text);
+                  setEmailError(""); // Clear the validation error when the user starts typing
+                }}
 
           />
         </View>
       </View>
+      {emailError !== "" && (
+            <Text style={styles.errorText}>{emailError}</Text>
+          )}
       {/* Button */}
       <View style={styles.buttonStyle}>
-        <Button style={styles.buttonDesign} onPress={login}>
+        <Button style={styles.buttonDesign} onPress={sendOtp}>
             Send OTP
         </Button>
       </View>
 
       <StatusBar style="auto" />
+        </View>
+      )}
+      
     </View>
   );
 }
