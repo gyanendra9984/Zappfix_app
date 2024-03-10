@@ -6,49 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import Home from "../screens/Home";
 import Map from '../screens/Map';
 import Profile from "../screens/Profile"
-
-// HomeScreen component
-function HomeScreen({ navigation }) {
-  const {logout,userToken} =React.useContext(AuthContext);
-  return (
-    // <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-    //   <Text>{userToken}</Text>
-    //   <Button onPress={logout} title="LOGOUT" />
-    //   <Button
-    //     onPress={() => {
-    //       navigation.reset({
-    //         index: 0,
-    //         routes: [{ name: "Notifications" }],
-    //       });
-    //     }}
-    //     title="Go to notifications"
-    //   />
-    // </View>
-    <View>
-      <Home/>
-    </View>
-  );
-}
-  
-  // NotificationsScreen component
-  function NotificationsScreen({ navigation }) {
-    const { logout } = React.useContext(AuthContext);
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Button onPress={logout} title="LOGOUT" />
-        <Button
-          onPress={() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Home" }],
-            });
-          }}
-          title="Go Back Home"
-        />
-      </View>
-    );
-  }
-  
+import WorkerInfo from "../screens/WokerInfo";
 
 const Stack = createStackNavigator();
 
@@ -57,20 +15,14 @@ export default function AppStack() {
     <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ZappFix"
-        component={HomeScreen}
-        options={{
-          headerLeft: null, // This will hide the back button
-        }}
-      />
-      <Stack.Screen
-        name="Notifications"
-        component={NotificationsScreen}
+        component={Home}
         options={{
           headerLeft: null, // This will hide the back button
         }}
       />
       <Stack.Screen name="Map" component={Map}/>
       <Stack.Screen name="Profile" component={Profile}/>
+      <Stack.Screen name="WorkerInfo" component={WorkerInfo}/>
     </Stack.Navigator>
   );
 }
