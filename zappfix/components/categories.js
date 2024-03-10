@@ -36,7 +36,7 @@ export default function Categories() {
                     return (
                         <TouchableOpacity
                             key={index}
-                            onPress={() => { setActiveCategory(category.id) }}
+                            onPress={() => { navigation.navigate('WorkerInfo') }}
                             style={{ marginRight: 18, alignItems: 'center' }}
                         >
                             <View style={{ ...btnStyle, padding: 0, borderRadius: 30, shadowColor: 'black', shadowOpacity: 0.2, elevation: 2 }}>

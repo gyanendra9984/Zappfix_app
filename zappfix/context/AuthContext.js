@@ -8,17 +8,8 @@ export const AuthProvider =({children}) => {
     const [test,setTest]=useState('Test Value');
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
-    const API="http://172.23.5.168:8000"
-
-    const login = async (username,password)=>{
-        setIsLoading(true);
-        // const response=await axios.post('/login',{username,password});
-        // console.log(response.data);
-        setUserToken('RandomToken');
-        AsyncStorage.setItem('userToken',"RandValue");
-        setIsLoading(false);
-    }
-     
+    const API="http://172.23.7.118:8000"
+  
     const logout=()=>{
         setIsLoading(true);
         AsyncStorage.removeItem('userToken');
@@ -27,8 +18,6 @@ export const AuthProvider =({children}) => {
     }
     const verifyLoginOtp = async (email,otp) =>{
         setIsLoading(true);
-        // const response=await axios.post('/login',{username,password});
-        // console.log(response.data);
         try {
             const response = await fetch(`${API}/verify_login_otp`, {
                 method: 'POST',
@@ -42,13 +31,10 @@ export const AuthProvider =({children}) => {
               });
       
             const result = await response.json();
-            console.log("result of verifying otp=",result);
             if(response.ok){
-              alert("Otp Verified Successfully you may proceed to Home Page!!")
+              alert(result.message)
               setUserToken('RandomToken');
               AsyncStorage.setItem('userToken',"RandValue");
-
-              // navigator.navigate("Login");
             }
             else{
               alert(result.error);
@@ -65,7 +51,6 @@ export const AuthProvider =({children}) => {
             const token=await AsyncStorage.getItem('userToken');
             setUserToken(token);
             setIsLoading(false);
-
         }
         catch(e){
             alert("error",e);
@@ -76,7 +61,7 @@ export const AuthProvider =({children}) => {
     },[]);
 
     return (
-        <AuthContext.Provider value={{login,logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading}}>
             {children}
         </AuthContext.Provider>
     );
