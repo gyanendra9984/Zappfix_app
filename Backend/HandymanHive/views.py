@@ -11,7 +11,6 @@ from django.conf import settings
 from .models import CustomWorker, Service, Certification, Location, WorkerDetails, OTPModel
 import jwt
 import json
-import jwt
 import random
 import string
 from django.core.mail import send_mail
