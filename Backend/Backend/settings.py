@@ -66,7 +66,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 ]
 
-AUTH_USER_MODEL = "HandymanHive.CustomWorker"
+AUTH_USER_MODEL = "HandymanHive.AbstractUser"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
