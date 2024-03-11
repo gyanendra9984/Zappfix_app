@@ -19,7 +19,7 @@
     python manage.py runserver
 5. **Navigate to App folder to install frontend dependencies**
     ```bash
-    cd App
+    cd zappfix
     npm i
 6. **Run App**
     ```bash
