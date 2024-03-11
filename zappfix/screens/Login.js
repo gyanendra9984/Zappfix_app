@@ -129,12 +129,23 @@ function Login() {
       ) : (
         <View>
           <View style={styles.Middle}>
-            <Text style={styles.LoginText}>Login</Text>
+            <Text style={styles.LoginText}>Login as</Text>
           </View>
-          <View style={styles.text2}>
-            <Text>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Signup")} ><Text style={styles.signupText}> Sign up</Text></TouchableOpacity>
-          </View>
+          {/* Toggle button for user type */}
+          <View style={styles.toggleContainer}>
+  <ToggleButton
+    label="User"
+    active={!isAdmin}
+    onPress={() => setIsAdmin(false)}
+  />
+  <Text style={styles.orText}> OR </Text>
+  <ToggleButton
+    label="Worker"
+    active={isAdmin}
+    onPress={() => setIsAdmin(true)}
+  />
+</View>
+          
           {/* Username or Email Input Field */}
           <View style={styles.buttonStyle}>
 
@@ -172,28 +183,21 @@ function Login() {
           {emailError !== "" && (
             <Text style={styles.errorText}>{emailError}</Text>
           )}
-          {/* Toggle button for user type */}
-          <View style={styles.toggleContainer}>
-            <ToggleButton
-              label="User"
-              active={!isAdmin}
-              onPress={() => setIsAdmin(false)}
-            />
-            <ToggleButton
-              label="Admin"
-              active={isAdmin}
-              onPress={() => setIsAdmin(true)}
-            />
-          </View>
+          
           {/* Button */}
           <View style={styles.buttonStyle}>
             <Button style={styles.buttonDesign} onPress={sendOtp}>
               Send OTP
             </Button>
           </View>
+          <View style={styles.text2}>
+            <Text>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")} ><Text style={styles.signupText}> Sign up</Text></TouchableOpacity>
+          </View>
 
           <StatusBar style="auto" />
         </View>
+        
       )}
 
     </View>
@@ -257,6 +261,7 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center', // Add this line to center items vertically
     marginVertical: 10,
   },
   toggleButton: {
@@ -265,6 +270,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: '#eee',
     borderRadius: 5,
+  },
+  orText: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333', // Adjust the color if needed
   },
   activeButton: {
     backgroundColor: '#026efd',
