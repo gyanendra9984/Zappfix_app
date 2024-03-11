@@ -8,5 +8,6 @@ urlpatterns = [
     path('verify_otp', views.verify_otp, name='verify_otp'),
     path('delete_entry', views.delete_entry, name='delete_entry'),
     path('verify_login_otp', views.verify_login_otp, name='verify_login_otp'),
-        
+    path('edit_worker_personal_profile', views.edit_worker_personal_profile, name='edit_worker_personal_profile')
+            
 ]

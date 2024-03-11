@@ -127,7 +127,8 @@ def verify_otp(request):
                 return JsonResponse({'error': 'OTP expired'}, status=300)
             else:                
                 return JsonResponse({'error': 'Invalid OTP'}, status=300)
-        except Exception as e:           
+        except Exception as e:    
+            print(e)       
             return JsonResponse({'error': 'Error Verifying OTP'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
@@ -216,6 +217,45 @@ def verify_login_otp(request):
     else:
         return JsonResponse({'error': 'Invalid request method'})
                 
+                
+@csrf_exempt
+def edit_worker_personal_profile(request):
+    if request.method == 'POST':
+        data = json.loads(request.body) 
+        
+        try:            
+            email = data.get('email')  
+            token = request.COOKIES['token']
+            print(token)
+            payload = jwt.decode(token, 'helloworld', algorithms=['HS256'])
+            
+            if email != payload.get('email'):
+                return JsonResponse({'error': 'Invalid email'}, status=400)
+                      
+            worker = CustomWorker.objects.get(email=email)
+            
+            worker.first_name = data.get('first_name')
+            worker.last_name = data.get('last_name')
+            worker.age = data.get('age')
+            worker.gender = data.get('gender')
+            worker.address = data.get('address')
+            worker.city = data.get('city')
+            worker.state = data.get('state')
+            worker.zip_code = data.get('zip_code')
+            worker.phone_number = data.get('phone_number')
+            worker.save()
+            return JsonResponse({'message': 'Profile updated successfully'})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'error': 'Worker with this email does not exist.'}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error updating profile'}, status=500)
+            
+        
+        
+        
+        
+        
 
 
 

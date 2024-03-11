@@ -14,6 +14,18 @@
     cd Backend
     python -m venv env1
     ./env1/Scripts/activate
+
+4. **Install Requirements:**
+    ```bash
+    pip install -r requirements.txt   
+
+5. **Make Migrations:**
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate 
+
+    In case of conflicts: Delete migrations all files and folders from /Backend/HandymanHive/migrations except __init__.py and run above commands again.
+
 4. **Run Backend**
     ```bash
     python manage.py runserver
