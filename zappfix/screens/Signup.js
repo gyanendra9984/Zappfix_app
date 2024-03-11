@@ -24,6 +24,7 @@ function Signup() {
   const [email, setEmail] = React.useState("");
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [selectedGender, setSelectedGender] = React.useState("");
+  const [selectedRole, setSelectedRole] = React.useState("");
   const [phoneNumberError, setPhoneNumberError] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [city, setCity] = React.useState("");
@@ -33,10 +34,11 @@ function Signup() {
   const [address,setAddress]= React.useState("");
   const [isOtpSent, setIsOtpSent]=React.useState(0);
   const [otp, setOtp]=React.useState("");
-
-  const {setIsLoading,API}= useContext(AuthContext)
+  const [isWorker, setIsWorker]=React.useState(false);
+  const {setIsLoading,API}= useContext(AuthContext);
 
   const navigation = useNavigation();
+  
   const isPhoneNumberValid = (number) => {
     // You can implement your phone number validation logic here
     const phoneNumberPattern = /^\d{10}$/; // Assuming a valid phone number is a 10-digit number
@@ -78,6 +80,12 @@ function Signup() {
   }
   const handleSignUp = async () => {
     // Perform your signup logic here
+    if(selectedRole==="worker"){
+      setIsWorker(true);
+    }
+    else  if(selectedRole==="user"){ 
+      setIsWorker(false); 
+    }
   
     if (!isEmailValid(email)) {
       setEmailError("Please enter a valid IITRPR email address");
@@ -466,6 +474,35 @@ function Signup() {
               />
             </View>
           </View>
+
+          {/*  Input Field */}
+          <View style={styles.buttonStyleX}>
+  <View style={styles.emailInput}>
+    <Select
+      InputLeftElement={
+        <Icon
+          as={<FontAwesome5 name="venus-mars" />}
+          size="sm"
+          m={2}
+          _light={{
+            color: "black",
+          }}
+          _dark={{
+            color: "gray.300",
+          }}
+        />
+      }
+      selectedValue={selectedRole}
+      onValueChange={(itemValue) => setSelectedRole(itemValue)}
+      variant="outline"
+      placeholder="Select Role"
+    >
+      <Select.Item label="Worker" value="worker" />
+      <Select.Item label="User" value="user" />
+    </Select>
+  </View>
+</View>
+
 
         </View>
         <View style={styles.buttonStyle}>
