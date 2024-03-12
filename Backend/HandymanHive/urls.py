@@ -15,4 +15,6 @@ urlpatterns = [
         views.edit_worker_personal_profile,
         name="edit_worker_personal_profile",
     ),
-]
+  path('worker_delete', views.worker_delete, name='worker_delete'),
+]  
+

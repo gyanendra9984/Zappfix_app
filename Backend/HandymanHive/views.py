@@ -373,3 +373,23 @@ def verify_user_otp(request):
             return JsonResponse({"error": "Error Verifying OTP"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+      
+      
+@csrf_exempt
+def worker_delete(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if CustomWorker.objects.filter(email=email).exists():
+            user = CustomWorker.objects.get(email=email)
+            user.delete()
+            
+        if OTPModel.objects.filter(email=email).exists():
+            user = OTPModel.objects.get(email=email)
+            user.delete()
+
+        return JsonResponse({'message': 'Entry deleted successfully'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
