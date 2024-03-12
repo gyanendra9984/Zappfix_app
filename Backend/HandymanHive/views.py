@@ -43,8 +43,11 @@ def send_otp_email(email, otp, type="Login"):
     send_mail(subject, message, from_email, recipient_list)
 
 
+
+########################## WORKER CRUD Routes #########################
+
 @csrf_exempt
-def worker_signup(request):
+def user_signup(request):
     if request.method == "POST":
         data = json.loads(request.body)
         email = data.get("email")
@@ -54,7 +57,6 @@ def worker_signup(request):
 
         if AbstractUser.objects.filter(email=email).exists():
             try:
-
                 user = AbstractUser.objects.get(email=email)
                 otp = generate_otp()
                 user.otp = otp
@@ -146,22 +148,6 @@ def verify_otp(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-@csrf_exempt
-def delete_entry(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        email = data.get("email")
-
-        if CustomWorker.objects.filter(email=email).exists():
-            user = CustomWorker.objects.get(email=email)
-            user.delete()
-
-        if OTPModel.objects.filter(email=email).exists():
-            user = OTPModel.objects.get(email=email)
-            user.delete()
-
-        return JsonResponse({"message": "Entry deleted successfully"})
-
 
 @csrf_exempt
 def worker_login(request):
@@ -241,7 +227,6 @@ def verify_login_otp(request):
 def edit_worker_personal_profile(request):
     if request.method == "POST":
         data = json.loads(request.body)
-
         try:
             email = data.get("email")
             token = request.COOKIES["token"]
@@ -272,6 +257,28 @@ def edit_worker_personal_profile(request):
             print(e)
             return JsonResponse({"error": "Error updating profile"}, status=500)
 
+
+@csrf_exempt
+def worker_delete(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if CustomWorker.objects.filter(email=email).exists():
+            user = CustomWorker.objects.get(email=email)
+            user.delete()
+            
+        if AbstractUser.objects.filter(email=email).exists():
+            user = AbstractUser.objects.get(email=email)
+            user.delete()
+
+        return JsonResponse({'message': 'Entry deleted successfully'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+
+##############################  USER CRUD Routes ##############################
 
 @csrf_exempt
 def user_signup(request):
@@ -374,22 +381,44 @@ def verify_user_otp(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
       
-      
+
 @csrf_exempt
-def worker_delete(request):
-    if request.method == 'POST':
+def edit_user_profile(request):
+    if request.method == "POST":
         data = json.loads(request.body)
-        email = data.get('email')
-        
-        if CustomWorker.objects.filter(email=email).exists():
-            user = CustomWorker.objects.get(email=email)
-            user.delete()
-            
-        if OTPModel.objects.filter(email=email).exists():
-            user = OTPModel.objects.get(email=email)
-            user.delete()
 
-        return JsonResponse({'message': 'Entry deleted successfully'})
+        try:
+            email = data.get("email")
+            token = request.COOKIES["token"]
+            print(token)
+            payload = jwt.decode(token, "helloworld", algorithms=["HS256"])
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+            if email != payload.get("email"):
+                return JsonResponse({"error": "Invalid email"}, status=400)
+
+            user = CustomUser.objects.get(email=email)
+
+            user.first_name = data.get("first_name")
+            user.last_name = data.get("last_name")
+            user.age = data.get("age")
+            user.gender = data.get("gender")
+            user.address = data.get("address")
+            user.city = data.get("city")
+            user.state = data.get("state")
+            user.zip_code = data.get("zip_code")
+            user.phone_number = data.get("phone_number")
+            user.save()
+            return JsonResponse({"message": "Profile updated successfully"})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse(
+                {"error": "Worker with this email does not exist."}, status=404
+            )
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating profile"}, status=500) 
+ 
+ 
+ 
+      
+
 
