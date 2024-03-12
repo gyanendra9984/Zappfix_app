@@ -234,7 +234,7 @@ def verify_login_otp(request):
             print(e)
             return JsonResponse({"error": "Invalid OTP"})
     else:
-        return JsonResponse({"error": "Invalid request method"})
+        return JsonResponse({"error": "Invalid request method"})
 
 
 @csrf_exempt
@@ -316,3 +316,60 @@ def user_signup(request):
             return JsonResponse({"error": "Error sending OTP"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
+def verify_user_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp = data.get("otp")
+
+        if CustomUser.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists"}, status=500)
+
+        try:
+            user = AbstractUser.objects.get(email=email)
+            if user.is_worker == True:
+                return JsonResponse({"message": "User not found"}, status=404)
+            print(user.otp, user.otp_valid_till, timezone.now())
+            if user.otp == otp and user.otp_valid_till > timezone.now():
+                # Create user
+                user_data = json.loads(user.worker_details)
+                print(user_data)
+                user = CustomUser.objects.create_user(
+                    phone_number=user_data["phone_number"],
+                    first_name=user_data["first_name"],
+                    last_name=user_data["last_name"],
+                    email=user_data["email"],
+                    age=int(user_data["age"]),
+                    gender=user_data["gender"],
+                    address=user_data["address"],
+                    city=user_data["city"],
+                    state=user_data["state"],
+                    zip_code=user_data["zip_code"],
+                )
+                print(user)
+
+                payload = {
+                    "email": user.email,
+                    "exp": datetime.utcnow() + timedelta(days=1),
+                    "iat": datetime.utcnow(),
+                }
+
+                response = JsonResponse({"message": "OTP verified successfully"})
+                token = jwt.encode(payload, "Hello world", algorithm="HS256")
+
+                response.set_cookie(
+                    "token", token, expires=payload["exp"], secure=True, httponly=True
+                )
+                return response
+
+            elif user.otp_valid_till < timezone.now():
+                return JsonResponse({"error": "OTP expired"}, status=300)
+            else:
+                return JsonResponse({"error": "Invalid OTP"}, status=300)
+        except Exception as e:
+            return JsonResponse({"error": "Error Verifying OTP"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
