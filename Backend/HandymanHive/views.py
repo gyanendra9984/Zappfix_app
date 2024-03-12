@@ -47,7 +47,7 @@ def send_otp_email(email, otp, type="Login"):
 ########################## WORKER CRUD Routes #########################
 
 @csrf_exempt
-def user_signup(request):
+def worker_signup(request):
     if request.method == "POST":
         data = json.loads(request.body)
         email = data.get("email")
@@ -277,6 +277,33 @@ def worker_delete(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+@csrf_exempt
+def get_worker_data(request):
+    if request.method == 'GET':
+        try:
+            token = request.COOKIES['token']
+            data = jwt.decode(token, 'helloworld', algorithms=['HS256'])
+            user = CustomWorker.objects.get(email=data['email'])
+            worker_details = {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'age': user.age,
+            }
+            return JsonResponse({'worker_details': worker_details})
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'Token expired'}, status=300)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'error': 'Invalid token'}, status=300)
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error fetching user data'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 ##############################  USER CRUD Routes ##############################
 
@@ -436,5 +463,32 @@ def user_delete(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
       
+@csrf_exempt
+def get_user_data(request):
+    if request.method == 'GET':
+        try:
+            token = request.COOKIES['token']
+            data = jwt.decode(token, 'helloworld', algorithms=['HS256'])
+            user = CustomUser.objects.get(email=data['email'])
+            user_details = {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'age': user.age,
+            }
+            return JsonResponse({'user_details': user_details})
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'Token expired'}, status=300)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'error': 'Invalid token'}, status=300)
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error fetching user data'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 
