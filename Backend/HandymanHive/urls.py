@@ -16,6 +16,7 @@ urlpatterns = [
     path("user_signup", views.worker_signup, name="user_signup"),    
     path("verify_user_otp", views.verify_otp, name="verify_user_otp"), 
     path("edit_user_profile",views.edit_user_profile, name="edit_user_profile"),    
+    path("user_delete", views.user_delete, name="user_delete"),
     
 ]  
 

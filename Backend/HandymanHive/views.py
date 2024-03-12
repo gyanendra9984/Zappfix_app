@@ -446,6 +446,24 @@ def edit_user_profile(request):
  
  
 @csrf_exempt
+def user_delete(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if CustomUser.objects.filter(email=email).exists():
+            user = CustomUser.objects.get(email=email)
+            user.delete()
+            
+        if AbstractUser.objects.filter(email=email).exists():
+            user = AbstractUser.objects.get(email=email)
+            user.delete()
+
+        return JsonResponse({'message': 'Entry deleted successfully'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+      
+@csrf_exempt
 def get_user_data(request):
     if request.method == 'GET':
         try:
@@ -471,5 +489,6 @@ def get_user_data(request):
             return JsonResponse({'error': 'Error fetching user data'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 
