@@ -1,9 +1,8 @@
-import { View, Text, TextInput, StyleSheet, Image , ScrollView, Button} from 'react-native'
+import { View, Text, TextInput, StyleSheet, Image , ScrollView, Button, TouchableOpacity} from 'react-native'
 import React, { useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import * as Icon from 'react-native-feather';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
 import { themeColors } from '../theme';
