@@ -47,7 +47,7 @@ def send_otp_email(email, otp, type="Login"):
 ########################## WORKER CRUD Routes #########################
 
 @csrf_exempt
-def user_signup(request):
+def worker_signup(request):
     if request.method == "POST":
         data = json.loads(request.body)
         email = data.get("email")
