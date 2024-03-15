@@ -19,20 +19,23 @@
     ```bash
     pip install -r requirements.txt   
 
-5. **Make Migrations:**
+5. **Create .env file:**
+    Create .env file with variables same as .env.example replacing their values with original credentials
+
+6. **Make Migrations:**
     ```bash
     python manage.py makemigrations
     python manage.py migrate 
 
     In case of conflicts: Delete migrations all files and folders from /Backend/HandymanHive/migrations except __init__.py and run above commands again.
 
-4. **Run Backend**
+7. **Run Backend**
     ```bash
     python manage.py runserver
-5. **Navigate to App folder to install frontend dependencies**
+8. **Navigate to App folder to install frontend dependencies**
     ```bash
     cd zappfix
     npm i
-6. **Run App**
+9. **Run App**
     ```bash
     npx expo start
