@@ -52,6 +52,12 @@ const Profile = () => {
 
 
 
+  const handleEditProfile = () => {
+    // Implement your logic for handling "Edit Profile" button press
+    console.log('Edit Profile button pressed');
+    setIsEditing(true);
+  };
+
   const handleSaveProfile = (editedProfile) => {
     // Handle saving the edited profile data, e.g., make API calls
     // Update the state with the edited profile
@@ -109,7 +115,120 @@ const Profile = () => {
     //   </View>
     // </View>
     <View style={styles.container}>
+    {isEditing ? (
       <EditProfilePage profile={profile} onSave={handleSaveProfile} onCancel={handleCancelEdit} />
+    ) : (
+      <View>
+    {/* <View style={styles.header}> */}
+      {/* <Image source={profile.photo} style={styles.profileImage} />
+      <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text> */}
+      <View style={styles1.profileInfo} className='mt-[50px] flex items-center'>
+        <Image source={require('../assets/Profile.png')} style={styles1.profileImage} />
+         <View style={styles1.profileDetails} className='flex flex-col justify-center items-center mt-4'>
+           <Text style={styles1.profileName}>{profile.name}</Text>
+           <Text style={styles.profileId}>ID: {profile.id}</Text>
+         </View>
+       </View>
+
+    {/* </View> */}
+
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Contact Information</Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoItem}>
+          <Icon name="phone" size={20} color="#555" />
+          <Text>{` ${user.phoneNumber}`}</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Icon name="email" size={20} color="#555" />
+          <Text>{` ${user.email}`}</Text>
+        </View>
+      </View>
+    </View>
+
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Personal Information</Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoItem}>
+          <Icon name="person" size={20} color="#555" />
+          <Text>{` ${user.age} years old`}</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Icon name="wc" size={20} color="#555" />
+          <Text>{` ${user.gender}`}</Text>
+        </View>
+      </View>
+    </View>
+
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Address</Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoItem}>
+          <Icon name="location-on" size={20} color="#555" />
+          <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</Text>
+        </View>
+      </View>
+    </View>
+
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Rating</Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoItem}>
+        <View style={styles1.tabContent}>          
+        <View style={styles1.tabContentItem}>
+          {displayRatingStars(profile.rating)}
+          <Text style={styles1.tabContentText}>Rating: {profile.rating}</Text>
+        </View>
+      </View>
+        </View>
+      </View>
+    </View>
+
+    <View style={styles.bottomButtons}>
+      <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
+        <Icon name="edit" size={20} color="#fff" />
+        <Text style={styles.buttonText}>Edit Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
+        <Icon name="exit-to-app" size={20} color="#fff" />
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
+    </View>  
+      </View>
+    )}
+  </View>
+  );
+};
+
+const displayRatingStars = (rating) => {
+  const fullStars = Math.floor(rating);
+  const decimalPart = rating - fullStars;
+
+  const stars = [];
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(<MaterialCommunityIcons key={i} name="star" size={24} color="gold" />);
+  }
+
+  // if (decimalPart > 0) {
+  //   const starWidth = 24; // Adjust based on your star icon size
+  //   const starHeight = 24; // Adjust based on your star icon size
+  //   const partialStarWidth = Math.round(decimalPart * starWidth);
+
+  //   stars.push(
+  //     <View key={fullStars} style={{ width: starWidth, height: starHeight, overflow: 'hidden' }}>
+  //       <MaterialCommunityIcons name="star" size={starWidth} color="gold" />
+  //       <View style={{ width: partialStarWidth, backgroundColor: '#ccc' }} /> // Gray out the remaining portion
+  //     </View>
+  //   );
+  // }
+
+  if (decimalPart > 0) {
+    stars.push(<MaterialCommunityIcons key={fullStars} name="star-half" size={24} color="gold" />);
+  }
+
+  return (
+    <View style={styles1.starContainer}>
+      {stars}
     </View>
   );
 };
