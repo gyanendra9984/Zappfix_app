@@ -26,7 +26,6 @@ class AbstractUserManager(BaseUserManager):
 
 
 class AbstractUser(AbstractBaseUser, PermissionsMixin):
-
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
@@ -79,52 +78,50 @@ class CustomUser(models.Model):
     def __str__(self):
         return self.email
 
-    def __str__(self):
-        return self.email
-
 
 class Service(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, help_text="Description of the service")   
+    name = models.CharField(max_length=50, primary_key=True)
+    description = models.TextField(blank=True, help_text="Description of the service")
+    
+    def __str__(self):
+        return self.name  
+     
 
 
 class Certification(models.Model):    
-    name = models.CharField(max_length=255, help_text="Name of the certification")
+    name = models.CharField(max_length=255, primary_key=True, help_text="Name of the certification")
     issuing_authority = models.CharField(max_length=255, help_text="Issuing authority for the certification")
-
-
-class Location(models.Model):
-    city = models.CharField(max_length=50)
-    neighborhood = models.CharField(max_length=50, blank=True, null=True, help_text="Neighborhood within the city")
-    street_address = models.CharField(max_length=255, blank=True, null=True, help_text="Street address within the neighborhood")
-    zip_code = models.CharField(max_length=10, blank=True, null=True, help_text="ZIP code")
+    
+    def __str__(self):
+        return self.name 
 
 
 # Model to store professional details of workers.
 class WorkerDetails(models.Model): 
-    worker = models.OneToOneField(CustomWorker, on_delete=models.CASCADE)
+    email = models.EmailField(primary_key=True, max_length=255, unique=True)
 
     # Services and Skills
-    services_offered = models.ManyToManyField(Service, related_name='workers')
-    skill_level = models.IntegerField()
+    services_offered = models.ManyToManyField(Service)
+    skill_level = models.IntegerField(default=0)
 
-    isAvailable = models.BooleanField(default=True)        
+    isAvailable = models.BooleanField(default=True)
+    liveLocation = models.TextField(blank=True) 
+    
+    # Preferred Job Locations
+    preferred_location = models.TextField(blank=True)          
 
     # Work Experience
-    work_history = models.TextField()
-    years_of_experience = models.IntegerField()
+    work_history = models.TextField(blank=True)
+    years_of_experience = models.IntegerField(default=0)
 
     # Reviews and Ratings
-    customer_reviews = models.TextField()
-    overall_rating = models.FloatField()
+    customer_reviews = models.TextField(blank=True)
+    overall_rating = models.FloatField(default=0.0)
 
     # Certifications and Qualifications
     certifications = models.ManyToManyField(Certification, related_name='workers')
-    training_programs_completed = models.TextField()
-
-    # Preferred Job Locations
-    preferred_locations = models.ManyToManyField(Location, related_name='workers')
+    training_programs_completed = models.TextField(blank=True)
 
     # Price Range
-    min_price = models.DecimalField(max_digits=10, decimal_places=2)
-    max_price = models.DecimalField(max_digits=10, decimal_places=2)
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
+    max_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
