@@ -13,8 +13,7 @@ from .models import (
     CustomUser,
     CustomWorker,
     Service,
-    Certification,
-    Location,
+    Certification,    
     WorkerDetails,
 )
 
@@ -132,6 +131,11 @@ def verify_otp(request):
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
                     )
+                    
+                    worker_details = WorkerDetails.objects.create(
+                        email=user_data['email']                                             
+                    )
+                    worker_details.save()
                     user.save()
                 else:                   
                     user = CustomUser.objects.create(
@@ -292,6 +296,53 @@ def edit_personal_profile(request):
             )
         except Exception as e:            
             return JsonResponse({"error": "Error updating profile"}, status=500)
+
+@csrf_exempt
+def edit_worker_profile(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        isWorker = data.get('isWorker')
+        if(str(isWorker)=="False"):
+            return JsonResponse({"error": "Invalid request"}, status=400)
+        try:
+            email = data.get("email")
+            services = data.get("services")
+            print(services)
+            certifications = data.get("certifications")
+            
+            
+            user = WorkerDetails.objects.get(email=email)
+            for item in services:
+                if not Service.objects.filter(name=item).exists():
+                    service = Service.objects.create(name=item)
+                    service.description='a'
+                    service.save()
+                                    
+                try:                    
+                    service = Service.objects.get(name=item)                                     
+                    user.services_offered.add(service)                    
+                    print("Service Added", item)
+                except Exception as e:
+                    print(e)
+                    print(item)
+                    pass
+                
+            for certification in certifications:
+                try:
+                    certification = Certification.objects.get(name=certification)
+                    #Certification Verification to be implemented
+                    user.certifications.add(certification[0])
+                except:
+                    pass
+            user.save()
+            
+            return JsonResponse({"message": "Profile updated successfully"})
+            
+        except CustomWorker.DoesNotExist:
+            return JsonResponse(
+                {"error": "Email does not exist."}, status=404
+            )
+
 
 
 @csrf_exempt
