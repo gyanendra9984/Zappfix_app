@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
 import os
 import statistics
+from django.db.models import F
+from django.db.models import Func
+from django.db.models import FloatField
+from math import radians, sin, cos, sqrt, atan2
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
@@ -8,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.gis.geos import Point
 from .models import (
     AbstractUser,
     CustomUser,
@@ -414,5 +419,68 @@ def get_user_data(request):
 
 
 
+###################### RECOMMENDATION SYSTEM #######################
+
+class Distance(Func):
+    function = 'ST_Distance_Sphere'
+    output_field = FloatField()
+
+def haversine(lat1, lon1, lat2, lon2):
+    """
+    Calculate the distance between two points on the Earth's surface using the Haversine formula.
+    """
+    R = 6371.0  # Radius of the Earth in kilometers
+
+    # Convert latitude and longitude from degrees to radians
+    lat1 = radians(lat1)
+    lon1 = radians(lon1)
+    lat2 = radians(lat2)
+    lon2 = radians(lon2)
+
+    # Calculate the differences between the latitudes and longitudes
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    # Calculate the distance using the Haversine formula
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = R * c
+
+    return distance
+
+
+
+@csrf_exempt
+def get_nearest_workers(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            service_name = data.get('service')
+            user_coords = data.get('coords')
+            
+            user_location= Point(user_coords[0], user_coords[1], srid=4326)
+            
+            workers = WorkerDetails.objects.filter(services_offered_name=service_name).annotate(
+                distance=Distance('liveLocation', user_location)                
+            ).order_by('distance')[:10]            
+            
+            
+            worker_details = []
+            
+            for worker in workers:
+                details = CustomWorker.objects.get(email=worker.email)
+                worker_details.append({
+                    'first_name': details.first_name,
+                    'last_name': details.last_name,
+                    'email': details.email
+                })
+                
+            return JsonResponse({'workers': json.dumps(worker_details)})    
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error fetching workers'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 

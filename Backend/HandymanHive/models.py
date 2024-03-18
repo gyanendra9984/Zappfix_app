@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.models import User
+from django.contrib.gis.db import models
 
 
 class AbstractUserManager(BaseUserManager):
@@ -101,11 +102,11 @@ class WorkerDetails(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
 
     # Services and Skills
-    services_offered = models.ManyToManyField(Service)
+    services_offered = models.ManyToManyField(Service, related_name='workers')
     skill_level = models.IntegerField(default=0)
 
     isAvailable = models.BooleanField(default=True)
-    liveLocation = models.TextField(blank=True) 
+    liveLocation = models.PointField(null=True, blank=True) 
     
     # Preferred Job Locations
     preferred_location = models.TextField(blank=True)          
