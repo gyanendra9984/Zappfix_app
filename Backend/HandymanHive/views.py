@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
 import os
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models import ExpressionWrapper, FloatField
 from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
+import spacy
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -489,8 +492,82 @@ def get_nearest_workers(request):
             return JsonResponse({'error': 'Error fetching workers'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+    
+############################SEARCH FUNCTIONALITY########################
 
 
+@csrf_exempt
+def get_closest_services(request):
+    if request.method=="GET":
+        try:
+            data = json.loads(request.body)
+            query = data.get("query")
+            
+            nlp = spacy.load("en_core_web_md")
+            
+            query_tokens = [token.text for token in nlp(query) if not token.is_stop and not token.is_punct]
+            query_embedding = np.mean([token.vector for token in nlp(" ".join(query_tokens))], axis=0)
+            
+            services = Service.objects.all()
+            print(1)
+            similarities = []
+            for service in services:
+                service_tokens = [token.text for token in nlp(service.name) if not token.is_stop and not token.is_punct]
+                service_embedding = np.mean([token.vector for token in nlp(" ".join(service_tokens))], axis=0)
+                similarity = cosine_similarity([query_embedding], [service_embedding])[0][0]
+                similarities.append(similarity)
+                
+            service_pairs = zip(similarities, services)
+            print(1)
+            desired_services = sorted(service_pairs, key=lambda x: x[0], reverse=True)[:2]          
+            
+            
+            closest_services = []
+            for similarity,service in desired_services:
+                closest_services.append({
+                    'name': service.name
+                })
+                
+            print(closest_services)
+            
+            closest_workers = []
+            workers = CustomWorker.objects.filter(
+                Q(first_name__icontains=query) | Q(last_name__icontains=query)
+            )[:5]
+            
+            
+            for worker in workers:
+                closest_workers.append({
+                    'first_name': worker.first_name,
+                    'last_name': worker.last_name,
+                    'email': worker.email
+                })
+                
+            return JsonResponse({'services': closest_services, 'workers': closest_workers})
+            
+            
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching service"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################HELPER FUNCTIONS####################################
 @csrf_exempt
 def insert_worker(request):
     if request.method == "POST":
