@@ -38,6 +38,7 @@ const Profile = () => {
 
   const handleEditProfile = () => {
     console.log('Edit Profile button pressed');
+    fetchUserData();
   };
 
   const handleLogout = () => {
@@ -52,7 +53,7 @@ const Profile = () => {
             <Image source={require('../assets/Profile.png')} style={styles.profileImage} />
             <View style={styles.profileDetails}>
               <Text style={styles.profileName}>{user.first_name}</Text>
-              <Text style={styles.profileId}>ID: {user.id}</Text>
+              <Text style={styles.profileId}>ID: {user.last_name}</Text>
             </View>
           </View>
 
