@@ -58,6 +58,7 @@ function Login() {
         else{
           setIsWorker("False");
         }
+        console.log(email)
         const response = await fetch(`${API}/user_login`, {
           method: 'POST',
           headers: {

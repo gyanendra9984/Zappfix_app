@@ -9,7 +9,7 @@ export const AuthProvider =({children}) => {
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
-    const API="http://172.26.12.215:8000"
+    const API="http://172.23.5.174:8000"
   
     const logout=()=>{
         setIsLoading(true);
