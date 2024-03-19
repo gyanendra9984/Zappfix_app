@@ -511,7 +511,7 @@ def get_closest_services(request):
             query_embedding = np.mean([token.vector for token in nlp(" ".join(query_tokens))], axis=0)
             
             services = Service.objects.all()
-            print(1)
+            
             similarities = []
             for service in services:
                 service_tokens = [token.text for token in nlp(service.name) if not token.is_stop and not token.is_punct]
@@ -520,7 +520,7 @@ def get_closest_services(request):
                 similarities.append(similarity)
                 
             service_pairs = zip(similarities, services)
-            print(1)
+            
             desired_services = sorted(service_pairs, key=lambda x: x[0], reverse=True)[:2]          
             
             
@@ -528,9 +528,8 @@ def get_closest_services(request):
             for similarity,service in desired_services:
                 closest_services.append({
                     'name': service.name
-                })
-                
-            print(closest_services)
+                })                
+            
             
             closest_workers = []
             workers = CustomWorker.objects.filter(
