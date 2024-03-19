@@ -521,7 +521,7 @@ def get_closest_services(request):
                 
             service_pairs = zip(similarities, services)
             
-            desired_services = sorted(service_pairs, key=lambda x: x[0], reverse=True)[:2]          
+            desired_services = sorted(service_pairs, key=lambda x: x[0], reverse=True)[:10]          
             
             
             closest_services = []
@@ -558,70 +558,84 @@ def get_closest_services(request):
 
 
 
-
-
-
-
-
-
-
-
 ##################################HELPER FUNCTIONS####################################
 @csrf_exempt
-def insert_worker(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            
-            phone_number = data.get("phone_number")
-            first_name = data.get("first_name")
-            last_name = data.get("last_name")
-            email = data.get("email")
-            age = data.get("age")
-            gender= data.get("gender")
-            address = data.get("address")
-            city = data.get("city")
-            state = data.get("state")
-            zip_code = data.get("zip_code") 
-            services= data.get("services")
-            latitude = data.get("latitude")
-            longitude = data.get("longitude")
-            
-            
-            
-            
-            
-            worker = CustomWorker.objects.create(
-                phone_number=phone_number,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                age=age,
-                gender=gender,
-                address=address,
-                city=city,
-                state=state,
-                zip_code=zip_code,
-            )
-            
-            worker_details = WorkerDetails.objects.create(
-                email=email,
-                liveLatitude=latitude,
-                liveLongitude=longitude                                
-            )
-            
-            for serv in services:
-                service = Service.objects.get_or_create(name=serv)
-                worker_details.services_offered.add(service[0])
-            
-            worker_details.save()
-            worker.save()
-            
-            return JsonResponse({"message": "Worker added successfully"})
+def insert_worker(request):    
+    try:        
+        SERVICES = [
+            "Plumbing", "Electrical", "Carpentry", "Painting", "Landscaping", "Gardening", "Roofing", "Flooring",
+            "HVAC (Heating, Ventilation, and Air Conditioning)", "Appliance Repair", "Window Cleaning", "Pressure Washing",
+            "Pest Control", "Home Security Installation", "Drywall Repair", "Furniture Assembly", "Interior Design",
+            "Home Cleaning", "Carpet Cleaning", "Masonry", "Fence Installation", "Deck Construction", "Gutter Cleaning",
+            "Tree Trimming", "Pool Maintenance", "Locksmith", "Garage Door Repair", "Water Damage Restoration",
+            "Kitchen Remodeling", "Bathroom Remodeling", "Home Theater Installation", "Home Automation",
+            "Solar Panel Installation", "Septic Tank Services", "Exterior Painting", "Siding Installation",
+            "Wallpaper Removal", "Home Insulation", "Chimney Cleaning", "Foundation Repair", "Basement Waterproofing",
+            "Drain Cleaning", "Welding Services", "Elevator Installation", "Bathtub Refinishing",
+            "Countertop Installation", "Ceiling Fan Installation", "Fireplace Installation", "Shower Installation",
+            "Security Camera Installation", "Ceiling Repair", "Home Renovation", "Shed Construction"
+        ]
+        FIRST = [
+            "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph", "Charles", "Thomas",
+            "Mary", "Jennifer", "Linda", "Patricia", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen", "Daniel", "Matthew", "Anthony" 
+        ]
+
+        LAST = [
+            "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor",
+            "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee",
+        ]
+        for i in FIRST:
+            for j in LAST:
+                
+                try:                     
+                    phone_number = ''.join(random.choices(string.digits, k=10))
+                    first_name = i
+                    last_name = j
+                    email = f"{first_name.lower()}.{last_name.lower()}@gmail.com"
+                    age = "25"
+                    gender= "Male"
+                    address = "address"
+                    city = "city"
+                    state = "city"
+                    zip_code = "zip_code"
+                    num_services = random.randint(1, len(SERVICES))
+                    services= random.sample(SERVICES, num_services)
+                    latitude = round(random.uniform(30.8, 31.2), 4)
+                    longitude = round(random.uniform(76.4, 76.8), 4)  
         
-        except Exception as e:
-            print(e)
-            return JsonResponse({"error": "Error adding worker"}, status=500)
+                    worker = CustomWorker.objects.create(
+                        phone_number=phone_number,
+                        first_name=first_name,
+                        last_name=last_name,
+                        email=email,
+                        age=age,
+                        gender=gender,
+                        address=address,
+                        city=city,
+                        state=state,
+                        zip_code=zip_code,
+                    )
+        
+                    worker_details = WorkerDetails.objects.create(
+                        email=email,
+                        liveLatitude=latitude,
+                        liveLongitude=longitude                                
+                    )
+        
+                    for serv in services:
+                        service = Service.objects.get_or_create(name=serv)
+                        worker_details.services_offered.add(service[0])
+                
+                    worker_details.save()
+                    worker.save()
+                except Exception as e:
+                    print(e)
+                    pass
+        return JsonResponse({"message": "Worker added successfully"})
+    
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error": "Error adding worker"}, status=500)
            
         
         
