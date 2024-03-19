@@ -20,10 +20,14 @@ const HandleWorkersPage = ({ navigation }) => {
     worker.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleWorkerClick = (worker) => {
+    navigation.navigate('AdminWorkerDetail', { worker });
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.workerItem}
-      onPress={() => navigation.navigate('WorkerDetail', { worker: item })}
+      onPress={() => handleWorkerClick(item)}
     >
       <Text>{item.name}</Text>
       <Text style={item.status === 'verified' ? styles.verified : styles.actionRequired}>
