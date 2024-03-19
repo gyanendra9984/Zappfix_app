@@ -22,9 +22,11 @@ const AppNav = () => {
     return (
       <NavigationContainer>
         {/* { (userToken!=null && isWorker =="False") ? <AppStack/>:<AuthStack/>} */}
-        {userToken != null && isWorker=="True" ? <WorkerAppStack /> : (userToken != null ? <AppStack /> : <AuthStack />)}
+        {/* {userToken != null && isWorker=="True" ? <WorkerAppStack /> : (userToken != null ? <AppStack /> : <AuthStack />)} */}
         {/* {(userToken!=null && isWorker =="True") ? <WorkerAppStack/>:<AuthStack/>} */}
         {/*{ userToken!=null ? <AppStack/>:<AuthStack/>}*/}
+        <WorkerAppStack />
+        {/* <AppStack /> */}
       </NavigationContainer>
     );
 }
