@@ -1,18 +1,12 @@
 from datetime import datetime, timedelta
 import os
-import statistics
 from django.db.models import F
-from django.db.models import Func
-from django.db.models import FloatField
-from math import radians, sin, cos, sqrt, atan2
+from django.db.models import ExpressionWrapper, FloatField
+from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
-from django.contrib.gis.geos import Point
 from .models import (
     AbstractUser,
     CustomUser,
@@ -421,49 +415,55 @@ def get_user_data(request):
 
 ###################### RECOMMENDATION SYSTEM #######################
 
-class Distance(Func):
-    function = 'ST_Distance_Sphere'
-    output_field = FloatField()
 
-def haversine(lat1, lon1, lat2, lon2):
-    """
-    Calculate the distance between two points on the Earth's surface using the Haversine formula.
-    """
-    R = 6371.0  # Radius of the Earth in kilometers
 
-    # Convert latitude and longitude from degrees to radians
-    lat1 = radians(lat1)
-    lon1 = radians(lon1)
-    lat2 = radians(lat2)
-    lon2 = radians(lon2)
+# def haversine(lat1, lon1, lat2, lon2):
+#     """
+#     Calculate the distance between two points on the Earth's surface using the Haversine formula.
+#     """
+#     R = 6371.0  # Radius of the Earth in kilometers
+#     print(lat1,lat2,lon1,lon2)
+#     # Convert latitude and longitude from degrees to radians
+#     lat1 = radians(lat1)
+#     lon1 = radians(lon1)
+#     lat2 = radians(lat2)
+#     lon2 = radians(lon2)
 
-    # Calculate the differences between the latitudes and longitudes
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
+#     # Calculate the differences between the latitudes and longitudes
+#     dlat = lat2 - lat1
+#     dlon = lon2 - lon1
 
-    # Calculate the distance using the Haversine formula
-    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    distance = R * c
+#     # Calculate the distance using the Haversine formula
+#     a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+#     c = 2 * atan2(sqrt(a), sqrt(1 - a))
+#     distance = R * c
 
-    return distance
+#     return distance
 
 
 
 @csrf_exempt
 def get_nearest_workers(request):
-    if request.method=='POST':
+    if request.method=='GET':
         try:
             data = json.loads(request.body)
             service_name = data.get('service')
-            user_coords = data.get('coords')
+            user_coords = data.get('coords')  
+            print(user_coords)          
             
-            user_location= Point(user_coords[0], user_coords[1], srid=4326)
-            
-            workers = WorkerDetails.objects.filter(services_offered_name=service_name).annotate(
-                distance=Distance('liveLocation', user_location)                
-            ).order_by('distance')[:10]            
-            
+            user_latitude_rad = Radians(user_coords[0])
+            user_longitude_rad = Radians(user_coords[1])
+            service = Service.objects.get(name=service_name)
+            workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
+                latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
+                longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),
+                dlat=ExpressionWrapper(Sin((F('latitude_radians') - user_latitude_rad) / 2) ** 2, output_field=FloatField()),
+                dlon=ExpressionWrapper(Sin((F('longitude_radians') - user_longitude_rad) / 2) ** 2, output_field=FloatField()),
+                a=ExpressionWrapper((F('dlat') + Cos(user_latitude_rad) * Cos(F('latitude_radians')) * F('dlon')), output_field=FloatField()),
+                c=ExpressionWrapper(2 * ACos(Sqrt(F('a'))), output_field=FloatField()),
+                distance=ExpressionWrapper(6371 * F('c'), output_field=FloatField()),              
+            ).order_by('distance')[:5]            
+            print(1)
             
             worker_details = []
             
@@ -472,10 +472,13 @@ def get_nearest_workers(request):
                 worker_details.append({
                     'first_name': details.first_name,
                     'last_name': details.last_name,
-                    'email': details.email
+                    'email': details.email,
+                    'liveLatitude': worker.liveLatitude,
+                    'liveLongitude': worker.liveLongitude,
+                    'distance': worker.distance,
                 })
                 
-            return JsonResponse({'workers': json.dumps(worker_details)})    
+            return JsonResponse({'workers': worker_details})    
         
         except Exception as e:
             print(e)
@@ -484,3 +487,65 @@ def get_nearest_workers(request):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+@csrf_exempt
+def insert_worker(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            
+            phone_number = data.get("phone_number")
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+            email = data.get("email")
+            age = data.get("age")
+            gender= data.get("gender")
+            address = data.get("address")
+            city = data.get("city")
+            state = data.get("state")
+            zip_code = data.get("zip_code") 
+            services= data.get("services")
+            latitude = data.get("latitude")
+            longitude = data.get("longitude")
+            
+            
+            
+            
+            
+            worker = CustomWorker.objects.create(
+                phone_number=phone_number,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                age=age,
+                gender=gender,
+                address=address,
+                city=city,
+                state=state,
+                zip_code=zip_code,
+            )
+            
+            worker_details = WorkerDetails.objects.create(
+                email=email,
+                liveLatitude=latitude,
+                liveLongitude=longitude                                
+            )
+            
+            for serv in services:
+                service = Service.objects.get_or_create(name=serv)
+                worker_details.services_offered.add(service[0])
+            
+            worker_details.save()
+            worker.save()
+            
+            return JsonResponse({"message": "Worker added successfully"})
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error adding worker"}, status=500)
+           
+        
+        
+        
+        
+                
+    
