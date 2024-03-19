@@ -269,12 +269,12 @@ def edit_personal_profile(request):
         try:
             email = data.get("email")
             isWorker = data.get("isWorker")
-            token = request.COOKIES["token"]
+            # token = request.COOKIES["token"]
 
-            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
+            # payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
 
-            if email != payload.get("email"):
-                return JsonResponse({"error": "Invalid email"}, status=400)
+            # if email != payload.get("email"):
+            #     return JsonResponse({"error": "Invalid email"}, status=400)
 
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
