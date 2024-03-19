@@ -34,8 +34,8 @@ function Signup() {
   const [address,setAddress]= React.useState("");
   const [isOtpSent, setIsOtpSent]=React.useState(0);
   const [otp, setOtp]=React.useState("");
-  const [isWorker, setIsWorker]=React.useState(false);
-  const {setIsLoading,API}= useContext(AuthContext);
+  // const [isWorker, setIsWorker]=React.useState(false);
+  const {setIsLoading,API,isWorker,setIsWorker}= useContext(AuthContext);
 
   const navigation = useNavigation();
   
@@ -52,6 +52,12 @@ function Signup() {
   
   const verifyOtp = async () =>{
     setIsLoading(true);
+    if(selectedRole==="worker"){
+      setIsWorker("True");
+    }
+    else  if(selectedRole==="user"){ 
+      setIsWorker("False"); 
+    }
     try {
       const response = await fetch(`${API}/verify_otp`, {
           method: 'POST',
@@ -60,7 +66,8 @@ function Signup() {
           },
           body: JSON.stringify({ 
             email: email,
-            otp:otp
+            otp:otp,
+            isWorker:isWorker,
            }),
         });
 
@@ -81,10 +88,10 @@ function Signup() {
   const handleSignUp = async () => {
     // Perform your signup logic here
     if(selectedRole==="worker"){
-      setIsWorker(true);
+      setIsWorker("True");
     }
     else  if(selectedRole==="user"){ 
-      setIsWorker(false); 
+      setIsWorker("False"); 
     }
   
     if (!isEmailValid(email)) {
@@ -104,7 +111,7 @@ function Signup() {
     try {
       // Send a POST request to the backend with the user's information
       alert("Evrything here")
-      const response = await fetch(`${API}/worker_signup`, {
+      const response = await fetch(`${API}/user_signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -118,7 +125,8 @@ function Signup() {
             address:address,
             city:city,
             state:state,
-            zip_code:zipcode
+            zip_code:zipcode,
+            isWorker :isWorker,
            }),
         });
 
