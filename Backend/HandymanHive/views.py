@@ -240,9 +240,10 @@ def verify_login_otp(request):
                     }
                 )
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
+                print("token during login=",token)
 
                 response.set_cookie(
-                    "token", token, expires=payload["exp"], secure=True, httponly=True
+                    "token", token, expires=None, secure=True, samesite='None'
                 )
                 return response
 
@@ -368,18 +369,22 @@ def delete_user(request):
 
 @csrf_exempt
 def get_user_data(request):
-    if request.method == "GET":
+
+    if request.method == 'POST':        
         try:
             data = json.loads(request.body)
-            email = data.get("email")
-            isWorker = data.get("isWorker")
-            token = request.COOKIES["token"]
-            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
-
-            if email != payload.get("email"):
-                return JsonResponse({"error": "Invalid email"}, status=400)
-
-            if isWorker == "True":
+            email= data.get('email')
+            isWorker = data.get('isWorker')
+            print("Here email=",email)
+            # token = request.COOKIES['token']    
+            # payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=['HS256'])
+            # print("token==",token)
+            
+            # email = payload.get("email")
+            # if email != payload.get("email"):
+            #     return JsonResponse({"error": "Invalid email"}, status=400)
+            
+            if isWorker=="True":   
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)

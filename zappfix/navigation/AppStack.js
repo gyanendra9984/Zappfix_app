@@ -24,7 +24,7 @@ export default function AppStack() {
             iconName = 'hammer';
           } else if (route.name === 'Map') {
             iconName = 'map';
-          } else if (route.name === 'Profile') {
+          } else if (route.name === 'EditProfile') {
             iconName = 'person';
           } else if (route.name === 'WorkerInfo') {
             iconName = 'information-circle';
@@ -37,8 +37,9 @@ export default function AppStack() {
     >
       <Tab.Screen name="ZappFix" component={Home} />
       <Tab.Screen name="Map" component={Map} />
-      <Tab.Screen name="Profile" component={EditProfile} />
-      <Tab.Screen name="WorkerInfo" component={WorkerInfo} />
+      <Tab.Screen name="EditProfile" component={EditProfile} />
+      <Tab.Screen name="Profile" component={Profile}/>
+      <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen
