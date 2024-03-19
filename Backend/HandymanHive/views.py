@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 import os
-import statistics
+from django.db.models import F
+from django.db.models import ExpressionWrapper, FloatField
+from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import F
@@ -405,6 +404,8 @@ def get_user_data(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+      
+###################### RECOMMENDATION SYSTEM #######################
 
 @csrf_exempt
 def get_workers_on_price(request):
@@ -444,3 +445,111 @@ def get_workers_on_price(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+
+@csrf_exempt
+def get_nearest_workers(request):
+    if request.method=='GET':
+        try:
+            data = json.loads(request.body)
+            service_name = data.get('service')
+            user_coords = data.get('coords')  
+            print(user_coords)          
+            
+            user_latitude_rad = Radians(user_coords[0])
+            user_longitude_rad = Radians(user_coords[1])
+            service = Service.objects.get(name=service_name)
+            workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
+                latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
+                longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),
+                dlat=ExpressionWrapper(Sin((F('latitude_radians') - user_latitude_rad) / 2) ** 2, output_field=FloatField()),
+                dlon=ExpressionWrapper(Sin((F('longitude_radians') - user_longitude_rad) / 2) ** 2, output_field=FloatField()),
+                a=ExpressionWrapper((F('dlat') + Cos(user_latitude_rad) * Cos(F('latitude_radians')) * F('dlon')), output_field=FloatField()),
+                c=ExpressionWrapper(2 * ACos(Sqrt(F('a'))), output_field=FloatField()),
+                distance=ExpressionWrapper(6371 * F('c'), output_field=FloatField()),              
+            ).order_by('distance')[:5]            
+            print(1)
+            
+            worker_details = []
+            
+            for worker in workers:
+                details = CustomWorker.objects.get(email=worker.email)
+                worker_details.append({
+                    'first_name': details.first_name,
+                    'last_name': details.last_name,
+                    'email': details.email,
+                    'liveLatitude': worker.liveLatitude,
+                    'liveLongitude': worker.liveLongitude,
+                    'distance': worker.distance,
+                })
+                
+            return JsonResponse({'workers': worker_details})    
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error fetching workers'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def insert_worker(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            
+            phone_number = data.get("phone_number")
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+            email = data.get("email")
+            age = data.get("age")
+            gender= data.get("gender")
+            address = data.get("address")
+            city = data.get("city")
+            state = data.get("state")
+            zip_code = data.get("zip_code") 
+            services= data.get("services")
+            latitude = data.get("latitude")
+            longitude = data.get("longitude")
+            
+            
+            
+            
+            
+            worker = CustomWorker.objects.create(
+                phone_number=phone_number,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                age=age,
+                gender=gender,
+                address=address,
+                city=city,
+                state=state,
+                zip_code=zip_code,
+            )
+            
+            worker_details = WorkerDetails.objects.create(
+                email=email,
+                liveLatitude=latitude,
+                liveLongitude=longitude                                
+            )
+            
+            for serv in services:
+                service = Service.objects.get_or_create(name=serv)
+                worker_details.services_offered.add(service[0])
+            
+            worker_details.save()
+            worker.save()
+            
+            return JsonResponse({"message": "Worker added successfully"})
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error adding worker"}, status=500)
+           
+        
+        
+        
+        
+                
+    
