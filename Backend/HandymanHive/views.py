@@ -8,12 +8,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import F
 from .models import (
     AbstractUser,
     CustomUser,
     CustomWorker,
     Service,
-    Certification,    
+    Certification,
     WorkerDetails,
 )
 
@@ -43,8 +44,8 @@ def send_otp_email(email, otp, type="Login"):
     send_mail(subject, message, from_email, recipient_list)
 
 
-
 ########################## WORKER CRUD Routes #########################
+
 
 @csrf_exempt
 def user_signup(request):
@@ -53,12 +54,11 @@ def user_signup(request):
         email = data.get("email")
         isWorker = data.get("isWorker")
 
-        if isWorker and CustomWorker.objects.filter(email=email).exists() :
-            return JsonResponse({"error": "Email already exists"}, status=405)
-        
-        if  (not isWorker) and CustomUser.objects.filter(email=email).exists() :
+        if isWorker and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
+        if (not isWorker) and CustomUser.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists"}, status=405)
 
         if AbstractUser.objects.filter(email=email).exists():
             try:
@@ -82,10 +82,10 @@ def user_signup(request):
                 email=email,
                 otp_valid_till=timezone.now() + timedelta(minutes=15),
                 user_details=json.dumps(data),
-                is_worker=isWorker,                
+                is_worker=isWorker,
             )
             otp = generate_otp()
-            user.otp = otp            
+            user.otp = otp
             user.save()
             send_otp_email(email, otp)
             return JsonResponse({"message": "OTP sent successfully"})
@@ -104,21 +104,21 @@ def verify_otp(request):
         otp = data.get("otp")
         isWorker = data.get("isWorker")
 
-        if isWorker=="True" and CustomWorker.objects.filter(email=email).exists() :
+        if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
-        
-        if isWorker=="False" and CustomUser.objects.filter(email=email).exists() :
+
+        if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
         try:
             user = AbstractUser.objects.get(email=email)
             if str(user.is_worker) != isWorker:
                 return JsonResponse({"message": "User not found"}, status=404)
-            
-            if user.otp == otp and user.otp_valid_till > timezone.now():                
+
+            if user.otp == otp and user.otp_valid_till > timezone.now():
                 user_data = json.loads(user.user_details)
-                
-                if isWorker=="True":
+
+                if isWorker == "True":
                     user = CustomWorker.objects.create(
                         phone_number=user_data["phone_number"],
                         first_name=user_data["first_name"],
@@ -131,13 +131,13 @@ def verify_otp(request):
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
                     )
-                    
+
                     worker_details = WorkerDetails.objects.create(
-                        email=user_data['email']                                             
+                        email=user_data["email"]
                     )
                     worker_details.save()
                     user.save()
-                else:                   
+                else:
                     user = CustomUser.objects.create(
                         phone_number=user_data["phone_number"],
                         first_name=user_data["first_name"],
@@ -151,7 +151,6 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                     )
                     user.save()
-                
 
                 payload = {
                     "email": user.email,
@@ -178,7 +177,6 @@ def verify_otp(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-
 @csrf_exempt
 def user_login(request):
     if request.method == "POST":
@@ -187,8 +185,8 @@ def user_login(request):
             email = data.get("email")
             isWorker = data.get("isWorker")
 
-            if isWorker=="True":
-                user= CustomWorker.objects.get(email=email)
+            if isWorker == "True":
+                user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
             otp = generate_otp()
@@ -219,12 +217,12 @@ def verify_login_otp(request):
         isWorker = data.get("isWorker")
 
         try:
-            if isWorker=="True":
-                user= CustomWorker.objects.get(email=email)
+            if isWorker == "True":
+                user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
-                
-            if user.otp == otp and user.otp_valid_till > timezone.now():                
+
+            if user.otp == otp and user.otp_valid_till > timezone.now():
 
                 payload = {
                     "email": user.email,
@@ -246,7 +244,7 @@ def verify_login_otp(request):
 
             elif user.otp_valid_till < timezone.now():
                 return JsonResponse({"error": "OTP expired"}, status=500)
-            else:                
+            else:
                 return JsonResponse({"error": "Invalid OTP"})
         except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
             return JsonResponse(
@@ -267,18 +265,17 @@ def edit_personal_profile(request):
             email = data.get("email")
             isWorker = data.get("isWorker")
             token = request.COOKIES["token"]
-            
+
             payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
 
             if email != payload.get("email"):
                 return JsonResponse({"error": "Invalid email"}, status=400)
 
-            if isWorker=="True":
+            if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
-                
-            
+
             user.first_name = data.get("first_name")
             user.last_name = data.get("last_name")
             user.age = data.get("age")
@@ -291,128 +288,159 @@ def edit_personal_profile(request):
             user.save()
             return JsonResponse({"message": "Profile updated successfully"})
         except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
-            return JsonResponse(
-                {"error": "Email does not exist."}, status=404
-            )
-        except Exception as e:            
+            return JsonResponse({"error": "Email does not exist."}, status=404)
+        except Exception as e:
             return JsonResponse({"error": "Error updating profile"}, status=500)
+
 
 @csrf_exempt
 def edit_worker_profile(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        isWorker = data.get('isWorker')
-        if(str(isWorker)=="False"):
+        isWorker = data.get("isWorker")
+        print(data)
+        if str(isWorker) == "False":
             return JsonResponse({"error": "Invalid request"}, status=400)
         try:
             email = data.get("email")
             services = data.get("services")
             print(services)
             certifications = data.get("certifications")
-            
-            
+
             user = WorkerDetails.objects.get(email=email)
             for item in services:
                 if not Service.objects.filter(name=item).exists():
                     service = Service.objects.create(name=item)
-                    service.description='a'
+                    service.description = "a"
                     service.save()
-                                    
-                try:                    
-                    service = Service.objects.get(name=item)                                     
-                    user.services_offered.add(service)                    
+
+                try:
+                    service = Service.objects.get(name=item)
+                    user.services_offered.add(service)
                     print("Service Added", item)
                 except Exception as e:
                     print(e)
                     print(item)
                     pass
-                
+
             for certification in certifications:
                 try:
                     certification = Certification.objects.get(name=certification)
-                    #Certification Verification to be implemented
+                    # Certification Verification to be implemented
                     user.certifications.add(certification[0])
                 except:
                     pass
             user.save()
-            
-            return JsonResponse({"message": "Profile updated successfully"})
-            
-        except CustomWorker.DoesNotExist:
-            return JsonResponse(
-                {"error": "Email does not exist."}, status=404
-            )
 
+            return JsonResponse({"message": "Profile updated successfully"})
+
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({"error": "Email does not exist."}, status=404)
 
 
 @csrf_exempt
 def delete_user(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
-        email = data.get('email')
-        isWorker = data.get('isWorker')
-        
-        if isWorker=="True" and CustomWorker.objects.filter(email=email).exists():
+        email = data.get("email")
+        isWorker = data.get("isWorker")
+
+        if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             user = CustomWorker.objects.get(email=email)
             user.delete()
-            
-        if isWorker=="False" and CustomUser.objects.filter(email=email).exists():
+
+        if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
             user = CustomUser.objects.get(email=email)
             user.delete()
-            
+
         if AbstractUser.objects.filter(email=email).exists():
             user = AbstractUser.objects.get(email=email)
             user.delete()
 
-        return JsonResponse({'message': 'User deleted successfully'})
+        return JsonResponse({"message": "User deleted successfully"})
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
 @csrf_exempt
 def get_user_data(request):
-    if request.method == 'GET':        
+    if request.method == "GET":
         try:
             data = json.loads(request.body)
-            email= data.get('email')
-            isWorker = data.get('isWorker')
-            token = request.COOKIES['token']
-            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=['HS256'])
-            
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+            token = request.COOKIES["token"]
+            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
+
             if email != payload.get("email"):
                 return JsonResponse({"error": "Invalid email"}, status=400)
-            
-            if isWorker=="True":
+
+            if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
-            
+
             user_details = {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'phone_number': user.phone_number,
-                'age': user.age,
-                'gender': user.gender,
-                'address': user.address,
-                'city': user.city,
-                'state': user.state,
-                'zip_code': user.zip_code,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "age": user.age,
+                "gender": user.gender,
+                "address": user.address,
+                "city": user.city,
+                "state": user.state,
+                "zip_code": user.zip_code,
             }
-            return JsonResponse({'worker_details': user_details})
+            return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
-            return JsonResponse({'error': 'Token expired'}, status=300)
+            return JsonResponse({"error": "Token expired"}, status=300)
         except jwt.InvalidTokenError:
-            return JsonResponse({'error': 'Invalid token'}, status=300)
+            return JsonResponse({"error": "Invalid token"}, status=300)
         except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({"error": "User not found"}, status=404)
         except Exception as e:
             print(e)
-            return JsonResponse({'error': 'Error fetching user data'}, status=500)
+            return JsonResponse({"error": "Error fetching user data"}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+@csrf_exempt
+def get_workers_on_price(request):
+    if request.method == "GET":
+        try:
+            data = json.loads(request.body)
+            service_name = data.get("service_name")
 
+            service = Service.objects.get(name=service_name)
+
+            top_five_workers_details = (
+                WorkerDetails.objects.filter(isAvailable=True)
+                .filter(services_offered__in=[service])
+                .annotate(average_price=(F("min_price") + F("max_price")) / 2)
+                .order_by("average_price")[:5]
+            )
+
+            top_five_workers = []
+            for worker_detail in top_five_workers_details:
+                worker = CustomWorker.objects.get(email=worker_detail.email)
+                worker_data = {
+                    "email": worker.email,
+                    "first_name": worker.first_name,
+                    "last_name": worker.last_name,
+                }
+                top_five_workers.append(worker_data)
+
+            return JsonResponse({"top_five_custom_workers": top_five_workers})
+        except Service.DoesNotExist:
+            return JsonResponse({"error": "Service not found"}, status=404)
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "WorkerDetails not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching worker data"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 

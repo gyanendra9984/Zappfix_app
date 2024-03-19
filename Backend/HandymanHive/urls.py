@@ -11,6 +11,6 @@ urlpatterns = [
     path("edit_worker_profile", views.edit_worker_profile, name="edit_worker_profile"),
     path('delete_user', views.delete_user, name='delete_user'),
     path("get_user_data", views.get_user_data, name="get_user_data"),
-    
+    path("get_workers_on_price", views.get_workers_on_price, name="get_workers_on_price"),
 ]  
 
