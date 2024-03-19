@@ -16,7 +16,7 @@ function ToggleButton({ label, active, onPress }) {
 
 function Login() {
   const navigation = useNavigation();
-  const { API, verifyLoginOtp, setIsLoading } = useContext(AuthContext);
+  const { API, verifyLoginOtp, setIsLoading,isWorker,setIsWorker} = useContext(AuthContext);
   const [email, setEmail] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [isOtpSent, setIsOtpSent] = React.useState(0);
@@ -40,28 +40,34 @@ function Login() {
     try {
       // Send a POST request to the backend with the user's information
       // setIsLoading(true);
-      if(isAdmin){
-        const response = await fetch(`${API}/worker_login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: email }),
-        });
+      // if(isAdmin){
+      //   const response = await fetch(`${API}/worker_login`, {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({ email: email }),
+      //   });
   
-        const result = await response.json();
-      }
-      else if(!isAdmin){
+      //   const result = await response.json();
+      // }
+      // else if(!isAdmin){
+        if(isAdmin){
+          setIsWorker("True");
+        }
+        else{
+          setIsWorker("False");
+        }
         const response = await fetch(`${API}/user_login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: email }),
+          body: JSON.stringify({ email: email,isWorker:isWorker }),
         });
   
         const result = await response.json();
-      }
+      // }
       
 
       // setIsLoading(false);
@@ -75,12 +81,12 @@ function Login() {
         alert("OTP sent successfully")
       } else {
         console.log("Failed to send OTP");
-        alert("Failed to send OTP")
+        alert("Error code",response.status)
         // Handle the case where OTP sending fails
       }
     } catch (error) {
       console.error("Error signing up:", error);
-      alert("Error sending otp")
+      alert("Error code",response.status)
       // Handle errors from the backend
     }
 
@@ -88,7 +94,7 @@ function Login() {
 
   const handleVerifyOTP = async () => {
     try {
-      await verifyLoginOtp(email, otp); // Assuming you have email and otp state variables
+      await verifyLoginOtp(email, otp,isAdmin); // Assuming you have email and otp state variables
     } catch (error) {
       console.error("Error verifying OTP:", error);
       // Handle error if needed

@@ -4,11 +4,12 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import AuthStack from "./AuthStack";
 import AppStack from "./AppStack";
+import WorkerAppStack from './WorkerAppStack';
 import { AuthContext } from '../context/AuthContext';
 
 
 const AppNav = () => {
-    const {isLoading,userToken}= useContext(AuthContext);
+    const {isLoading,userToken,isWorker}= useContext(AuthContext);
     if(isLoading){
         return (
           <View
@@ -20,7 +21,9 @@ const AppNav = () => {
     }
     return (
       <NavigationContainer>
-        { userToken!=null ? <AppStack/>:<AppStack/>}
+        {/* { (userToken!=null && isWorker =="False") ? <AppStack/>:<AuthStack/>} */}
+        {userToken != null && isWorker=="True" ? <WorkerAppStack /> : (userToken != null ? <AppStack /> : <AuthStack />)}
+        {/* {(userToken!=null && isWorker =="True") ? <WorkerAppStack/>:<AuthStack/>} */}
         {/*{ userToken!=null ? <AppStack/>:<AuthStack/>}*/}
       </NavigationContainer>
     );

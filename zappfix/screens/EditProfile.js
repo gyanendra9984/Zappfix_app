@@ -122,7 +122,7 @@ const Profile = () => {
     {/* <View style={styles.header}> */}
       {/* <Image source={profile.photo} style={styles.profileImage} />
       <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text> */}
-      <View style={styles1.profileInfo} className='mt-[50px] flex items-center'>
+      <View style={styles1.profileInfo} className='mt-[-15px] flex items-center'>
         <Image source={require('../assets/Profile.png')} style={styles1.profileImage} />
          <View style={styles1.profileDetails} className='flex flex-col justify-center items-center mt-4'>
            <Text style={styles1.profileName}>{profile.name}</Text>

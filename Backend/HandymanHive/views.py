@@ -186,11 +186,13 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
+            print("Vlaue of isWoker=",isWorker)
 
             if isWorker=="True":
                 user= CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
+            print("im Here")
             otp = generate_otp()
             user.otp = otp
             user.otp_valid_till = timezone.now() + timedelta(minutes=5)
