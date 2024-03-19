@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-// import { WebView } from 'react-native-webview';
+import { WebView } from 'react-native-webview';
 import {
     Dropdown,
     GroupDropdown,
@@ -39,6 +39,27 @@ export const data = [
     },
 ];
 
+const UserProfile = () => { 
+    // Sample user data (replace with actual data)
+    const user = {
+        name: 'John Doe',
+        age: 30,
+        profession: 'Painter',
+        avatarUri: 'https://randomuser.me/api/portraits/men/1.jpg', // Sample avatar image URL
+    };
+
+    return (
+        <View style={styles.userProfileContainer}>
+            <Image source={{ uri: user.avatarUri }} style={styles.avatar} />
+            <View style={styles.userInfo}>
+                <Text style={styles.name}>{user.name}</Text>
+                <Text style={styles.details}>{user.age} years old</Text>
+                <Text style={styles.details}>{user.profession}</Text>
+            </View>
+        </View>
+    );
+};
+
 const EditProffDetails = ({ navigation }) => {
     const [valueMS, setValueMS] = useState([]);
     const [pdfUri, setPdfUri] = useState(null);
@@ -47,11 +68,15 @@ const EditProffDetails = ({ navigation }) => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
                 copyToCacheDirectory : true,
+                multiple: true,
+                type: "*/*",
             });
+            
+            console.log("RESULT : ", result)
 
-            if (result.type === 'success') {
-                console.log('Document picked:', result.uri)
-                setPdfUri(result.uri);
+            if (result.canceled === false) {
+                console.log('Document picked:', result.assets[0].uri)
+                setPdfUri(result.assets[0].uri);
             } else {
                 console.log('Document picking cancelled');
             }
@@ -61,9 +86,11 @@ const EditProffDetails = ({ navigation }) => {
     };
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             <ScrollView>
-                <View style={styles.container}>
+                <UserProfile />
+                <View style={styles.contentContainer}>
+                    <Text style={styles.title}>Edit Professional Details</Text>
                     <MultiselectDropdown
                         label="Select Skills"
                         data={data}
@@ -78,10 +105,11 @@ const EditProffDetails = ({ navigation }) => {
                     {pdfUri && (
                         <View style={styles.pdfContainer}>
                             <Text style={styles.pdfTitle}>PDF Preview:</Text>
-                            {/* <WebView
+                            <WebView
                                 source={{ uri: pdfUri }}
+                                allowFileAccess
                                 style={styles.pdf}
-                            /> */}
+                            />
                         </View>
                     )}
                 </View>
@@ -94,20 +122,30 @@ export default EditProffDetails;
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 30,
-        marginLeft: 20,
-        marginRight: 20,
         flex: 1,
+        backgroundColor: '#fff',
+    },
+    contentContainer: {
+        paddingVertical: 30,
+        paddingHorizontal: 20,
+    },
+    title: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: 'black',
     },
     uploadButton: {
         backgroundColor: '#2196F3',
-        padding: 10,
-        borderRadius: 5,
+        padding: 15,
+        borderRadius: 8,
         marginTop: 20,
+        alignItems: 'center',
     },
     uploadButtonText: {
         color: 'white',
-        textAlign: 'center',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     pdfContainer: {
         marginTop: 20,
@@ -121,5 +159,30 @@ const styles = StyleSheet.create({
     pdf: {
         width: 300,
         height: 200,
+    },
+    userProfileContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        paddingHorizontal: 20,
+        paddingTop: 25
+    },
+    avatar: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        marginRight: 20,
+    },
+    userInfo: {
+        flex: 1,
+    },
+    name: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
+    details: {
+        fontSize: 16,
+        color: '#888',
     },
 });
