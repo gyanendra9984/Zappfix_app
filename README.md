@@ -17,7 +17,8 @@
 
 4. **Install Requirements:**
     ```bash
-    pip install -r requirements.txt   
+    pip install -r requirements.txt  
+    python -m spacy download en_core_web_md 
 
 5. **Create .env file:**
     Create .env file with variables same as .env.example replacing their values with original credentials
