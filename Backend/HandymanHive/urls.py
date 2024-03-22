@@ -14,5 +14,6 @@ urlpatterns = [
     path("get_nearest_workers", views.get_nearest_workers, name="get_nearest_workers"),
     path("insert_worker", views.insert_worker, name="insert_worker"),
     path("get_workers_on_price", views.get_workers_on_price, name="get_workers_on_price"),
+    path("get_closest_services", views.get_closest_services, name="get_closest_services"),
 ]  
 
