@@ -11,7 +11,7 @@ import Profile from "../screens/Profile"
 import WorkerInfo from "../screens/WokerInfo";
 import WorkerHome from "../screens/WorkerHome";
 import EditProffDetails from "../screens/EditProffDetails";
-import EditProfile from "../screens/EditProfile";
+import EditProfilePage from "../screens/EditProfile";
 
 const Tab = createBottomTabNavigator();
 
@@ -41,7 +41,7 @@ export default function WorkerAppStack() {
     >
       <Tab.Screen name="DashBoard" component={WorkerHome} />
       {/* <Tab.Screen name="Map" component={Map} /> */}
-      <Tab.Screen name="Profile" component={EditProfile} />
+      <Tab.Screen name="Profile" component={Profile} />
       {/* <Tab.Screen name="WorkerInfo" component={WorkerInfo} /> */}
       <Tab.Screen name="EditProffDetails" component={EditProffDetails}/>
       {/* <Tab.Screen name="EditProfile" component={EditProfile}/> */}
