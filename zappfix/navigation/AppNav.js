@@ -18,6 +18,7 @@ const AppNav = () => {
       >
         <ActivityIndicator size={'large'} />
       </View>
+
     );
   }
   return (
