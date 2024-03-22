@@ -124,6 +124,7 @@ export default function Home() {
             <Text className='text-2xl mt-5 mx-5'>Featured</Text>
             <View className='flex flex-row justify-around mt-2'>
               {/* <View className='flex flex-col justify-center items-center'>
+
           <Image className='h-' source={require('../assets/icon.png')} />
           <Text>Hi</Text>
           </View> */}

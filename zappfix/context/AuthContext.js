@@ -9,12 +9,14 @@ export const AuthProvider =({children}) => {
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
-    const API="http://172.26.12.215:8000"
+    const [email,setEmail]=useState("");
+    const API="http://172.23.6.67:8000"
   
     const logout=()=>{
         setIsLoading(true);
         AsyncStorage.removeItem('userToken');
         AsyncStorage.removeItem('isWorker');
+        AsyncStorage.removeItem('email');
         setUserToken(null);
         setIsLoading(false);
     }
@@ -32,6 +34,7 @@ export const AuthProvider =({children}) => {
                 headers: {
                   'Content-Type': 'application/json',
                 },
+                credentials:"include",
                 body: JSON.stringify({ 
                   email: email,
                   otp:otp,
@@ -43,8 +46,10 @@ export const AuthProvider =({children}) => {
             if(response.ok){
               alert(result.message)
               setUserToken('RandomToken');
+              setEmail(email);
               AsyncStorage.setItem('userToken',"RandValue");
               AsyncStorage.setItem('isWorker',isWorker);
+              AsyncStorage.setItem('email',email);
             }
             else{
               alert(result.error);
@@ -60,8 +65,10 @@ export const AuthProvider =({children}) => {
             setIsLoading(true);
             const token=await AsyncStorage.getItem('userToken');
             const workerBool = await AsyncStorage.getItem('isWorker');
+            const tempEmail= await AsyncStorage.getItem('email');
             setUserToken(token);
             setIsWorker(workerBool);
+            setEmail(tempEmail);
             setIsLoading(false);
         }
         catch(e){
@@ -73,7 +80,7 @@ export const AuthProvider =({children}) => {
     },[]);
 
     return (
-        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email}}>
             {children}
         </AuthContext.Provider>
     );
