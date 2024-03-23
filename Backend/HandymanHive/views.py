@@ -266,12 +266,6 @@ def edit_personal_profile(request):
         try:
             email = data.get("email")
             isWorker = data.get("isWorker")
-            token = request.COOKIES["token"]
-            
-            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=["HS256"])
-
-            if email != payload.get("email"):
-                return JsonResponse({"error": "Invalid email"}, status=400)
 
             if isWorker=="True":
                 user = CustomWorker.objects.get(email=email)
@@ -376,12 +370,7 @@ def get_user_data(request):
             data = json.loads(request.body)
             email= data.get('email')
             isWorker = data.get('isWorker')
-            token = request.COOKIES['token']
-            payload = jwt.decode(token, os.getenv("Secret_Key"), algorithms=['HS256'])
-            
-            if email != payload.get("email"):
-                return JsonResponse({"error": "Invalid email"}, status=400)
-            
+
             if isWorker=="True":
                 user = CustomWorker.objects.get(email=email)
             else:
@@ -411,8 +400,6 @@ def get_user_data(request):
             return JsonResponse({'error': 'Error fetching user data'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
 
 
 
