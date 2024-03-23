@@ -67,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "HandymanHive.middleware.JWTAuthorizationMiddleware"
 ]
 
 AUTH_USER_MODEL = "HandymanHive.AbstractUser"
