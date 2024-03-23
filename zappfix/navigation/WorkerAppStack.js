@@ -9,24 +9,28 @@ import Home from "../screens/Home";
 import Map from '../screens/Map';
 import Profile from "../screens/Profile"
 import WorkerInfo from "../screens/WokerInfo";
-import EditProfile from "../screens/EditProfile";
+import WorkerHome from "../screens/WorkerHome";
+import EditProffDetails from "../screens/EditProffDetails";
+import EditProfilePage from "../screens/EditProfile";
 
 const Tab = createBottomTabNavigator();
 
-export default function AppStack() {
+export default function WorkerAppStack() {
   return (
-    <Tab.Navigator initialRouteName="Home"
+    <Tab.Navigator initialRouteName="WorkerHome"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'ZappFix') {
+          if (route.name === 'DashBoard') {
             iconName = 'hammer';
           } else if (route.name === 'Map') {
             iconName = 'map';
-          } else if (route.name === 'EditProfile') {
+          } else if (route.name === 'Profile') {
             iconName = 'person';
           } else if (route.name === 'WorkerInfo') {
+            iconName = 'information-circle';
+          } else if (route.name === 'EditProffDetails') {
             iconName = 'information-circle';
           }
 
@@ -35,11 +39,12 @@ export default function AppStack() {
         }
       })}
     >
-      <Tab.Screen name="ZappFix" component={Home} />
-      <Tab.Screen name="Map" component={Map} />
-      <Tab.Screen name="EditProfile" component={EditProfile} />
-      <Tab.Screen name="Profile" component={Profile}/>
-      <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="DashBoard" component={WorkerHome} />
+      {/* <Tab.Screen name="Map" component={Map} /> */}
+      <Tab.Screen name="Profile" component={Profile} />
+      {/* <Tab.Screen name="WorkerInfo" component={WorkerInfo} /> */}
+      <Tab.Screen name="EditProffDetails" component={EditProffDetails}/>
+      {/* <Tab.Screen name="EditProfile" component={EditProfile}/> */}
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen
