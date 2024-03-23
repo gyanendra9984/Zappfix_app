@@ -22,7 +22,7 @@ def test_signup():
         "isWorker": False,
     }
     response = client.post(reverse('user_signup'), json.dumps(duplicate_data), content_type='application/json')
-    assert response.status_code == 405
+    assert response.status_code == 400
     assert "User already exists" in response.json().get("message", "")
 
     invalid_data={
