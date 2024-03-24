@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const { logout, isWorker, setIsLoading, API,email } = useContext(AuthContext);
+  const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
 
   useEffect(() => {
     fetchUserData();
@@ -21,7 +21,7 @@ const Profile = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ isWorker: isWorker,email:email }),
+        body: JSON.stringify({ isWorker: isWorker,email:email,token:userToken }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -37,7 +37,7 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    console.log('Edit Profile button pressed');
+    console.log('Reload Profile button pressed');
     fetchUserData();
   };
 
@@ -109,7 +109,7 @@ const Profile = () => {
           <View style={styles.bottomButtons}>
             <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
               <Icon name="edit" size={20} color="#fff" />
-              <Text style={styles.buttonText}>Edit Profile</Text>
+              <Text style={styles.buttonText}>Reload Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
               <Icon name="exit-to-app" size={20} color="#fff" />

@@ -219,12 +219,16 @@ def verify_login_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
+        print("isWorker=",isWorker)
+        
 
         try:
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
+            print("userotp=",user.otp)
+            print("otp=",otp)
 
             if user.otp == otp and user.otp_valid_till > timezone.now():
 
@@ -233,18 +237,19 @@ def verify_login_otp(request):
                     "exp": datetime.utcnow() + timedelta(days=1),
                     "iat": datetime.utcnow(),
                 }
-
-                response = JsonResponse(
-                    {
-                        "message": "OTP verified successfully",
-                    }
-                )
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=",token)
 
-                response.set_cookie(
-                    "token", token, expires=None, secure=True, samesite='None'
+                # response.set_cookie(
+                #     "token", token, expires=None, secure=True, samesite='None'
+                # )
+                response = JsonResponse(
+                    {
+                        "message": "OTP verified successfully",
+                        "token":token,
+                    }
                 )
+                
                 return response
 
             elif user.otp_valid_till < timezone.now():

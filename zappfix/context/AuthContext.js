@@ -10,7 +10,7 @@ export const AuthProvider =({children}) => {
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
-    const API="http://172.23.6.67:8000"
+    const API="http://192.168.29.232:8000"
 
   
     const logout=()=>{
@@ -44,11 +44,12 @@ export const AuthProvider =({children}) => {
               });
       
             const result = await response.json();
+            console.log("here is the result",result);
             if(response.ok){
               alert(result.message)
-              setUserToken('RandomToken');
+              setUserToken(result.token);
               setEmail(email);
-              AsyncStorage.setItem('userToken',"RandValue");
+              AsyncStorage.setItem('userToken',result.token);
               AsyncStorage.setItem('isWorker',isWorker);
               AsyncStorage.setItem('email',email);
             }
