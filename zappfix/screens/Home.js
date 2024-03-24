@@ -23,7 +23,7 @@ export default function Home() {
 
   const [showRecentSearches, setShowRecentSearches] = useState(false);
 
-  const recentSearches = ['Search 1', 'Search 2', 'Search 3', 'Search 4', 'Search 5'];
+  const [recentSearches,setRecentSearches]= useState(['Search 1', 'Search 2', 'Search 3', 'Search 4', 'Search 5']);
 
   const handleSearchBarClick = () => {
     setShowRecentSearches(true);
@@ -92,7 +92,7 @@ export default function Home() {
             </View>
           </View>
           <View style={{ backgroundColor: themeColors.bgColor(1) }} className="rounded-full" >
-            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
               <Image style={{ width: 50, height: 50, borderRadius: 50 }} source={require('../assets/Profile.png')} />
             </TouchableOpacity>
           </View>
