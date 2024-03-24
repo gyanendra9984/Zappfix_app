@@ -406,7 +406,32 @@ def get_user_data(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-      
+
+@csrf_exempt
+def update_worker_location(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            email = data.get("email")
+            live_latitude = data.get("liveLatitude")
+            live_longitude = data.get("liveLongitude")
+
+            worker = WorkerDetails.objects.get(email=email)
+
+            worker.liveLatitude = live_latitude
+            worker.liveLongitude = live_longitude
+            worker.save()
+
+            return JsonResponse({"message": "Worker location updated successfully"})
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
 ###################### RECOMMENDATION SYSTEM #######################
 
 @csrf_exempt
@@ -445,7 +470,6 @@ def get_workers_on_price(request):
             return JsonResponse({"error": "Error fetching worker data"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
 
 
 @csrf_exempt
@@ -491,9 +515,8 @@ def get_nearest_workers(request):
             return JsonResponse({'error': 'Error fetching workers'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-    
 
-    
+
 ############################SEARCH FUNCTIONALITY########################
 
 
@@ -551,10 +574,6 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-
-
 
 
 ##################################HELPER FUNCTIONS####################################
@@ -635,11 +654,3 @@ def insert_worker(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error": "Error adding worker"}, status=500)
-           
-        
-        
-        
-        
-                
-    
-
