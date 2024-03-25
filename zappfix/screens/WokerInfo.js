@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,12 +12,42 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AuthContext } from '../context/AuthContext';
 
 const WorkerInfo = () => {
   const [location, setLocation] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(new Animated.Value(0));
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [workersData, setWorkersData] = useState([]);
+  const {API} = useContext(AuthContext);
+  // Function to fetch nearest workers
+  const fetchNearestWorkers = async () => {
+    try {
+      // console.log("location", location.coords.latitude, location.coords.longitude)
+      if(!location) return;
+      console.log("location", location)
+      const response = await fetch(`${API}/get_nearest_workers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: 'Carpentry',
+          coords: [location.coords.latitude, location.coords.longitude],
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setWorkersData(data.workers);
+      } else {
+        console.error('Failed to fetch nearest workers:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching nearest workers:', error);
+    }
+  };
+
 
   useEffect(() => {
     (async () => {
@@ -29,6 +59,11 @@ const WorkerInfo = () => {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+
+      if(location){
+        fetchNearestWorkers();
+      }
+
     })();
   }, []);
 
@@ -103,6 +138,35 @@ const WorkerInfo = () => {
     </View>
   );
 
+
+  // Render function for markers
+  const locationData = [
+    { id: '1', first_name: 'John', last_name: 'Doe', liveLatitude: 20.1234, liveLongitude: 78.9639 },
+    { id: '2', first_name: 'Jane', last_name: 'Smith', liveLatitude: 29.0588, liveLongitude: 76.0856 },
+    { id: '3', first_name: 'Bob', last_name: 'Johnson', liveLatitude: 27.0238, liveLongitude: 74.2179 },
+    { id: '4', first_name: 'Alice', last_name: 'Williams', liveLatitude: 12.9716, liveLongitude: 77.5946 },
+    { id: '5', first_name: 'Chris', last_name: 'Brown', liveLatitude: 37.78825, liveLongitude: -122.4324 },
+  ];
+
+  useEffect(() => {
+    setWorkersData(locationData);
+  }, []);
+
+
+
+  const renderMarkers = () => {
+    return workersData.map((worker, index) => (
+      <Marker
+        key={index}
+        coordinate={{
+          latitude: worker.liveLatitude,
+          longitude: worker.liveLongitude,
+        }}
+        title={`${worker.first_name} ${worker.last_name}`}
+      />
+    ));
+  };
+
   const handleDropdownSelect = (value) => {
     if (value === 'Clear Filter') {
       setSelectedRating(null);
@@ -133,6 +197,7 @@ const WorkerInfo = () => {
               }}
               title="Current Location"
             />
+            {renderMarkers()}
           </MapView>
         )}
       </Animated.View>

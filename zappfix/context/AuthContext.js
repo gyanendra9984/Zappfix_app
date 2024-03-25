@@ -10,7 +10,7 @@ export const AuthProvider =({children}) => {
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
-    const API="http://192.168.29.232:8000"
+    const API="http://172.23.5.58:8000"
 
   
     const logout=()=>{
