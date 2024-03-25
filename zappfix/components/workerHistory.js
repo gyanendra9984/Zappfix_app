@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const App = () => {
+const WorkerHistory = () => {
   return (
     <View style={{ flex: 1 }}>
       <HistoryList />
@@ -158,5 +158,5 @@ const App = () => {
   );
 };
 
-export default App;
+export default WorkerHistory;
 // export default HistoryList;

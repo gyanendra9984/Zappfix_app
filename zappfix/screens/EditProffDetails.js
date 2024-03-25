@@ -81,7 +81,9 @@ const UserProfile = () => {
             <Text style={styles.name}>{user.first_name}{user.last_name}</Text>
             <Text style={styles.details}>{user.age} years old</Text>
             <Text style={styles.details}>{user.address}</Text>
-        </View></View>)}
+            
+        </View>
+</View>)}
         
             
         </View>
@@ -92,6 +94,7 @@ const EditProffDetails = ({ navigation }) => {
     const [valueMS, setValueMS] = useState([]);
     const [pdfUri, setPdfUri] = useState(null);
     const [pdfName,setPdfName]=useState('');
+    const {logout}=useContext(AuthContext);
 
     const selectPdf = async () => {
         try {
@@ -130,7 +133,7 @@ const EditProffDetails = ({ navigation }) => {
                         value={valueMS}
                         onChange={setValueMS}
                     />
-                    <TouchableOpacity style={styles.uploadButton} onPress={selectPdf}>
+                    <TouchableOpacity style={styles.uploadButton} onPress={logout}>
                         <Text style={styles.uploadButtonText}>Upload PDF</Text>
                     </TouchableOpacity>
                     {pdfUri && (

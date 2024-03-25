@@ -10,15 +10,16 @@ export const AuthProvider =({children}) => {
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
-    const API="http://172.23.5.58:8000"
+    const API="http://172.23.5.67:8000"
 
   
-    const logout=()=>{
+    const logout= async ()=>{
         setIsLoading(true);
-        AsyncStorage.removeItem('userToken');
-        AsyncStorage.removeItem('isWorker');
-        AsyncStorage.removeItem('email');
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('isWorker');
+        await AsyncStorage.removeItem('email');
         setUserToken(null);
+        setIsWorker("");
         setIsLoading(false);
     }
     const verifyLoginOtp = async (email,otp,isAdmin) =>{

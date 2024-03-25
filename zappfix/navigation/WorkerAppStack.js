@@ -28,9 +28,7 @@ export default function WorkerAppStack() {
             iconName = 'map';
           } else if (route.name === 'Profile') {
             iconName = 'person';
-          } else if (route.name === 'WorkerInfo') {
-            iconName = 'information-circle';
-          } else if (route.name === 'EditProffDetails') {
+          }  else if (route.name === 'EditProffDetails') {
             iconName = 'information-circle';
           }else if (route.name === 'EditProfile') {
             iconName = 'person';
@@ -44,7 +42,7 @@ export default function WorkerAppStack() {
       <Tab.Screen name="DashBoard" component={WorkerHome} />
       {/* <Tab.Screen name="Map" component={Map} /> */}
       <Tab.Screen name="Profile" component={Profile} />
-      <Tab.Screen name="WorkerInfo" component={WorkerInfo} />
+      {/* <Tab.Screen name="WorkerInfo" component={WorkerInfo} /> */}
       <Tab.Screen name="EditProffDetails" component={EditProffDetails}/>
       <Tab.Screen name="EditProfile" component={EditProfile}/>
     </Tab.Navigator>

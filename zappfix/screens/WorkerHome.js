@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
 import { Alert } from 'react-native';
+import WorkerHistory from '../components/workerHistory';
 
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
@@ -95,6 +96,10 @@ const WorkerHome = ({ navigation }) => {
                         </View>
                     </View>
                 ))}
+            </ScrollView>
+            <ScrollView style={styles.scrollContainer}>
+            <Text style={styles.heading}>Worker History of Works</Text>
+            <WorkerHistory/>
             </ScrollView>
         </View>
     );

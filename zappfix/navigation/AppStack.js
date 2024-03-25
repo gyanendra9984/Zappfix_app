@@ -10,6 +10,7 @@ import Map from '../screens/Map';
 import Profile from "../screens/Profile"
 import WorkerInfo from "../screens/WokerInfo";
 import EditProfile from "../screens/EditProfile";
+import RequestPage from "../screens/RequestPage";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,8 @@ export default function AppStack() {
             iconName = 'person';
           } else if (route.name === 'WorkerInfo') {
             iconName = 'information-circle';
+          }else if (route.name === 'Profile') {
+            iconName = 'person';
           }
 
           // You can return any component that you like here!
@@ -36,10 +39,11 @@ export default function AppStack() {
       })}
     >
       <Tab.Screen name="ZappFix" component={Home} />
-      <Tab.Screen name="Map" component={Map} />
+      <Tab.Screen name="Map" component={Map} options={{ tabBarButton:()=>null }} />
       <Tab.Screen name="EditProfile" component={EditProfile} />
       <Tab.Screen name="Profile" component={Profile}/>
       <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen

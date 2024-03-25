@@ -13,6 +13,7 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigation } from "@react-navigation/native";
 
 const WorkerInfo = () => {
   const [location, setLocation] = useState(null);
@@ -20,15 +21,17 @@ const WorkerInfo = () => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [workersData, setWorkersData] = useState([]);
+  const navigation = useNavigation();
+
   const {API} = useContext(AuthContext);
+
   // Function to fetch nearest workers
   const fetchNearestWorkers = async () => {
     try {
-      // console.log("location", location.coords.latitude, location.coords.longitude)
       if(!location) return;
       console.log("location", location)
       const response = await fetch(`${API}/get_nearest_workers`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -98,6 +101,7 @@ const WorkerInfo = () => {
     : workers;
 
     const renderWorkerCard = ({ item }) => (
+      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage")}}>
       <View style={styles.workerCard}>
         <Image source={item.profileImage} style={styles.profileImage} />
         <View style={styles.workerInfo}>
@@ -106,6 +110,7 @@ const WorkerInfo = () => {
           <StarRating rating={item.rating} />
         </View>
       </View>
+      </TouchableOpacity>
     );
 
   const renderDropdownButton = () => (
@@ -203,6 +208,9 @@ const WorkerInfo = () => {
       </Animated.View>
       <View style={styles.contentContainer}>
         <Text style={styles.serviceProvidersInfo}>Service Providers Info</Text>
+        <TouchableOpacity style={styles.uploadButton} onPress={fetchNearestWorkers}>
+                        <Text style={styles.uploadButtonText}>Reload Button for Fetching Map</Text>
+                    </TouchableOpacity>
 
         {/* Filter Dropdown Button */}
         {renderDropdownButton()}
@@ -211,12 +219,14 @@ const WorkerInfo = () => {
         {isDropdownOpen && renderDropdownOptions()}
 
         {/* FlatList of Worker Cards */}
+    
         <FlatList
           data={filteredWorkers}
           keyExtractor={(item) => item.id}
           renderItem={renderWorkerCard}
           onScroll={handleScroll}
           contentContainerStyle={{ paddingBottom: 200 }} // Adjust this value as needed
+          
         />
       </View>
     </View>

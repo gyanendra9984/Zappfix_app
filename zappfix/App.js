@@ -6,9 +6,9 @@ import { usePushNotifications } from './context/pushNotifications';
 
 
 function App() {
-  const {expoPushToken, notification} = usePushNotifications();
-  const data=JSON.stringify(notification, undefined, 2);
-  console.log('data:',data, 'expoPushToken:',expoPushToken.data);
+  // const {expoPushToken, notification} = usePushNotifications();
+  // const data=JSON.stringify(notification, undefined, 2);
+  // console.log('data:',data, 'expoPushToken:',expoPushToken.data);
   return (
     <AuthProvider>
         <AppNav/>
