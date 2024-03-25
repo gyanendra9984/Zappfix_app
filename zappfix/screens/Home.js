@@ -65,9 +65,6 @@ export default function Home() {
     };
   }, [showRecentSearches]);
 
-
-
-
   return (
     // <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <SafeAreaView className="bg-white">
@@ -121,7 +118,7 @@ export default function Home() {
             <Categories />
 
             {/* <Divider width={2} insetType="left"/> */}
-            <Text className='text-2xl mt-5 mx-5'>Featured</Text>
+            <Text className='text-2xl mt-8 mx-5'>Featured</Text>
             <View className='flex flex-row justify-around mt-2'>
               {/* <View className='flex flex-col justify-center items-center'>
 
@@ -129,17 +126,17 @@ export default function Home() {
           <Text>Hi</Text>
           </View> */}
               <TouchableOpacity onPress={handleCardClick}>
-                <View className='flex flex-col justify-center items-center'>
-                  <Image style={{ width: 100, height: 100 }} source={require('../assets/icon1.jpg')} />
-                  <Text>Salon</Text>
+                <View className='flex flex-col justify-center items-left ml-1'>
+                  <Image style={{ width: 120, height: 120 }} source={require('../assets/icon1.jpg')} />
+                  <Text className="ml-1">Salon</Text>
                 </View>
               </TouchableOpacity>
               <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 100, height: 100 }} source={require('../assets/icon2.jpg')} />
+                <Image style={{ width: 120, height: 120 }} source={require('../assets/icon2.jpg')} />
                 <Text>Barber</Text>
               </View>
-              <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 100, height: 100 }} source={require('../assets/icon3.jpg')} />
+              <View className='flex flex-col justify-center items-center mr-1'>
+                <Image style={{ width: 120, height: 120 }} source={require('../assets/icon3.jpg')} />
                 <Text>AC Service</Text>
               </View>
               {/* <View className='flex flex-col justify-center items-center'>
@@ -149,17 +146,17 @@ export default function Home() {
             </View>
             <View className='flex flex-row justify-around mt-2'>
               <TouchableOpacity onPress={handleCardClick}>
-                <View className='flex flex-col justify-center items-center'>
-                  <Image style={{ width: 100, height: 100 }} source={require('../assets/icon4.jpg')} />
+                <View className='flex flex-col justify-center items-center ml-1'>
+                  <Image style={{ width: 120, height: 120 }} source={require('../assets/icon4.jpg')} />
                   <Text>Home Clean</Text>
                 </View>
               </TouchableOpacity>
               <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 100, height: 100 }} source={require('../assets/icon5.jpg')} />
+                <Image style={{ width: 120, height: 120 }} source={require('../assets/icon5.jpg')} />
                 <Text>Carpenter</Text>
               </View>
-              <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 100, height: 100 }} source={require('../assets/icon6.jpg')} />
+              <View className='flex flex-col justify-center items-center mr-1'>
+                <Image style={{ width: 120, height: 120 }} source={require('../assets/icon6.jpg')} />
                 <Text>Painter</Text>
               </View>
               {/* <View className='flex flex-col justify-center items-center'>
@@ -172,7 +169,7 @@ export default function Home() {
 
           {/* ------------------------------------- */}
 
-          <Text className='text-2xl mt-5 mx-5'>Top Problems</Text>
+          <Text className='text-2xl mt-10 mx-5'>Top Problems</Text>
 
           <View className='flex flex-row justify-around mt-2'>
             {/* <View className='flex flex-col justify-center items-center'>
@@ -180,25 +177,19 @@ export default function Home() {
           <Text>Hi</Text>
           </View> */}
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon1.jpg')} />
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon5.jpg')} />
               <Text>Salon</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon2.jpg')} />
-              <Text>Barber</Text>
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon6.jpg')} />
+              <Text>Bulb Fix</Text>
             </View>
-          </View>
-          <View className='flex flex-row justify-around mt-2'>
-            {/* <View className='flex flex-col justify-center items-center'>
-          <Image className='h-' source={require('../assets/icon.png')} />
-          <Text>Hi</Text>
-          </View> */}
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon1.jpg')} />
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon1.jpg')} />
               <Text>Salon</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon2.jpg')} />
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon2.jpg')} />
               <Text>Bulb Fix</Text>
             </View>
           </View>
@@ -208,11 +199,19 @@ export default function Home() {
           <Text>Hi</Text>
           </View> */}
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon1.jpg')} />
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon1.jpg')} />
               <Text>Salon</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 100, height: 100 }} source={require('../assets/icon2.jpg')} />
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon2.jpg')} />
+              <Text>Barber</Text>
+            </View>
+            <View className='flex flex-col justify-center items-center'>
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon3.jpg')} />
+              <Text>Salon</Text>
+            </View>
+            <View className='flex flex-col justify-center items-center'>
+              <Image style={{ width: 90, height: 90 }} source={require('../assets/icon4.jpg')} />
               <Text>Barber</Text>
             </View>
           </View>

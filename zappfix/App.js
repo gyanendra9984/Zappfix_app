@@ -3,7 +3,6 @@ import React from 'react';
 import AppNav from './navigation/AppNav';
 import { AuthProvider } from './context/AuthContext';
 import { usePushNotifications } from './context/pushNotifications';
-import Home from './screens/Home';
 
 
 function App() {
@@ -12,7 +11,7 @@ function App() {
   // console.log('data:',data, 'expoPushToken:',expoPushToken.data);
   return (
     <AuthProvider>
-      <Home/>
+        <AppNav/>
     </AuthProvider>
     
   );
