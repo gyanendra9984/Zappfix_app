@@ -450,16 +450,25 @@ def get_workers_on_price(request):
 
 @csrf_exempt
 def get_nearest_workers(request):
-    if request.method=='GET':
+    if request.method=='POST':
         try:
             data = json.loads(request.body)
             service_name = data.get('service')
             user_coords = data.get('coords')  
-            print(user_coords)          
+            print("coords=",user_coords)  
+            print("Given service_name=",service_name)        
             
             user_latitude_rad = Radians(user_coords[0])
             user_longitude_rad = Radians(user_coords[1])
+            all_services = Service.objects.all()
+    
+            # Iterate over each service and print its details
+            print("lentgh=",len(all_services))
+            for service in all_services:
+                print(f"Service Name: {service.name}")
+            # print("Here are the services=",Service.objects.all())
             service = Service.objects.get(name=service_name)
+            print("Here")
             workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
                 latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
                 longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),

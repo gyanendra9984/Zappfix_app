@@ -218,7 +218,7 @@ separator: {
   marginVertical: 5,
 },
 fullWidthButton: {
-  backgroundColor: 'green',
+  backgroundColor: '#0096FF',
   width: '80%', // Adjust width as needed
   borderRadius: 10,
   paddingVertical: 15,
