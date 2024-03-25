@@ -86,7 +86,6 @@ class Service(models.Model):
     
     def __str__(self):
         return self.name  
-     
 
 
 class Certification(models.Model):    
@@ -106,9 +105,9 @@ class WorkerDetails(models.Model):
     skill_level = models.IntegerField(default=0)
 
     isAvailable = models.BooleanField(default=True)
-    liveLatitude = models.FloatField()
-    liveLongitude = models.FloatField()
-    
+    liveLatitude = models.FloatField(default=0.0)
+    liveLongitude = models.FloatField(default=0.0)
+
     # Preferred Job Locations
     preferred_location = models.TextField(blank=True)          
 
