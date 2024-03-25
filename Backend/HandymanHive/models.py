@@ -88,12 +88,16 @@ class Service(models.Model):
         return self.name  
 
 
-class Certification(models.Model):    
-    name = models.CharField(max_length=255, primary_key=True, help_text="Name of the certification")
-    issuing_authority = models.CharField(max_length=255, help_text="Issuing authority for the certification")
+class Certification(models.Model):
+    certificate_name = models.CharField(max_length=255)
+    worker_email = models.EmailField(max_length=255)    
+    issuing_authority = models.CharField(max_length=255)
+    certificate_data = models.BinaryField(blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, default='Pending')
     
     def __str__(self):
-        return self.name 
+        return self.certificate_name 
 
 
 # Model to store professional details of workers.
@@ -118,9 +122,8 @@ class WorkerDetails(models.Model):
     # Reviews and Ratings
     customer_reviews = models.TextField(blank=True)
     overall_rating = models.FloatField(default=0.0)
-
-    # Certifications and Qualifications
-    certifications = models.ManyToManyField(Certification, related_name='workers')
+    
+    
     training_programs_completed = models.TextField(blank=True)
 
     # Price Range
