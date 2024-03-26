@@ -473,6 +473,22 @@ def get_user_data(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+      
+@csrf_exempt
+def user_last_five_queries(request):
+    if(request.method=="POST"):
+        try:
+            data=json.loads(request.body)
+            email=data.get("email")
+            user = CustomUser.objects.get(email=email)
+            last_five_queries = user.get_last_five_queries()
+            return JsonResponse({'last_five_queries':last_five_queries})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error':"Email does not exist"},status=404)
+    else:
+        return JsonResponse({"error":"Invalid Request Method"},status=400)
+
+
 @csrf_exempt
 def update_worker_location(request):
     if request.method == "POST":
@@ -496,6 +512,7 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 
 ###################### RECOMMENDATION SYSTEM #######################
@@ -601,7 +618,12 @@ def get_closest_services(request):
         try:
             data = json.loads(request.body)
             query = data.get("query")
-            
+            email=data.get("email")
+            user = CustomUser.objects.get(email=email)
+            # Add the query using the add_query method
+            user.add_query(query)
+            user.save()
+
             nlp = spacy.load("en_core_web_md")
             
             query_tokens = [token.text for token in nlp(query) if not token.is_stop and not token.is_punct]
@@ -733,3 +755,4 @@ def insert_worker(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error": "Error adding worker"}, status=500)
+
