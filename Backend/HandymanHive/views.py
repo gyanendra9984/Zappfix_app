@@ -18,6 +18,7 @@ from .models import (
     Service,
     Certification,
     WorkerDetails,
+    Request
 )
 from .firebase import *
 import jwt
@@ -332,7 +333,28 @@ def update_services(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+@csrf_exempt
+def get_services(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = WorkerDetails.objects.get(email=email)
+            services = worker.services_offered_set.all()
+            
+            worker_services = []
+            
+            for service in services:
+                worker_services.append({
+                    'name': service.name                    
+                })
 
+        except Exception as e:
+            return JsonResponse({"error":"Error fetching services"}, status=500)
+        
+            
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def upload_certificate(request):
@@ -361,7 +383,30 @@ def upload_certificate(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
 
-
+@csrf_exempt
+def get_certificates(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            
+            certificates = Certification.objects.filter(worker_email=email)
+            
+            certificate_data = []
+            for certificate in certificates:
+                certificate_data.append({
+                    'certificate_name': certificate.certificate_name,
+                    'issuing_authority': certificate.issuing_authority,
+                    'certificate_data': certificate.certificate_data,
+                    'added_on': certificate.created_on,                    
+                    'status': certificate.status,
+                })
+                
+            return JsonResponse({'certificates': certificate_data})
+        except Exception as e:
+            return JsonResponse({"error": "Error fetching certificates"}, status=500)
+    else:
+        return JsonResponse({"error":"Invalid request method"},status=400)
 
 
 @csrf_exempt
@@ -429,6 +474,50 @@ def get_user_data(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+      
+@csrf_exempt
+def user_last_five_queries(request):
+    if(request.method=="POST"):
+        try:
+            data=json.loads(request.body)
+            email=data.get("email")
+            user = CustomUser.objects.get(email=email)
+            last_five_queries = user.get_last_five_queries()
+            return JsonResponse({'last_five_queries':last_five_queries})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error':"Email does not exist"},status=404)
+    else:
+        return JsonResponse({"error":"Invalid Request Method"},status=400)
+
+
+@csrf_exempt
+def create_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_email = data['user_email']
+            worker_email = data['worker_email']
+            additional_data = data['additional_data']
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+        except KeyError:
+            return JsonResponse({'status': 'error', 'message': 'Missing required fields'}, status=400)
+        
+        try:
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User does not exist'}, status=404)
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
+        
+        Request.objects.create(user=user, worker=worker, data=additional_data)
+        
+        return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
+
+
 @csrf_exempt
 def update_worker_location(request):
     if request.method == "POST":
@@ -452,6 +541,7 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 
 ###################### RECOMMENDATION SYSTEM #######################
@@ -557,7 +647,12 @@ def get_closest_services(request):
         try:
             data = json.loads(request.body)
             query = data.get("query")
-            
+            email=data.get("email")
+            user = CustomUser.objects.get(email=email)
+            # Add the query using the add_query method
+            user.add_query(query)
+            user.save()
+
             nlp = spacy.load("en_core_web_md")
             
             query_tokens = [token.text for token in nlp(query) if not token.is_stop and not token.is_punct]
@@ -721,4 +816,5 @@ def test(request):
     else:
         # Request failed, return error message
         return HttpResponse("Failed to send notification. Status code: {}".format(response.status_code))
+
 

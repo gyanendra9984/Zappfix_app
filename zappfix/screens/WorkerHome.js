@@ -75,30 +75,36 @@ const WorkerHome = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Worker Home Screen</Text>
-            <Text style={styles.heading}>Pending User Requests</Text>
-            <ScrollView style={styles.scrollContainer}>
-                {userRequests.map(request => (
-                    <View key={request.id} style={styles.card}>
-                        <Text style={styles.name}>{request.name}</Text>
-                        <Text style={styles.problem}>{request.problem}</Text>
-                        <View style={styles.distanceContainer}>
-                            <SvgXml xml={pinSvg} />
-                            <Text style={styles.distance}>{request.distance}</Text>
+            <Text className="mt-16 font-bold text-2xl">Worker Home Screen</Text>
+
+            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________________</Text>
+
+            <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
+            <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
+                <ScrollView style={styles.scrollView}>
+                    {userRequests.map(request => (
+                        <View key={request.id} style={styles.card} className="border border-gray-300">
+                            <Text style={styles.name}>{request.name}</Text>
+                            <Text style={styles.problem}>{request.problem}</Text>
+                            <View style={styles.distanceContainer}>
+                                <SvgXml xml={pinSvg} />
+                                <Text style={styles.distance}>{request.distance}</Text>
+                            </View>
+                            <View style={styles.buttonsContainer}>
+                                <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
+                                    <Text style={styles.buttonText}>Accept</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
+                                    <Text style={styles.buttonText}>Reject</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                        <View style={styles.buttonsContainer}>
-                            <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
-                                <Text style={styles.buttonText}>Accept</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
-                                <Text style={styles.buttonText}>Reject</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                ))}
-            </ScrollView>
-            <ScrollView style={styles.scrollContainer}>
-            <Text style={styles.heading}>Worker History of Works</Text>
+                    ))}
+                </ScrollView>
+            </View>
+
+            <Text className="mt-4 font-semibold text-xl">Worker History of Works</Text>
+            <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
             </ScrollView>
         </View>
@@ -116,11 +122,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
-    },
-    heading: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
     },
     scrollContainer: {
         flex: 1,

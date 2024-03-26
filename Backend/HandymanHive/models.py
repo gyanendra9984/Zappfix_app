@@ -62,6 +62,10 @@ class CustomWorker(models.Model):
         return self.email
 
 
+from django.db import models
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+
 class CustomUser(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -76,8 +80,19 @@ class CustomUser(models.Model):
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
     notification_token = models.CharField(max_length=255, null=True, blank=True)
+    last_five_queries = models.JSONField(default=list)
+
     def __str__(self):
         return self.email
+
+    def add_query(self, query_text):
+        max_queries = 5
+        queries = self.last_five_queries or []
+        queries.append(query_text)
+        self.last_five_queries = queries[-max_queries:]  # Keep only the last 5 queries
+
+    def get_last_five_queries(self):
+        return self.last_five_queries
 
 
 class Service(models.Model):
@@ -129,3 +144,10 @@ class WorkerDetails(models.Model):
     # Price Range
     min_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
     max_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
+class Request(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
+    data = models.CharField(max_length=255)  # Additional data field
+
+    def __str__(self):
+        return f"Request from {self.user.email} to {self.worker.email}"
