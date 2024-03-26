@@ -57,7 +57,7 @@ class CustomWorker(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-
+    notification_token = models.CharField(max_length=255, null=True, blank=True)
     def __str__(self):
         return self.email
 
@@ -75,7 +75,7 @@ class CustomUser(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-
+    notification_token = models.CharField(max_length=255, null=True, blank=True)
     def __str__(self):
         return self.email
 

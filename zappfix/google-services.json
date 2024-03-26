@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1083876176600",
+    "project_id": "handymanhive-ecf9c",
+    "storage_bucket": "handymanhive-ecf9c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083876176600:android:67dc15f6a203c78626ddad",
+        "android_client_info": {
+          "package_name": "com.probro18.zappfix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRCljtRqthkyUZWnpv_Lqgurqxi6-52JQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

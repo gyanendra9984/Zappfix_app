@@ -17,5 +17,6 @@ urlpatterns = [
     path("get_workers_on_price", views.get_workers_on_price, name="get_workers_on_price"),
     path("get_closest_services", views.get_closest_services, name="get_closest_services"),
     path("update_worker_location", views.update_worker_location, name="update_worker_location"),
+    path("test", views.test, name="test"),
 ]  
 

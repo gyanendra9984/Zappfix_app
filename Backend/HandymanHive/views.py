@@ -6,7 +6,7 @@ from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
 import spacy
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.conf import settings
@@ -19,7 +19,7 @@ from .models import (
     Certification,
     WorkerDetails,
 )
-
+from .firebase import *
 import jwt
 import json
 import random
@@ -689,3 +689,36 @@ def insert_worker(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error": "Error adding worker"}, status=500)
+    
+
+#--------TESTING--------
+import requests
+from datetime import datetime
+
+def test(request):
+    # Current date and time
+    current_date_time = datetime.now().strftime("%m-%d-%Y %I:%M%p")
+
+    # Data to be sent in the POST request
+    post_data = {
+        'appId': 20412,
+        'appToken': "NsILxuDDNzAWkN67avQgQa",
+        'title': "Push title here as a string",
+        'body': "Push message here as a string",
+        'dateSent': current_date_time,
+    }
+
+    # URL to which the POST request will be sent
+    url = "https://app.nativenotify.com/api/notification"
+
+    # Sending POST request
+    response = requests.post(url, json=post_data)
+
+    # Check if request was successful
+    if response.status_code == 200:
+        # Request successful, return success message
+        return HttpResponse("Notification sent successfully")
+    else:
+        # Request failed, return error message
+        return HttpResponse("Failed to send notification. Status code: {}".format(response.status_code))
+
