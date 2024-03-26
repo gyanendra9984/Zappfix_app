@@ -298,48 +298,65 @@ def edit_personal_profile(request):
 
 
 @csrf_exempt
-def edit_worker_profile(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        isWorker = data.get("isWorker")
-        print(data)
-        if str(isWorker) == "False":
-            return JsonResponse({"error": "Invalid request"}, status=400)
+def update_services(request):
+    if request.method=='POST':
         try:
-            email = data.get("email")
-            services = data.get("services")
-            print(services)
-            certifications = data.get("certifications")
-
-            user = WorkerDetails.objects.get(email=email)
-            for item in services:
-                if not Service.objects.filter(name=item).exists():
-                    service = Service.objects.create(name=item)
-                    service.description = "a"
-                    service.save()
-
+            data = json.loads(request.body)
+            email = data.get('email')
+            services = data.get('services')
+            print(1)
+            worker = WorkerDetails.objects.get(email=email)
+            worker.services_offered.clear()
+            print(2)
+            for service in services:
                 try:
-                    service = Service.objects.get(name=item)
-                    user.services_offered.add(service)
-                    print("Service Added", item)
+                    obj = Service.objects.get(name=service)
+                    worker.services_offered.add(obj)                    
                 except Exception as e:
                     print(e)
-                    print(item)
                     pass
+                    
+            return JsonResponse({"message": "Services updated successfully"})
+            
+            
+        except Exception as e:
+            return JsonResponse({"error": "Error updating services"}, status=500)
+        
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
-            for certification in certifications:
-                try:
-                    certification = Certification.objects.get(name=certification)
-                    # Certification Verification to be implemented
-                    user.certifications.add(certification[0])
-                except:
-                    pass
-            user.save()
 
-            return JsonResponse({"message": "Profile updated successfully"})
 
-        except CustomWorker.DoesNotExist:
-            return JsonResponse({"error": "Email does not exist."}, status=404)
+
+@csrf_exempt
+def upload_certificate(request):
+    if request.method=='POST':
+        try:            
+            data = json.loads(request.body)
+            email = data.get('email')
+            certificate_name = data.get('certificate_name')
+            issuing_authority = data.get('issuing_authority')
+            certificate_data = data.get('certificate_data')
+            
+            certificate = Certification.objects.create(
+                certificate_name=certificate_name,
+                worker_email=email,
+                issuing_authority=issuing_authority,
+                certificate_data=certificate_data                
+            )        
+            
+            
+        except Exception as e:
+            return JsonResponse({"error": "Error uploading certificate"}, status=500)
+        
+        
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+
+
 
 
 @csrf_exempt
@@ -650,7 +667,11 @@ def insert_worker(request):
                     )
         
                     for serv in services:
-                        service = Service.objects.get_or_create(name=serv)
+                        if not Service.objects.filter(name=serv).exists():
+                            service = Service.objects.create(name=serv)
+                        else:                            
+                            service = Service.objects.get(name=serv)
+                        
                         worker_details.services_offered.add(service[0])
                 
                     worker_details.save()
