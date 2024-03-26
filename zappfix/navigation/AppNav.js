@@ -29,8 +29,8 @@ const AppNav = () => {
       {/* <AdminAppStack/> */}
       {/* {
         userToken != null ? (
-          isAdmin ? <AdminAppStack /> : (
-            isWorker ? <WorkerAppStack /> : <AppStack />
+          isAdmin=="True" ? <AdminAppStack /> : (
+            isWorker=="True" ? <WorkerAppStack /> : <AppStack />
           )
         ) : <AuthStack />
       } */}
