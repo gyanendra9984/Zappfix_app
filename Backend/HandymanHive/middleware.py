@@ -6,7 +6,7 @@ import json
 class JWTAuthorizationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.included_paths = ['/edit_personal_profile', '/edit_worker_profile', '/delete_user', '/get_user_data']  # List of included paths
+        self.included_paths = ['/edit_personal_profile', '/delete_user', '/get_user_data', '/update_services', '/get_services', '/upload_certificate', '/get_certificates']  # List of included paths
 
     def __call__(self, request):
         response = self.get_response(request)

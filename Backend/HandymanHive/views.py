@@ -332,7 +332,28 @@ def update_services(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+@csrf_exempt
+def get_services(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = WorkerDetails.objects.get(email=email)
+            services = worker.services_offered_set.all()
+            
+            worker_services = []
+            
+            for service in services:
+                worker_services.append({
+                    'name': service.name                    
+                })
 
+        except Exception as e:
+            return JsonResponse({"error":"Error fetching services"}, status=500)
+        
+            
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def upload_certificate(request):
@@ -361,7 +382,30 @@ def upload_certificate(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
 
-
+@csrf_exempt
+def get_certificates(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            
+            certificates = Certification.objects.filter(worker_email=email)
+            
+            certificate_data = []
+            for certificate in certificates:
+                certificate_data.append({
+                    'certificate_name': certificate.certificate_name,
+                    'issuing_authority': certificate.issuing_authority,
+                    'certificate_data': certificate.certificate_data,
+                    'added_on': certificate.created_on,                    
+                    'status': certificate.status,
+                })
+                
+            return JsonResponse({'certificates': certificate_data})
+        except Exception as e:
+            return JsonResponse({"error": "Error fetching certificates"}, status=500)
+    else:
+        return JsonResponse({"error":"Invalid request method"},status=400)
 
 
 @csrf_exempt
