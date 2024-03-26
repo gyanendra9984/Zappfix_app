@@ -10,6 +10,7 @@ export const AuthProvider =({children}) => {
     const [userToken,setUserToken]=useState(null);
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
+    const [isAdmin,setIsAdmin]=useState("False");
     const API="http://172.23.5.67:8000"
 
   
