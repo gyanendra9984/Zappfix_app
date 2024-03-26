@@ -141,3 +141,10 @@ class WorkerDetails(models.Model):
     # Price Range
     min_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
     max_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
+class Request(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
+    data = models.CharField(max_length=255)  # Additional data field
+
+    def __str__(self):
+        return f"Request from {self.user.email} to {self.worker.email}"

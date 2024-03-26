@@ -15,6 +15,7 @@ urlpatterns = [
     path("insert_worker", views.insert_worker, name="insert_worker"),
     path("get_workers_on_price", views.get_workers_on_price, name="get_workers_on_price"),
     path("get_closest_services", views.get_closest_services, name="get_closest_services"),
-    path("user_last_five_queries",views.user_last_five_queries,name="user_last_five_queries")
+    path("user_last_five_queries",views.user_last_five_queries,name="user_last_five_queries"),
+    path("create_request",views.create_request,name="create_request")
 ]  
 
