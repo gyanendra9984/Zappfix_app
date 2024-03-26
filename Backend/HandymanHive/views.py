@@ -18,6 +18,7 @@ from .models import (
     Service,
     Certification,
     WorkerDetails,
+    Request
 )
 
 import jwt
@@ -487,6 +488,34 @@ def user_last_five_queries(request):
             return JsonResponse({'error':"Email does not exist"},status=404)
     else:
         return JsonResponse({"error":"Invalid Request Method"},status=400)
+
+
+@csrf_exempt
+def create_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_email = data['user_email']
+            worker_email = data['worker_email']
+            additional_data = data['additional_data']
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+        except KeyError:
+            return JsonResponse({'status': 'error', 'message': 'Missing required fields'}, status=400)
+        
+        try:
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User does not exist'}, status=404)
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
+        
+        Request.objects.create(user=user, worker=worker, data=additional_data)
+        
+        return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
 
 
 @csrf_exempt
