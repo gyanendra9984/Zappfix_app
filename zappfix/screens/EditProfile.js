@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState,useEffect } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 
@@ -12,7 +12,44 @@ const EditProfile = () => {
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const { API, isWorker, email } = useContext(AuthContext);
+  const { API, isWorker, email,userToken } = useContext(AuthContext);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      
+      const response = await fetch(`${API}/get_user_data`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isWorker: isWorker,email:email,token:userToken }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        user=data.worker_details;
+        setFirstName(user.first_name);
+        setLastName(user.last_name);
+        setAge(user.age);
+        setAddress(user.address)
+        setCity(user.city);
+        setGender(user.gender);
+        setPhoneNumber(user.phone_number);
+        setState(user.state);
+        setZipCode(user.zip_code)
+      } else {
+        console.error('Failed to fetch user data:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -33,6 +70,7 @@ const EditProfile = () => {
           zip_code: zipCode,
           phone_number: phoneNumber,
           isWorker:isWorker,
+          token:userToken,
         }),
       });
 

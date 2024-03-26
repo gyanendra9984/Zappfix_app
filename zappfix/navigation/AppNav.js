@@ -7,6 +7,9 @@ import AppStack from "./AppStack";
 import WorkerAppStack from './WorkerAppStack';
 import { AuthContext } from '../context/AuthContext';
 import AdminAppStack from './AdminAppStack';
+import Home from '../screens/Home';
+import Profile from '../screens/Profile';
+import WorkerHome from '../screens/WorkerHome';
 
 
 const AppNav = () => {
@@ -25,11 +28,12 @@ const AppNav = () => {
     <NavigationContainer>
       {/* { (userToken!=null && isWorker =="False") ? <AppStack/>:<AuthStack/>} */}
       {/* {userToken != null && isWorker=="True" ? <WorkerAppStack /> : (userToken != null ? <AppStack /> : <AuthStack />)} */}
-      <AdminAppStack/>
+      <WorkerHome/>
+      {/* <AdminAppStack/> */}
       {/* {
         userToken != null ? (
-          isAdmin ? <AdminAppStack /> : (
-            isWorker ? <WorkerAppStack /> : <AppStack />
+          isAdmin=="True" ? <AdminAppStack /> : (
+            isWorker=="True" ? <WorkerAppStack /> : <AppStack />
           )
         ) : <AuthStack />
       } */}

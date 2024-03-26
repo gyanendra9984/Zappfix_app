@@ -53,12 +53,12 @@ function Login() {
       // }
       // else if(!isAdmin){
         if(isAdmin){
-          setIsWorker("True");
+          await setIsWorker("True");
         }
         else{
-          setIsWorker("False");
+          await setIsWorker("False");
         }
-        console.log(email)
+        console.log(email,isAdmin)
         const response = await fetch(`${API}/user_login`, {
           method: 'POST',
           headers: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useContext } from 'react';
 import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { WebView } from 'react-native-webview';
@@ -7,6 +7,7 @@ import {
     GroupDropdown,
     MultiselectDropdown,
 } from 'sharingan-rn-modal-dropdown';
+import { AuthContext } from '../context/AuthContext';
 
 export const data = [
     {
@@ -39,23 +40,52 @@ export const data = [
     },
 ];
 
+
 const UserProfile = () => { 
     // Sample user data (replace with actual data)
-    const user = {
-        name: 'John Doe',
-        age: 30,
-        profession: 'Painter',
-        avatarUri: 'https://randomuser.me/api/portraits/men/1.jpg', // Sample avatar image URL
-    };
+    const [user, setUser] = useState(null);
+    const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
+    useEffect(() => {
+        fetchUserData();
+      }, []);
+    
+      const fetchUserData = async () => {
+        try {
+          
+          const response = await fetch(`${API}/get_user_data`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ isWorker: isWorker,email:email,token:userToken }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setUser(data.worker_details);
+          } else {
+            console.error('Failed to fetch user data:', data.error);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        } finally {
+          
+        }
+      };
 
     return (
         <View style={styles.userProfileContainer}>
-            <Image source={{ uri: user.avatarUri }} style={styles.avatar} />
-            <View style={styles.userInfo}>
-                <Text style={styles.name}>{user.name}</Text>
-                <Text style={styles.details}>{user.age} years old</Text>
-                <Text style={styles.details}>{user.profession}</Text>
-            </View>
+        {user && (<View><Image source={require('../assets/Profile.png')} style={styles.avatar} />
+        {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage} /> */}
+        <View style={styles.userInfo}>
+            <Text style={styles.name}>{user.first_name}{user.last_name}</Text>
+            <Text style={styles.details}>{user.age} years old</Text>
+            <Text style={styles.details}>{user.address}</Text>
+            
+        </View>
+</View>)}
+        
+            
         </View>
     );
 };
@@ -63,6 +93,8 @@ const UserProfile = () => {
 const EditProffDetails = ({ navigation }) => {
     const [valueMS, setValueMS] = useState([]);
     const [pdfUri, setPdfUri] = useState(null);
+    const [pdfName,setPdfName]=useState('');
+    const {logout}=useContext(AuthContext);
 
     const selectPdf = async () => {
         try {
@@ -71,12 +103,14 @@ const EditProffDetails = ({ navigation }) => {
                 multiple: true,
                 type: "*/*",
             });
-            
+            fetchUserData();
             console.log("RESULT : ", result)
 
             if (result.canceled === false) {
                 console.log('Document picked:', result.assets[0].uri)
                 setPdfUri(result.assets[0].uri);
+                setPdfName(result.assets[0].name);
+                // console.log(result.assets[0].uri);
             } else {
                 console.log('Document picking cancelled');
             }
@@ -90,7 +124,7 @@ const EditProffDetails = ({ navigation }) => {
             <ScrollView>
                 <UserProfile />
                 <View style={styles.contentContainer}>
-                    <Text style={styles.title}>Edit Professional Details</Text>
+                    <Text style={styles.title} className="pt-2 text-gray-900">Edit Professional Details</Text>
                     <MultiselectDropdown
                         label="Select Skills"
                         data={data}
@@ -98,13 +132,14 @@ const EditProffDetails = ({ navigation }) => {
                         chipType="outlined"
                         value={valueMS}
                         onChange={setValueMS}
+                        style={styles.dropdown}
                     />
-                    <TouchableOpacity style={styles.uploadButton} onPress={selectPdf}>
+                    <TouchableOpacity style={styles.uploadButton} onPress={logout}>
                         <Text style={styles.uploadButtonText}>Upload PDF</Text>
                     </TouchableOpacity>
                     {pdfUri && (
                         <View style={styles.pdfContainer}>
-                            <Text style={styles.pdfTitle}>PDF Preview:</Text>
+                            <Text style={styles.pdfTitle}>{pdfName}</Text>
                             <WebView
                                 source={{ uri: pdfUri }}
                                 allowFileAccess
@@ -121,6 +156,9 @@ const EditProffDetails = ({ navigation }) => {
 export default EditProffDetails;
 
 const styles = StyleSheet.create({
+    dropdown: {
+        backgroundColor: '#fff', borderColor: '#ccc', borderWidth: 1 
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -133,7 +171,6 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 20,
-        color: 'black',
     },
     uploadButton: {
         backgroundColor: '#2196F3',

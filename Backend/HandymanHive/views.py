@@ -190,9 +190,18 @@ def user_login(request):
             print("Vlaue of isWoker=",isWorker)
 
             if isWorker == "True":
-                user = CustomWorker.objects.get(email=email)
+                user_model = CustomWorker
+                # user = CustomWorker.objects.get(email=email)
             else:
-                user = CustomUser.objects.get(email=email)
+                user_model = CustomUser
+                # user = CustomUser.objects.get(email=email)
+
+            try:
+                user = user_model.objects.get(email=email)
+            except user_model.DoesNotExist:
+                return JsonResponse(
+                    {"error": "User with this email does not exist."}, status=404
+                )
             print("im Here")
             otp = generate_otp()
             user.otp = otp
@@ -202,10 +211,6 @@ def user_login(request):
             send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
-        except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
-            return JsonResponse(
-                {"error": "User with this email does not exist."}, status=404
-            )
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error sending OTP"}, status=500)
@@ -220,12 +225,16 @@ def verify_login_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
+        print("isWorker=",isWorker)
+        
 
         try:
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
+            print("userotp=",user.otp)
+            print("otp=",otp)
 
             if user.otp == otp and user.otp_valid_till > timezone.now():
 
@@ -234,18 +243,19 @@ def verify_login_otp(request):
                     "exp": datetime.utcnow() + timedelta(days=1),
                     "iat": datetime.utcnow(),
                 }
-
-                response = JsonResponse(
-                    {
-                        "message": "OTP verified successfully",
-                    }
-                )
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=",token)
 
-                response.set_cookie(
-                    "token", token, expires=None, secure=True, samesite='None'
+                # response.set_cookie(
+                #     "token", token, expires=None, secure=True, samesite='None'
+                # )
+                response = JsonResponse(
+                    {
+                        "message": "OTP verified successfully",
+                        "token":token,
+                    }
                 )
+                
                 return response
 
             elif user.otp_valid_till < timezone.now():
@@ -294,48 +304,109 @@ def edit_personal_profile(request):
 
 
 @csrf_exempt
-def edit_worker_profile(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        isWorker = data.get("isWorker")
-        print(data)
-        if str(isWorker) == "False":
-            return JsonResponse({"error": "Invalid request"}, status=400)
+def update_services(request):
+    if request.method=='POST':
         try:
-            email = data.get("email")
-            services = data.get("services")
-            print(services)
-            certifications = data.get("certifications")
-
-            user = WorkerDetails.objects.get(email=email)
-            for item in services:
-                if not Service.objects.filter(name=item).exists():
-                    service = Service.objects.create(name=item)
-                    service.description = "a"
-                    service.save()
-
+            data = json.loads(request.body)
+            email = data.get('email')
+            services = data.get('services')
+            print(1)
+            worker = WorkerDetails.objects.get(email=email)
+            worker.services_offered.clear()
+            print(2)
+            for service in services:
                 try:
-                    service = Service.objects.get(name=item)
-                    user.services_offered.add(service)
-                    print("Service Added", item)
+                    obj = Service.objects.get(name=service)
+                    worker.services_offered.add(obj)                    
                 except Exception as e:
                     print(e)
-                    print(item)
                     pass
+                    
+            return JsonResponse({"message": "Services updated successfully"})
+            
+            
+        except Exception as e:
+            return JsonResponse({"error": "Error updating services"}, status=500)
+        
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
-            for certification in certifications:
-                try:
-                    certification = Certification.objects.get(name=certification)
-                    # Certification Verification to be implemented
-                    user.certifications.add(certification[0])
-                except:
-                    pass
-            user.save()
 
-            return JsonResponse({"message": "Profile updated successfully"})
+@csrf_exempt
+def get_services(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = WorkerDetails.objects.get(email=email)
+            services = worker.services_offered_set.all()
+            
+            worker_services = []
+            
+            for service in services:
+                worker_services.append({
+                    'name': service.name                    
+                })
 
-        except CustomWorker.DoesNotExist:
-            return JsonResponse({"error": "Email does not exist."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error":"Error fetching services"}, status=500)
+        
+            
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def upload_certificate(request):
+    if request.method=='POST':
+        try:            
+            data = json.loads(request.body)
+            email = data.get('email')
+            certificate_name = data.get('certificate_name')
+            issuing_authority = data.get('issuing_authority')
+            certificate_data = data.get('certificate_data')
+            
+            certificate = Certification.objects.create(
+                certificate_name=certificate_name,
+                worker_email=email,
+                issuing_authority=issuing_authority,
+                certificate_data=certificate_data                
+            )        
+            
+            
+        except Exception as e:
+            return JsonResponse({"error": "Error uploading certificate"}, status=500)
+        
+        
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+
+@csrf_exempt
+def get_certificates(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            
+            certificates = Certification.objects.filter(worker_email=email)
+            
+            certificate_data = []
+            for certificate in certificates:
+                certificate_data.append({
+                    'certificate_name': certificate.certificate_name,
+                    'issuing_authority': certificate.issuing_authority,
+                    'certificate_data': certificate.certificate_data,
+                    'added_on': certificate.created_on,                    
+                    'status': certificate.status,
+                })
+                
+            return JsonResponse({'certificates': certificate_data})
+        except Exception as e:
+            return JsonResponse({"error": "Error fetching certificates"}, status=500)
+    else:
+        return JsonResponse({"error":"Invalid request method"},status=400)
 
 
 @csrf_exempt
@@ -402,6 +473,7 @@ def get_user_data(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+
       
 @csrf_exempt
 def user_last_five_queries(request):
@@ -416,6 +488,7 @@ def user_last_five_queries(request):
             return JsonResponse({'error':"Email does not exist"},status=404)
     else:
         return JsonResponse({"error":"Invalid Request Method"},status=400)
+
 
 @csrf_exempt
 def create_request(request):
@@ -443,6 +516,33 @@ def create_request(request):
         return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
+
+
+@csrf_exempt
+def update_worker_location(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            email = data.get("email")
+            live_latitude = data.get("liveLatitude")
+            live_longitude = data.get("liveLongitude")
+
+            worker = WorkerDetails.objects.get(email=email)
+
+            worker.liveLatitude = live_latitude
+            worker.liveLongitude = live_longitude
+            worker.save()
+
+            return JsonResponse({"message": "Worker location updated successfully"})
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
 
 ###################### RECOMMENDATION SYSTEM #######################
 
@@ -484,19 +584,27 @@ def get_workers_on_price(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-
 @csrf_exempt
 def get_nearest_workers(request):
-    if request.method=='GET':
+    if request.method=='POST':
         try:
             data = json.loads(request.body)
             service_name = data.get('service')
             user_coords = data.get('coords')  
-            print(user_coords)          
+            print("coords=",user_coords)  
+            print("Given service_name=",service_name)        
             
             user_latitude_rad = Radians(user_coords[0])
             user_longitude_rad = Radians(user_coords[1])
+            all_services = Service.objects.all()
+    
+            # Iterate over each service and print its details
+            print("lentgh=",len(all_services))
+            for service in all_services:
+                print(f"Service Name: {service.name}")
+            # print("Here are the services=",Service.objects.all())
             service = Service.objects.get(name=service_name)
+            print("Here")
             workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
                 latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
                 longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),
@@ -528,9 +636,8 @@ def get_nearest_workers(request):
             return JsonResponse({'error': 'Error fetching workers'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-    
 
-    
+
 ############################SEARCH FUNCTIONALITY########################
 
 
@@ -593,10 +700,6 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-
-
 
 
 ##################################HELPER FUNCTIONS####################################
@@ -664,7 +767,11 @@ def insert_worker(request):
                     )
         
                     for serv in services:
-                        service = Service.objects.get_or_create(name=serv)
+                        if not Service.objects.filter(name=serv).exists():
+                            service = Service.objects.create(name=serv)
+                        else:                            
+                            service = Service.objects.get(name=serv)
+                        
                         worker_details.services_offered.add(service[0])
                 
                     worker_details.save()
@@ -677,12 +784,4 @@ def insert_worker(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error": "Error adding worker"}, status=500)
-           
-        
-
-        
-        
-        
-                
-    
 
