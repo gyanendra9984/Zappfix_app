@@ -2,52 +2,52 @@ export const categories = [
     {
         id:1,
         name:"Electronics",
-        image:'../assets/tp1.jpg',
+        image:'image1',
     },
     {
         id:2,
         name:"Fashion",
-        image:'../assets/tp2.jpg',
+        image:'image2',
     },
     {
         id:3,
         name:"Home",
-        image:'../assets/tp3.jpg',
+        image:'image3',
     },
     {
         id:4,
         name:"Sports",
-        image:'../assets/tp4.jpg',
+        image:'image4',
     },
     {
         id:5,
         name:"Plumbers",
-        image:'../assets/tp1.jpg',
+        image:'image5',
     },
     {
         id:6,
         name:"Others",
-        image:'../assets/tp2.jpg',
+        image:'image6',
     },
     {
         id:7,
         name:"Games",
-        image:'../assets/tp3.jpg',
+        image:'image7',
     },
     {
         id:8,
         name:"Cars",
-        image:'../assets/tp4.jpg',
+        image:'image8',
     },
     {
         id:9,
         name:"Books",
-        image:'../assets/tp1.jpg',
+        image:'image9',
     },
     {
         id:10,
         name:"Movies",
-        image:'../assets/tp2.jpg',
+        image:'image10',
     },
 ]
 

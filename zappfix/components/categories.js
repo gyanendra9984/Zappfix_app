@@ -9,6 +9,14 @@ const resolveImage = (imageName) => {
     switch (imageName) {
         case 'image1': return require('../assets/tp1.jpg');
         case 'image2': return require('../assets/tp2.jpg');
+        case 'image3': return require('../assets/tp3.jpg');
+        case 'image4': return require('../assets/tp4.jpg');
+        case 'image5': return require('../assets/icon1.jpg');
+        case 'image6': return require('../assets/icon2.jpg');
+        case 'image7': return require('../assets/icon3.jpg');
+        case 'image8': return require('../assets/icon4.jpg');
+        case 'image9': return require('../assets/icon5.jpg');
+        case 'image10': return require('../assets/icon6.jpg');
         // Add more cases for other image names
         default: return require('../assets/tp1.jpg');
     }

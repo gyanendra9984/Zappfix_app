@@ -7,6 +7,7 @@ import AppStack from "./AppStack";
 import WorkerAppStack from './WorkerAppStack';
 import { AuthContext } from '../context/AuthContext';
 import AdminAppStack from './AdminAppStack';
+import Home from '../screens/Home';
 
 
 const AppNav = () => {

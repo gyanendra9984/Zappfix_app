@@ -124,7 +124,7 @@ const EditProffDetails = ({ navigation }) => {
             <ScrollView>
                 <UserProfile />
                 <View style={styles.contentContainer}>
-                    <Text style={styles.title}>Edit Professional Details</Text>
+                    <Text style={styles.title} className="pt-2 text-gray-900">Edit Professional Details</Text>
                     <MultiselectDropdown
                         label="Select Skills"
                         data={data}
@@ -132,6 +132,7 @@ const EditProffDetails = ({ navigation }) => {
                         chipType="outlined"
                         value={valueMS}
                         onChange={setValueMS}
+                        style={styles.dropdown}
                     />
                     <TouchableOpacity style={styles.uploadButton} onPress={logout}>
                         <Text style={styles.uploadButtonText}>Upload PDF</Text>
@@ -155,6 +156,9 @@ const EditProffDetails = ({ navigation }) => {
 export default EditProffDetails;
 
 const styles = StyleSheet.create({
+    dropdown: {
+        backgroundColor: '#fff', borderColor: '#ccc', borderWidth: 1 
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -167,7 +171,6 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 20,
-        color: 'black',
     },
     uploadButton: {
         backgroundColor: '#2196F3',
