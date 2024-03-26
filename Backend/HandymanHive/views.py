@@ -189,9 +189,18 @@ def user_login(request):
             print("Vlaue of isWoker=",isWorker)
 
             if isWorker == "True":
-                user = CustomWorker.objects.get(email=email)
+                user_model = CustomWorker
+                # user = CustomWorker.objects.get(email=email)
             else:
-                user = CustomUser.objects.get(email=email)
+                user_model = CustomUser
+                # user = CustomUser.objects.get(email=email)
+
+            try:
+                user = user_model.objects.get(email=email)
+            except user_model.DoesNotExist:
+                return JsonResponse(
+                    {"error": "User with this email does not exist."}, status=404
+                )
             print("im Here")
             otp = generate_otp()
             user.otp = otp
@@ -201,10 +210,6 @@ def user_login(request):
             send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
-        except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
-            return JsonResponse(
-                {"error": "User with this email does not exist."}, status=404
-            )
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error sending OTP"}, status=500)

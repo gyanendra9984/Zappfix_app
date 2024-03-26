@@ -12,7 +12,7 @@ class TestSignup(TestCase):
     def test_valid_signup(self):
         client = Client()
         valid_data = {
-            "email": "test@example.com",
+            "email": "jaiswalabhi0786@gmail.com",
             "isWorker": False,
         }
         response = client.post(reverse('user_signup'), json.dumps(valid_data), content_type='application/json')
