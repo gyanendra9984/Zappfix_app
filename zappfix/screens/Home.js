@@ -89,7 +89,7 @@ export default function Home() {
             </View>
           </View>
           <View style={{ backgroundColor: themeColors.bgColor(1) }} className="rounded-full" >
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity onPress={logout}>
               <Image style={{ width: 50, height: 50, borderRadius: 50 }} source={require('../assets/Profile.png')} />
             </TouchableOpacity>
           </View>

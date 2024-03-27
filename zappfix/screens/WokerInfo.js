@@ -30,8 +30,8 @@ const WorkerInfo = () => {
     try {
       if(!location) return;
       console.log("location", location)
-      const response = await fetch(`${API}/get_nearest_workers`, {
-        method: 'POST',
+      const response = await fetch(`${API}/insert_worker`, {
+        method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
         },
@@ -41,6 +41,7 @@ const WorkerInfo = () => {
         }),
       });
       const data = await response.json();
+      console.log("Workers=",data.workers);
       if (response.ok) {
         setWorkersData(data.workers);
       } else {

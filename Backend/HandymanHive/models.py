@@ -57,7 +57,7 @@ class CustomWorker(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-
+    notification_token = models.CharField(max_length=255, null=True, blank=True)
     def __str__(self):
         return self.email
 
@@ -79,6 +79,7 @@ class CustomUser(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
+    notification_token = models.CharField(max_length=255, null=True, blank=True)
     last_five_queries = models.JSONField(default=list)
 
     def __str__(self):
@@ -143,3 +144,10 @@ class WorkerDetails(models.Model):
     # Price Range
     min_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
     max_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
+class Request(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
+    data = models.CharField(max_length=255)  # Additional data field
+
+    def __str__(self):
+        return f"Request from {self.user.email} to {self.worker.email}"

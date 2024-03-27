@@ -53,7 +53,7 @@ const Profile = () => {
             <Image source={require('../assets/Profile.png')} style={styles.profileImage} />
             <View style={styles.profileDetails}>
               <Text style={styles.profileName}>{user.first_name}</Text>
-              <Text style={styles.profileId}>ID: {user.last_name}</Text>
+              <Text style={styles.profileId}> {user.last_name}</Text>
             </View>
           </View>
 
@@ -95,7 +95,7 @@ const Profile = () => {
             </View>
           </View>
 
-          <View style={styles.card}>
+          {isWorker =="True" && (<View style={styles.card}>
             <Text style={styles.cardTitle}>Rating</Text>
             <View style={styles.infoContainer}>
               <View style={styles.infoItem}>
@@ -104,7 +104,7 @@ const Profile = () => {
                 {/* You can use user.rating instead of profile.rating */}
               </View>
             </View>
-          </View>
+          </View>)}
 
           <View style={styles.bottomButtons}>
             <TouchableOpacity style={styles.button} onPress={handleEditProfile}>

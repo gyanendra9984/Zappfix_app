@@ -6,7 +6,7 @@ from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
 import spacy
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.conf import settings
@@ -18,8 +18,9 @@ from .models import (
     Service,
     Certification,
     WorkerDetails,
+    Request
 )
-
+from .firebase import *
 import jwt
 import json
 import random
@@ -490,6 +491,34 @@ def user_last_five_queries(request):
 
 
 @csrf_exempt
+def create_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_email = data['user_email']
+            worker_email = data['worker_email']
+            additional_data = data['additional_data']
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+        except KeyError:
+            return JsonResponse({'status': 'error', 'message': 'Missing required fields'}, status=400)
+        
+        try:
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User does not exist'}, status=404)
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
+        
+        Request.objects.create(user=user, worker=worker, data=additional_data)
+        
+        return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
+
+
+@csrf_exempt
 def update_worker_location(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -570,12 +599,13 @@ def get_nearest_workers(request):
             all_services = Service.objects.all()
     
             # Iterate over each service and print its details
-            print("lentgh=",len(all_services))
-            for service in all_services:
-                print(f"Service Name: {service.name}")
-            # print("Here are the services=",Service.objects.all())
+            # print("lentgh=",len(all_services))
+            # for service in all_services:
+            #     print(f"Service Name: {service.name}")
+            # # print("Here are the services=",Service.objects.all())
             service = Service.objects.get(name=service_name)
-            print("Here")
+            
+            # print("Here")
             workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
                 latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
                 longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),
@@ -599,6 +629,7 @@ def get_nearest_workers(request):
                     'liveLongitude': worker.liveLongitude,
                     'distance': worker.distance,
                 })
+            print("Worker Details",worker_details)
                 
             return JsonResponse({'workers': worker_details})    
         
@@ -755,4 +786,37 @@ def insert_worker(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error": "Error adding worker"}, status=500)
+    
+
+#--------TESTING--------
+import requests
+from datetime import datetime
+
+def test(request):
+    # Current date and time
+    current_date_time = datetime.now().strftime("%m-%d-%Y %I:%M%p")
+
+    # Data to be sent in the POST request
+    post_data = {
+        'appId': 20412,
+        'appToken': "NsILxuDDNzAWkN67avQgQa",
+        'title': "Push title here as a string",
+        'body': "Push message here as a string",
+        'dateSent': current_date_time,
+    }
+
+    # URL to which the POST request will be sent
+    url = "https://app.nativenotify.com/api/notification"
+
+    # Sending POST request
+    response = requests.post(url, json=post_data)
+
+    # Check if request was successful
+    if response.status_code == 200:
+        # Request successful, return success message
+        return HttpResponse("Notification sent successfully")
+    else:
+        # Request failed, return error message
+        return HttpResponse("Failed to send notification. Status code: {}".format(response.status_code))
+
 
