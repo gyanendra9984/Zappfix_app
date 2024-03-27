@@ -81,13 +81,13 @@ function Login() {
         console.log("OTP sent successfully");
         alert("OTP sent successfully")
       } else {
-        console.log("Failed to send OTP");
-        alert("Error code",response.status)
+        alert("Failed to send OTP user not found");
+        // alert("Error code",response.message)
         // Handle the case where OTP sending fails
       }
     } catch (error) {
       console.error("Error signing up:", error);
-      alert("Error code",response.status)
+      alert(error)
       // Handle errors from the backend
     }
 

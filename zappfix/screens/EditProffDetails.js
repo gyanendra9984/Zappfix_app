@@ -103,13 +103,14 @@ const EditProffDetails = ({ navigation }) => {
                 multiple: true,
                 type: "*/*",
             });
-            fetchUserData();
+            // fetchUserData();
             console.log("RESULT : ", result)
 
             if (result.canceled === false) {
                 console.log('Document picked:', result.assets[0].uri)
                 setPdfUri(result.assets[0].uri);
                 setPdfName(result.assets[0].name);
+                alert("Uplaoded")
                 // console.log(result.assets[0].uri);
             } else {
                 console.log('Document picking cancelled');
@@ -134,7 +135,7 @@ const EditProffDetails = ({ navigation }) => {
                         onChange={setValueMS}
                         style={styles.dropdown}
                     />
-                    <TouchableOpacity style={styles.uploadButton} onPress={logout}>
+                    <TouchableOpacity style={styles.uploadButton} onPress={selectPdf}>
                         <Text style={styles.uploadButtonText}>Upload PDF</Text>
                     </TouchableOpacity>
                     {pdfUri && (

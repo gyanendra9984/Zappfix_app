@@ -599,12 +599,13 @@ def get_nearest_workers(request):
             all_services = Service.objects.all()
     
             # Iterate over each service and print its details
-            print("lentgh=",len(all_services))
-            for service in all_services:
-                print(f"Service Name: {service.name}")
-            # print("Here are the services=",Service.objects.all())
+            # print("lentgh=",len(all_services))
+            # for service in all_services:
+            #     print(f"Service Name: {service.name}")
+            # # print("Here are the services=",Service.objects.all())
             service = Service.objects.get(name=service_name)
-            print("Here")
+            
+            # print("Here")
             workers = WorkerDetails.objects.filter(services_offered__in=[service]).annotate(                
                 latitude_radians=ExpressionWrapper(Radians(F('liveLatitude')), output_field=FloatField()),
                 longitude_radians=ExpressionWrapper(Radians(F('liveLongitude')), output_field=FloatField()),
@@ -628,6 +629,7 @@ def get_nearest_workers(request):
                     'liveLongitude': worker.liveLongitude,
                     'distance': worker.distance,
                 })
+            print("Worker Details",worker_details)
                 
             return JsonResponse({'workers': worker_details})    
         
