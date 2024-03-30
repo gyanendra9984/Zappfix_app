@@ -6,7 +6,7 @@ import { usePushNotifications } from './context/pushNotifications';
 
 
 function App() {
-  registerNNPushToken(20412, 'NsILxuDDNzAWkN67avQgQa');
+  // registerNNPushToken(20412, 'NsILxuDDNzAWkN67avQgQa');
   // const {expoPushToken, notification} = usePushNotifications();
   // const data=JSON.stringify(notification, undefined, 2);
   // console.log('data:',data, 'expoPushToken:',expoPushToken);

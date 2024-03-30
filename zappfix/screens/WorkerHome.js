@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
 import { Alert } from 'react-native';
 import WorkerHistory from '../components/workerHistory';
+import { AuthContext } from '../context/AuthContext';
 
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
@@ -13,6 +14,8 @@ const pinSvg = `
 
 const WorkerHome = ({ navigation }) => {
     // Sample data for user requests
+
+    const  {logout} = useContext(AuthContext);
     const userRequests = [
         { id: 1, name: 'John Doe', problem: 'Fix leaking taps', distance:'2 miles away'},
         { id: 2, name: 'Jane Smith', problem: 'Broken flush of toilet', distance:'3 miles away'},
@@ -23,13 +26,6 @@ const WorkerHome = ({ navigation }) => {
         // Add more requests as needed
     ];
 
-    // Function to handle logout
-    const handleLogout = () => {
-        // Implement logout functionality here
-        // For example, you can clear user token from AsyncStorage or perform any other necessary actions
-        // Then navigate back to the authentication screen (e.g., AuthStack)
-        navigation.navigate('AuthStack');
-    };
 
     // Function to handle accept button press
     const handleAccept = (id) => {

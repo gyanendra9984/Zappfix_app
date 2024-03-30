@@ -20,7 +20,7 @@ from .models import (
     WorkerDetails,
     Request
 )
-from .firebase import *
+# from .firebase import *
 import jwt
 import json
 import random
@@ -56,12 +56,14 @@ def user_signup(request):
         data = json.loads(request.body)
         email = data.get("email")
         isWorker = data.get("isWorker")
+        print("Value of isWorker in user_signup is =",isWorker)
 
-        if isWorker and CustomWorker.objects.filter(email=email).exists():
+        if isWorker=="True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
-        if (not isWorker) and CustomUser.objects.filter(email=email).exists():
+        if isWorker=="False" and CustomUser.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
+        print("I have passed if ")
 
         if AbstractUser.objects.filter(email=email).exists():
             try:
@@ -187,7 +189,7 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
-            print("Vlaue of isWoker=",isWorker)
+            print("Value of isWorker in userLogin=",isWorker)
 
             if isWorker == "True":
                 user_model = CustomWorker

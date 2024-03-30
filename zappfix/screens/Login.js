@@ -29,6 +29,14 @@ function Login() {
     return emailPattern.test(email);
   };
 
+  const handleUserToggle = () =>{
+    setIsAdmin(false);
+    setIsWorker("False");
+  }
+  const handleWorkerToggle= ()=>{
+    setIsAdmin(true);
+    setIsWorker("True");
+  }
   const sendOtp = async () => {
     // Perform your signup logic here
     if (!isEmailValid(email)) {
@@ -39,19 +47,6 @@ function Login() {
 
     try {
       // Send a POST request to the backend with the user's information
-      // setIsLoading(true);
-      // if(isAdmin){
-      //   const response = await fetch(`${API}/worker_login`, {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({ email: email }),
-      //   });
-  
-      //   const result = await response.json();
-      // }
-      // else if(!isAdmin){
         if(isAdmin){
           await setIsWorker("True");
         }
@@ -68,10 +63,7 @@ function Login() {
         });
   
         const result = await response.json();
-      // }
-      
 
-      // setIsLoading(false);
       // Handle the response from the backend
       console.log("Response:", response.data);
 
@@ -143,13 +135,13 @@ function Login() {
   <ToggleButton
     label="User"
     active={!isAdmin}
-    onPress={() => setIsAdmin(false)}
+    onPress={handleUserToggle}
   />
   <Text style={styles.orText}> OR </Text>
   <ToggleButton
     label="Worker"
     active={isAdmin}
-    onPress={() => setIsAdmin(true)}
+    onPress={handleWorkerToggle}
   />
 </View>
           
