@@ -3,10 +3,12 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
+  const [progress,SetProgress]=useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -14,7 +16,7 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     try {
-      
+      SetProgress(true);
       const response = await fetch(`${API}/get_user_data`, {
         method: 'POST',
         headers: {
@@ -34,6 +36,7 @@ const Profile = () => {
     } finally {
       
     }
+    SetProgress(false);
   };
 
   const handleEditProfile = () => {
@@ -47,76 +50,81 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-      {user && (
-        <View>
-          <View style={styles.profileInfo}>
-            <Image source={require('../assets/Profile.png')} style={styles.profileImage} />
-            <View style={styles.profileDetails}>
-              <Text style={styles.profileName}>{user.first_name}</Text>
-              <Text style={styles.profileId}> {user.last_name}</Text>
-            </View>
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Contact Information</Text>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoItem}>
-                <Icon name="phone" size={20} color="#555" />
-                <Text>{` ${user.phone_number}`}</Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Icon name="email" size={20} color="#555" />
-                <Text>{` ${user.email}`}</Text>
+      {progress ? (
+        <LoadingScreen />
+      ) : (
+        user && (
+          <View>
+            <View style={styles.profileInfo}>
+              <Image source={require('../assets/Profile.png')} style={styles.profileImage} />
+              <View style={styles.profileDetails}>
+                <Text style={styles.profileName}>{user.first_name}</Text>
+                <Text style={styles.profileId}> {user.last_name}</Text>
               </View>
             </View>
-          </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Personal Information</Text>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoItem}>
-                <Icon name="person" size={20} color="#555" />
-                <Text>{` ${user.age} years old`}</Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Icon name="wc" size={20} color="#555" />
-                <Text>{` ${user.gender}`}</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Address</Text>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoItem}>
-                <Icon name="location-on" siz-e={20} color="#555" />
-                <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Contact Information</Text>
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <Icon name="phone" size={20} color="#555" />
+                  <Text>{` ${user.phone_number}`}</Text>
+                </View>
+                <View style={styles.infoItem}>
+                  <Icon name="email" size={20} color="#555" />
+                  <Text>{` ${user.email}`}</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {isWorker =="True" && (<View style={styles.card}>
-            <Text style={styles.cardTitle}>Rating</Text>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoItem}>
-                {/* Display rating stars */}
-                {/* Include displayRatingStars function here */}
-                {/* You can use user.rating instead of profile.rating */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Personal Information</Text>
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <Icon name="person" size={20} color="#555" />
+                  <Text>{` ${user.age} years old`}</Text>
+                </View>
+                <View style={styles.infoItem}>
+                  <Icon name="wc" size={20} color="#555" />
+                  <Text>{` ${user.gender}`}</Text>
+                </View>
               </View>
             </View>
-          </View>)}
 
-          <View style={styles.bottomButtons}>
-            <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
-              <Icon name="edit" size={20} color="#fff" />
-              <Text style={styles.buttonText}>Reload Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
-              <Icon name="exit-to-app" size={20} color="#fff" />
-              <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Address</Text>
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <Icon name="location-on" size={20} color="#555" />
+                  <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</Text>
+                </View>
+              </View>
+            </View>
+
+            {isWorker == "True" && (
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>Rating</Text>
+                <View style={styles.infoContainer}>
+                  <View style={styles.infoItem}>{/* Display rating stars */}
+                    {/* Include displayRatingStars function here */}
+                    {/* You can use user.rating instead of profile.rating */}
+                  </View>
+                </View>
+              </View>
+            )}
+
+            <View style={styles.bottomButtons}>
+              <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
+                <Icon name="edit" size={20} color="#fff" />
+                <Text style={styles.buttonText}>Reload Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
+                <Icon name="exit-to-app" size={20} color="#fff" />
+                <Text style={styles.buttonText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )
       )}
     </View>
   );

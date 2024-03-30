@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Login from "./Login";
+import LoadingScreen from "./LoadingScreen";
 
 function Signup() {
   const [firstName, setFirstName] = React.useState("");
@@ -34,6 +35,7 @@ function Signup() {
   const [address,setAddress]= React.useState("");
   const [isOtpSent, setIsOtpSent]=React.useState(0);
   const [otp, setOtp]=React.useState("");
+  const [progress,setProgress]=React.useState(false);
   // const [isWorker, setIsWorker]=React.useState(false);
   const {setIsLoading,API,isWorker,setIsWorker}= useContext(AuthContext);
 
@@ -51,7 +53,7 @@ function Signup() {
   };
   
   const verifyOtp = async () =>{
-    setIsLoading(true);
+    // setIsLoading(true);
     if(selectedRole==="worker"){
       setIsWorker("True");
     }
@@ -59,6 +61,7 @@ function Signup() {
       setIsWorker("False"); 
     }
     try {
+      setProgress(true)
       const response = await fetch(`${API}/verify_otp`, {
           method: 'POST',
           headers: {
@@ -83,7 +86,8 @@ function Signup() {
     } catch (error) {
       alert(error);
     }
-    setIsLoading(false);
+    setProgress(false);
+    // setIsLoading(false);
   }
 
   const handleSelectedRole = (itemValue) =>{
@@ -122,7 +126,7 @@ function Signup() {
 
     try {
       // Send a POST request to the backend with the user's information
-      alert("Evrything here")
+      setProgress(true)
       const response = await fetch(`${API}/user_signup`, {
           method: 'POST',
           headers: {
@@ -163,10 +167,13 @@ function Signup() {
       alert("Error sending otp")
       // Handle errors from the backend
     }
-  
+    setProgress(false)
   };
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+    {progress ? (
+        <LoadingScreen />
+      ) : (
       <View style={styles.container}>
         <View style={styles.Middle}>
           <Text style={styles.LoginText}>Signup</Text>
@@ -537,6 +544,7 @@ function Signup() {
 
         <StatusBar style="auto" />
       </View>
+      )}
     </ScrollView>
   );
 }
