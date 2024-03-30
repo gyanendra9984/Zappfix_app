@@ -5,6 +5,7 @@ import { Input, NativeBaseProvider, Button, Icon, Box, Image, AspectRatio } from
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 function ToggleButton({ label, active, onPress }) {
   return (
@@ -22,6 +23,7 @@ function Login() {
   const [isOtpSent, setIsOtpSent] = React.useState(0);
   const [otp, setOtp] = React.useState("");
   const [isAdmin, setIsAdmin] = React.useState(false); // Default to user
+  const [progress,setProgress]=React.useState(false);
 
   const isEmailValid = (email) => {
     // You can implement your email validation logic here
@@ -47,6 +49,7 @@ function Login() {
 
     try {
       // Send a POST request to the backend with the user's information
+        setProgress(true);
         if(isAdmin){
           await setIsWorker("True");
         }
@@ -82,21 +85,26 @@ function Login() {
       alert(error)
       // Handle errors from the backend
     }
-
+    setProgress(false);
   };
 
   const handleVerifyOTP = async () => {
     try {
+      setProgress(true);
       await verifyLoginOtp(email, otp,isAdmin); // Assuming you have email and otp state variables
     } catch (error) {
       console.error("Error verifying OTP:", error);
       // Handle error if needed
     }
+    setProgress(false)
   };
 
   return (
     <View style={styles.container}>
-      {isOtpSent ? (
+    {progress ? (
+        <LoadingScreen />
+      ) : (
+      isOtpSent ? (
         <View>
           <View style={styles.Middle}>
             <Text style={styles.LoginText}>VERIFY OTP</Text>
@@ -197,8 +205,8 @@ function Login() {
           <StatusBar style="auto" />
         </View>
         
+      )
       )}
-
     </View>
   );
 }

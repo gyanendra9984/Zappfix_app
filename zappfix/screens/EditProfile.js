@@ -1,6 +1,7 @@
 import React, { useContext, useState,useEffect } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 const EditProfile = () => {
   const [firstName, setFirstName] = useState('');
@@ -13,6 +14,7 @@ const EditProfile = () => {
   const [zipCode, setZipCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const { API, isWorker, email,userToken } = useContext(AuthContext);
+  const [progress,SetProgress]=useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -20,7 +22,7 @@ const EditProfile = () => {
 
   const fetchUserData = async () => {
     try {
-      
+      SetProgress(true);
       const response = await fetch(`${API}/get_user_data`, {
         method: 'POST',
         headers: {
@@ -49,6 +51,7 @@ const EditProfile = () => {
     } finally {
       
     }
+    SetProgress(false);
   };
 
   const handleSubmit = async () => {
@@ -91,67 +94,73 @@ const EditProfile = () => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        value={firstName}
-        onChangeText={setFirstName}
-        placeholder="First Name"
-      />
-      <TextInput
-        style={styles.input}
-        value={lastName}
-        onChangeText={setLastName}
-        placeholder="Last Name"
-      />
-      <TextInput
-        style={styles.input}
-        value={age}
-        onChangeText={setAge}
-        placeholder="Age"
-        keyboardType="numeric" // Set keyboard type to numeric
-      />
-      <TextInput
-        style={styles.input}
-        value={gender}
-        onChangeText={setGender}
-        placeholder="Gender"
-      />
-      <TextInput
-        style={styles.input}
-        value={address}
-        onChangeText={setAddress}
-        placeholder="Address"
-      />
-      <TextInput
-        style={styles.input}
-        value={city}
-        onChangeText={setCity}
-        placeholder="City"
-      />
-      <TextInput
-        style={styles.input}
-        value={state}
-        onChangeText={setState}
-        placeholder="State"
-      />
-      <TextInput
-        style={styles.input}
-        value={zipCode}
-        onChangeText={setZipCode}
-        placeholder="Zip Code"
-        keyboardType="numeric" // Set keyboard type to numeric
-      />
-      <TextInput
-        style={styles.input}
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
-        placeholder="Phone Number"
-        keyboardType="phone-pad" // Set keyboard type to phone pad
-      />
-      <Button
-        title="Submit"
-        onPress={handleSubmit}
-      />
+      {progress ? (
+        <LoadingScreen />
+      ) : (
+        <View>
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="First Name"
+          />
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Last Name"
+          />
+          <TextInput
+            style={styles.input}
+            value={age}
+            onChangeText={setAge}
+            placeholder="Age"
+            keyboardType="numeric" // Set keyboard type to numeric
+          />
+          <TextInput
+            style={styles.input}
+            value={gender}
+            onChangeText={setGender}
+            placeholder="Gender"
+          />
+          <TextInput
+            style={styles.input}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Address"
+          />
+          <TextInput
+            style={styles.input}
+            value={city}
+            onChangeText={setCity}
+            placeholder="City"
+          />
+          <TextInput
+            style={styles.input}
+            value={state}
+            onChangeText={setState}
+            placeholder="State"
+          />
+          <TextInput
+            style={styles.input}
+            value={zipCode}
+            onChangeText={setZipCode}
+            placeholder="Zip Code"
+            keyboardType="numeric" // Set keyboard type to numeric
+          />
+          <TextInput
+            style={styles.input}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            placeholder="Phone Number"
+            keyboardType="phone-pad" // Set keyboard type to phone pad
+          />
+          <Button
+            title="Submit"
+            onPress={handleSubmit}
+          />
+        </View>
+      )}
     </View>
   );
 };

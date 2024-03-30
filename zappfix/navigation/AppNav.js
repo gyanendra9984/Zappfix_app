@@ -10,24 +10,21 @@ import AdminAppStack from './AdminAppStack';
 import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import WorkerHome from '../screens/WorkerHome';
+import LoadingScreen from '../screens/LoadingScreen';
 
 
 const AppNav = () => {
   const { isLoading, userToken, isWorker } = useContext(AuthContext);
   if (isLoading) {
     return (
-      <View
-        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-      >
-        <ActivityIndicator size={'large'} />
-      </View>
-
+      <LoadingScreen/>
     );
   }
   return (
     <NavigationContainer>
       {/* { (userToken!=null && isWorker =="False") ? <AppStack/>:<AuthStack/>} */}
       {userToken != null && isWorker=="True" ? <WorkerAppStack /> : (userToken != null ? <AppStack /> : <AuthStack />)}
+      {/* <LoadingScreen/> */}
       {/* <WorkerHome/> */}
       {/* <AdminAppStack/> */}
       {/* {
