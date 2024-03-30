@@ -68,9 +68,9 @@ export default function Home() {
   return (
     // <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <SafeAreaView className="bg-white">
-        <StatusBar barStyle="dark-content" />
+        {/* <StatusBar barStyle="dark-content" /> */}
         {/* Top  Component Photo and Search Bar*/}
-        <View className="flex-row items-center space-x-2 px-4 pb-2">
+        {/* <View className="flex-row items-center space-x-2 px-4 pb-2">
           <View className="flex-row items-center flex-1 bg-gray-200 p-3 rounded-xl border border-gray-300">
             <Icon.Search height="25" width="25" stroke="gray" />
             <TextInput
@@ -89,7 +89,7 @@ export default function Home() {
             </View>
           </View>
           <View style={{ backgroundColor: themeColors.bgColor(1) }} className="rounded-full" >
-            <TouchableOpacity onPress={logout}>
+            <TouchableOpacity onPress={()=> navigation.navigate("Profile")}>
               <Image style={{ width: 50, height: 50, borderRadius: 50 }} source={require('../assets/Profile.png')} />
             </TouchableOpacity>
           </View>
@@ -105,7 +105,7 @@ export default function Home() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        )}
+        )} */}
         <ScrollView contentContainerStyle={{ paddingBottom: 70 }}>
           {/*main*/}
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, View ,Text} from "react-native";
+import { Button, View ,Text,Avatar,Image} from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthContext } from "../context/AuthContext";
@@ -11,12 +11,54 @@ import Profile from "../screens/Profile"
 import WorkerInfo from "../screens/WokerInfo";
 import EditProfile from "../screens/EditProfile";
 import RequestPage from "../screens/RequestPage";
+import { Pressable } from "react-native";
+import Search from "../components/Search";
+import RecentSearches from "../screens/RecentSearches";
 
 const Tab = createBottomTabNavigator();
-
-export default function AppStack() {
+const Drawer= createDrawerNavigator();
+const Stack= createStackNavigator();
+function DrawerNavigator() {
+  const headerOptions = {
+    title: 'Task List',
+    drawerIcon: ({ focused, size, color }) => <Ionicons name="hammer" color="red" size={24} />,
+  };
+  
   return (
-    <Tab.Navigator initialRouteName="Home"
+    <Drawer.Navigator screenOptions={({ navigation }) => ({
+      headerRight: () =>(
+         <Pressable style={{ flexDirection: 'row', alignItems: 'center' }} onPress={navigation.toggleDrawer}>
+           {/* <Search /> */}
+           <Image size={5} style={{ maxHeight: 40, maxWidth: 40, borderRadius: 50, marginRight: 10 }} source={require('../assets/Profile.png')} />
+        </Pressable>),
+        headerLeft:()=>(
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Image  style={{ maxHeight: 50, maxWidth: 50, borderRadius: 50, marginLeft: 5 }} source={require('../assets/icon.png')} />
+            <Search />
+          </View>
+        ),
+        headerLeftContainerStyle:{width:250,maxWidth:300,marginLeft:20},
+        headerBackgroundContainerStyle:{borderWidth:1}
+
+     })}>
+      <Drawer.Screen name="Home Page" component={TabNavigator} options={{headerTitleContainerStyle:{width:0}}} />
+      {/* <Drawer.Screen name="Search" component={RecentSearches} options={{headerTitleContainerStyle:{width:0}}}/> */}
+    </Drawer.Navigator>
+  );
+}
+
+export default function AppStack(){
+  return (
+      <Stack.Navigator>
+        <Stack.Screen name="DrawerNavigator" component={DrawerNavigator}  options={{headerShown:false}}/>
+      </Stack.Navigator>
+    
+  );
+};
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator initialRouteName="Home" 
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -35,15 +77,17 @@ export default function AppStack() {
 
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
-        }
+        },
+        headerShown:false
       })}
     >
-      <Tab.Screen name="ZappFix" component={Home} />
+      <Tab.Screen name="ZappFix" component={Home}  options={{headerShown:false}}/>
       <Tab.Screen name="Map" component={Map} options={{ tabBarButton:()=>null }} />
       <Tab.Screen name="EditProfile" component={EditProfile} />
       <Tab.Screen name="Profile" component={Profile}/>
       <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="Search" component={RecentSearches} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen

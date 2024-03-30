@@ -85,6 +85,18 @@ function Signup() {
     }
     setIsLoading(false);
   }
+
+  const handleSelectedRole = (itemValue) =>{
+    console.log("handleSelectedRole Called with itemValue",itemValue);
+    if(itemValue=="worker"){
+      setSelectedRole(itemValue);
+      setIsWorker("True");
+    }
+    else if(itemValue=="user"){
+      setSelectedRole(itemValue);
+      setIsWorker("False");
+    }
+  }
   const handleSignUp = async () => {
     // Perform your signup logic here
     if(selectedRole==="worker"){
@@ -501,7 +513,7 @@ function Signup() {
         />
       }
       selectedValue={selectedRole}
-      onValueChange={(itemValue) => setSelectedRole(itemValue)}
+      onValueChange={(itemValue) => handleSelectedRole(itemValue)}
       variant="outline"
       placeholder="Select Role"
     >
