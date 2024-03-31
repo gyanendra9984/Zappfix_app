@@ -6,3 +6,4 @@ v1
 /Backend/migrations
 /HandymanHive/__pycache__
 /HandymanHive/migrations
+/tests/__pycache__
