@@ -412,6 +412,28 @@ def get_certificates(request):
 
 
 @csrf_exempt
+def approve_certificate(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            worker_email = data.get('worker_email')
+            certificate_name = data.get('certificate_name')
+            
+
+            certificate = Certification.objects.get(worker_email=worker_email, certificate_name=certificate_name)               
+            
+            certificate.status = 'Approved'
+            certificate.save()
+            
+            return JsonResponse({'message': 'Certificate approved successfully'})
+        except Certification.DoesNotExist:
+            return JsonResponse({'error': 'Certificate not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error approving certificate'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
 def delete_user(request):
     if request.method == "POST":
         data = json.loads(request.body)
