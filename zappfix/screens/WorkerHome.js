@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
+import { Svg, Path, Text as SvgText, SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
 import { Alert } from 'react-native';
 import WorkerHistory from '../components/workerHistory';
 import { AuthContext } from '../context/AuthContext';
@@ -10,7 +10,9 @@ const pinSvg = `
   <path d="M12 2c-3.313 0-6 2.687-6 6 0 2.232 1.223 4.18 3 5.226v8.774h6v-8.774c1.777-1.046 3-2.994 3-5.226 0-3.313-2.687-6-6-6zm0 2c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z"/>
 </svg>
 `;
-
+const circumference = 2 * Math.PI * 40;
+const percentage = 34;                          // change this value to update progress of profile.
+const greenLength = (percentage / 100) * circumference;
 
 const WorkerHome = ({ navigation }) => {
     // Sample data for user requests
@@ -71,9 +73,43 @@ const WorkerHome = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text className="mt-16 font-bold text-2xl">Worker Home Screen</Text>
+            <Text style={[styles.title, { marginTop: 10 }]}>Worker Home Screen</Text>
+            <Text style={styles.fullWidthSeparator}>______________________________________________________</Text>
 
-            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________________</Text>
+
+            <View style={styles.progressContainer}>
+                <Svg height="100" width="100">
+                    <Path
+                        d="M50 10
+                            a 40 40 0 0 1 0 80
+                            a 40 40 0 0 1 0 -80"
+                        fill="none"
+                        stroke="#CCCCCC"
+                        strokeWidth="10"
+                    />
+                    <Path
+                        d="M50 10
+                            a 40 40 0 0 1 0 80
+                            a 40 40 0 0 1 0 -80"
+                        fill="none"
+                        stroke="green"
+                        strokeWidth="10"
+                        strokeDasharray={`${greenLength} ${circumference}`}
+                    />
+                    <SvgText
+                        x="40%"
+                        y="60%"
+                        dominantBaseline="middle"
+                        textAnchor="middle"
+                        fontSize="24"
+                        fill="green"
+                        fontFamily="Arial"
+                    >
+                        {percentage}%
+                    </SvgText>
+                </Svg>
+                <Text style={[styles.progressText, { marginLeft: 10 }]}>{percentage}% of your profile is completed</Text>
+            </View>
 
             <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
@@ -99,7 +135,7 @@ const WorkerHome = ({ navigation }) => {
                 </ScrollView>
             </View>
 
-            <Text className="mt-4 font-semibold text-xl">Worker History of Works</Text>
+            <Text className="my-1 font-bold text-xl">Worker History of Works</Text>
             <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
             </ScrollView>
@@ -118,6 +154,12 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+    },
+    subtitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10,
     },
     scrollContainer: {
         flex: 1,
@@ -175,6 +217,25 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+    progressContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    fullWidthSeparator: {
+        fontWeight: 'bold',
+        width: '100%',
+        textAlign: 'center',
+        color: 'gray',
+        marginBottom: 15,
+        marginTop: -15,
+    },
+    progressText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'green',
+        fontFamily: 'Arial',
     },
 });
 
