@@ -15,6 +15,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from "@react-navigation/native";
 import LoadingScreen from './LoadingScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const WorkerInfo = (props) => {
   const [location, setLocation] = useState(null);
@@ -199,9 +200,6 @@ const WorkerInfo = (props) => {
       ) : (
       <View style={styles.contentContainer}>
         <Text style={styles.serviceProvidersInfo}>Service Providers Info</Text>
-        <TouchableOpacity style={styles.uploadButton} onPress={fetchNearestWorkers}>
-                        <Text style={styles.uploadButtonText}>Reload Button for Fetching Map</Text>
-                    </TouchableOpacity>
 
         {/* Filter Dropdown Button */}
         {renderDropdownButton()}
@@ -221,6 +219,11 @@ const WorkerInfo = (props) => {
         />
       </View>
       )}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchNearestWorkers}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
     </View>
   );
 };
@@ -322,6 +325,19 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     color: '#333',
+  },
+  reloadButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+  },
+  reloadButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
