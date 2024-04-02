@@ -21,7 +21,6 @@ from .models import (
     WorkerDetails,
     Request
 )
-# from .firebase import *
 import jwt
 import json
 import random
@@ -344,7 +343,7 @@ def get_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             worker = WorkerDetails.objects.get(email=email)
-            services = worker.services_offered_set.all()
+            services = worker.services_offered.all()
             
             worker_services = []
             
@@ -570,6 +569,40 @@ def update_worker_location(request):
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+    
+    
+@csrf_exempt
+def get_worker_profile(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email=data.get('email')
+            worker_email=data.get('worker_email')
+            worker = CustomWorker.objects.get(email=worker_email)
+            worker_details = WorkerDetails.objects.get(email=worker_email)            
+            services_offered = worker_details.services_offered.all()
+            services = [service.name for service in services_offered]
+            cert = Certification.objects.filter(worker_email=worker_email)
+            certifications = [(certification.certificate_name, certification.issuing_authority) for certification in cert]
+            
+            return JsonResponse({
+                "first_name": worker.first_name, 
+                "last_name": worker.last_name, 
+                "email": worker.email, 
+                "phone_number": worker.phone_number,                 
+                "age": worker.age,
+                "years_of_exp": worker_details.years_of_experience,
+                "services":services,
+                "certification":certifications,
+                })
+            
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching worker profile"}, status=500)
+        
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
@@ -819,35 +852,22 @@ def insert_worker(request):
         return JsonResponse({"error": "Error adding worker"}, status=500)
     
 
-#--------TESTING--------
+#--------NOTIFICATION HELPER--------
 import requests
-from datetime import datetime
-
-def test(request):
-    # Current date and time
-    current_date_time = datetime.now().strftime("%m-%d-%Y %I:%M%p")
-
-    # Data to be sent in the POST request
-    post_data = {
-        'appId': 20412,
-        'appToken': "NsILxuDDNzAWkN67avQgQa",
-        'title': "Push title here as a string",
-        'body': "Push message here as a string",
-        'dateSent': current_date_time,
-    }
-
-    # URL to which the POST request will be sent
-    url = "https://app.nativenotify.com/api/notification"
-
-    # Sending POST request
-    response = requests.post(url, json=post_data)
-
-    # Check if request was successful
-    if response.status_code == 200:
-        # Request successful, return success message
-        return HttpResponse("Notification sent successfully")
-    else:
-        # Request failed, return error message
-        return HttpResponse("Failed to send notification. Status code: {}".format(response.status_code))
-
-
+from .notifications import templates
+def send_notfication(template, user):
+    resp=requests.post("https://exp.host/--/api/v2/push/send", 
+        headers={
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/json'
+        },
+        data=json.dumps({
+            'to': user.notification_token,
+            'sound': 'default',
+            'title': templates[template]['title'],
+            'body': templates[template]['body'],
+        })
+        )
+    print(resp)
+    return JsonResponse({"message":"Notification sent successfully"})

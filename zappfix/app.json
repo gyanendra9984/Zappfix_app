@@ -22,22 +22,21 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.probro18.zappfix",
-      "googleServicesFile": "google-services.json"
+      "package": "com.Handymanhive.zappfix"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "89a8db0e-248a-431a-969d-2f32232d46a4"
-      }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/89a8db0e-248a-431a-969d-2f32232d46a4"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "802acb74-f2d5-4612-837b-56ae810a7517"
+      }
     }
   }
 }
