@@ -32,7 +32,7 @@ import string
 import cloudinary.uploader
 from django.core.mail import send_mail
 
-
+adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in"]
 # Signup view for workers
 def index(request):
     return JsonResponse({"msg": "Hello World"})
@@ -74,6 +74,7 @@ def user_signup(request):
             try:
                 user = AbstractUser.objects.get(email=email)
                 otp = generate_otp()
+                print("Generated Otp=",otp)
                 user.otp = otp
                 user.otp_valid_till = timezone.now() + timedelta(minutes=15)
                 user.user_details = json.dumps(data)
@@ -168,7 +169,14 @@ def verify_otp(request):
                     "iat": datetime.utcnow(),
                 }
 
-                response = JsonResponse({"message": "OTP verified successfully"})
+                isAdmin=False
+                for em in adminlist:
+                    if em==email:
+                        isAdmin=True                
+                if isAdmin:                     
+                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True"})        
+                else :              
+                    response = JsonResponse({"message": "OTP verified successfully"})
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
 
                 response.set_cookie(
@@ -194,6 +202,7 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
+            
             print("Value of isWorker in userLogin=", isWorker)
 
             if isWorker == "True":
@@ -209,13 +218,14 @@ def user_login(request):
                 return JsonResponse(
                     {"error": "User with this email does not exist."}, status=404
                 )
-            print("im Here")
+            # print("im Here")
             otp = generate_otp()
+            # print("Generatd Otp=",otp)
             user.otp = otp
             user.otp_valid_till = timezone.now() + timedelta(minutes=50)
             user.save()
 
-            # send_otp_email(email, otp)
+            send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
@@ -318,10 +328,12 @@ def update_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             services = data.get("services")
-            print(1)
+            print("services=",services)
+            print("email=",email)
+            # print(1)
             worker = WorkerDetails.objects.get(email=email)
             worker.services_offered.clear()
-            print(2)
+            # print(2)
             for service in services:
                 try:
                     obj, is_created = Service.objects.get_or_create(name=service)
@@ -666,7 +678,9 @@ def get_user_requests(request):
         try:
             data = json.loads(request.body)
             email = data.get('email')
+            print("mail=",email)
             worker= CustomWorker.objects.get(email=email)
+            print("Heree")
             requests = Request.objects.filter(worker=worker)
             user_requests = []
             for request in requests:

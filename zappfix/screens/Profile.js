@@ -4,11 +4,13 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { AuthContext } from '../context/AuthContext';
 import LoadingScreen from './LoadingScreen';
+import { useNavigation } from '@react-navigation/native';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
   const [progress,SetProgress]=useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchUserData();
@@ -41,7 +43,7 @@ const Profile = () => {
 
   const handleEditProfile = () => {
     console.log('Reload Profile button pressed');
-    fetchUserData();
+    navigation.navigate("EditProfile")
   };
 
   const handleLogout = () => {
@@ -96,7 +98,7 @@ const Profile = () => {
               <View style={styles.infoContainer}>
                 <View style={styles.infoItem}>
                   <Icon name="location-on" size={20} color="#555" />
-                  <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</Text>
+                  <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zip_code}`}</Text>
                 </View>
               </View>
             </View>
@@ -116,11 +118,16 @@ const Profile = () => {
             <View style={styles.bottomButtons}>
               <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
                 <Icon name="edit" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Reload Profile</Text>
+                <Text style={styles.buttonText}>Edit Profile</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
                 <Icon name="exit-to-app" size={20} color="#fff" />
                 <Text style={styles.buttonText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserData}>
+                <Icon name="refresh" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -196,6 +203,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     marginLeft: 5,
+  },
+  reloadButtonContainer: {
+    position: 'absolute',
+    bottom: -40,
+    right: -20,
+  },
+  reloadButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

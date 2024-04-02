@@ -10,36 +10,7 @@ import {
 } from 'sharingan-rn-modal-dropdown';
 import { AuthContext } from '../context/AuthContext';
 
-export const data = [
-    {
-        value: '1',
-        label: 'Salon',
-        avatarSource: {
-            uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
-        },
-    },
-    {
-        value: '2',
-        label: 'Barber',
-        avatarSource: {
-            uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
-        },
-    },
-    {
-        value: '3',
-        label: 'Painter',
-        avatarSource: {
-            uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
-        },
-    },
-    {
-        value: '4',
-        label: 'Home Clean',
-        avatarSource: {
-            uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
-        },
-    },
-];
+
 
 
 const UserProfile = () => { 
@@ -50,6 +21,7 @@ const UserProfile = () => {
         fetchUserData();
       }, []);
     
+      
       const fetchUserData = async () => {
         try {
           
@@ -98,6 +70,43 @@ const EditProffDetails = ({ navigation }) => {
     const [pdfContent, setPdfContent] = useState('');
     const [objOfPdfs, setobjOfPdfs] = useState({});
     const {API, email, userToken}=useContext(AuthContext);
+    const data = [
+        {
+            value: '1',
+            label: 'Salon',
+            avatarSource: {
+                uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
+            },
+        },
+        {
+            value: '2',
+            label: 'Barber',
+            avatarSource: {
+                uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
+            },
+        },
+        {
+            value: '3',
+            label: 'Painter',
+            avatarSource: {
+                uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
+            },
+        },
+        {
+            value: '4',
+            label: 'Home Clean',
+            avatarSource: {
+                uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
+            },
+        },
+        {
+            value: '5',
+            label: 'Carpentry',
+            avatarSource: {
+                uri: 'https://img.icons8.com/color/344/circled-user-male-skin-type-5.png',
+            },
+        },
+    ];
 
     const selectPdf = async () => {
         try {
@@ -130,13 +139,17 @@ const EditProffDetails = ({ navigation }) => {
         }
     };
     const handleSubmit = async () => {
+        const mapping={"1":"Salon","2":"Barber","3":"Painter","4":"Home Clean","5":"Carpentry"};
+        const serviceNames = valueMS.map(item => mapping[item]);
+
+        console.log("email=",email)
         const resp=await fetch(`${API}/update_services`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ email: email, services: valueMS, token: userToken}),
+            body: JSON.stringify({ email: email, services: serviceNames, token: userToken}),
           });
           const data = await resp.json();
           if (!resp.ok){
