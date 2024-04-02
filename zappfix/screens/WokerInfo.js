@@ -21,6 +21,8 @@ const WorkerInfo = () => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [workersData, setWorkersData] = useState([]);
+  // const []
+  const [workers,setWorkers]=useState([]);
   const navigation = useNavigation();
 
   const {API} = useContext(AuthContext);
@@ -30,7 +32,7 @@ const WorkerInfo = () => {
     try {
       if(!location) return;
       console.log("location", location)
-      const response = await fetch(`${API}/insert_worker`, {
+      const response = await fetch(`${API}/get_nearest_workers`, {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
@@ -44,6 +46,7 @@ const WorkerInfo = () => {
       console.log("Workers=",data.workers);
       if (response.ok) {
         setWorkersData(data.workers);
+        setWorkers(data.workers);
       } else {
         console.error('Failed to fetch nearest workers:', data.error);
       }
@@ -84,29 +87,30 @@ const WorkerInfo = () => {
     extrapolate: 'clamp',
   });
 
-  const workers = [
-    { id: '1', name: 'John Doe', rating: 4.2, profileImage: require('../assets/Profile.png') },
-    { id: '2', name: 'Jane Smith', rating: 3.8, profileImage: require('../assets/Profile.png') },
-    { id: '3', name: 'Bob Johnson', rating: 4.5, profileImage: require('../assets/Profile.png') },
-    { id: '4', name: 'Alice Williams', rating: 3.9, profileImage: require('../assets/Profile.png') },
-    { id: '5', name: 'Chris Brown', rating: 4.1, profileImage: require('../assets/Profile.png') },
-    { id: '6', name: 'Emily Davis', rating: 4.3, profileImage: require('../assets/Profile.png') },
-    { id: '7', name: 'Daniel Miller', rating: 4.0, profileImage: require('../assets/Profile.png') },
-    { id: '8', name: 'Sophia Wilson', rating: 3.7, profileImage: require('../assets/Profile.png') },
-    { id: '9', name: 'Matthew Jones', rating: 4.4, profileImage: require('../assets/Profile.png') },
-    { id: '10', name: 'Olivia White', rating: 3.5, profileImage: require('../assets/Profile.png') },
-  ];
+  // const workers = [
+  //   { id: '1', name: 'John Doe', rating: 4.2, profileImage: require('../assets/Profile.png') },
+  //   { id: '2', name: 'Jane Smith', rating: 3.8, profileImage: require('../assets/Profile.png') },
+  //   { id: '3', name: 'Bob Johnson', rating: 4.5, profileImage: require('../assets/Profile.png') },
+  //   { id: '4', name: 'Alice Williams', rating: 3.9, profileImage: require('../assets/Profile.png') },
+  //   { id: '5', name: 'Chris Brown', rating: 4.1, profileImage: require('../assets/Profile.png') },
+  //   { id: '6', name: 'Emily Davis', rating: 4.3, profileImage: require('../assets/Profile.png') },
+  //   { id: '7', name: 'Daniel Miller', rating: 4.0, profileImage: require('../assets/Profile.png') },
+  //   { id: '8', name: 'Sophia Wilson', rating: 3.7, profileImage: require('../assets/Profile.png') },
+  //   { id: '9', name: 'Matthew Jones', rating: 4.4, profileImage: require('../assets/Profile.png') },
+  //   { id: '10', name: 'Olivia White', rating: 3.5, profileImage: require('../assets/Profile.png') },
+  // ];
 
-  const filteredWorkers = selectedRating
-    ? workers.filter(worker => worker.rating >= selectedRating)
-    : workers;
+  // const filteredWorkers = selectedRating
+  //   ? workers.filter(worker => worker.rating >= selectedRating)
+  //   : workers;
 
     const renderWorkerCard = ({ item }) => (
-      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage")}}>
+      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email})}}>
       <View style={styles.workerCard}>
         <Image source={item.profileImage} style={styles.profileImage} />
         <View style={styles.workerInfo}>
-          <Text style={styles.workerName}>{item.name}</Text>
+          <Text style={styles.workerName}>{item.first_name}</Text>
+          <Text style={styles.workerName}>{item.email}</Text>
           <Text style={styles.ratingText}>Rating: </Text>
           <StarRating rating={item.rating} />
         </View>
@@ -146,22 +150,23 @@ const WorkerInfo = () => {
 
 
   // Render function for markers
-  const locationData = [
-    { id: '1', first_name: 'John', last_name: 'Doe', liveLatitude: 20.1234, liveLongitude: 78.9639 },
-    { id: '2', first_name: 'Jane', last_name: 'Smith', liveLatitude: 29.0588, liveLongitude: 76.0856 },
-    { id: '3', first_name: 'Bob', last_name: 'Johnson', liveLatitude: 27.0238, liveLongitude: 74.2179 },
-    { id: '4', first_name: 'Alice', last_name: 'Williams', liveLatitude: 12.9716, liveLongitude: 77.5946 },
-    { id: '5', first_name: 'Chris', last_name: 'Brown', liveLatitude: 37.78825, liveLongitude: -122.4324 },
-  ];
+  // const locationData = [
+  //   { id: '1', first_name: 'John', last_name: 'Doe', liveLatitude: 20.1234, liveLongitude: 78.9639 },
+  //   { id: '2', first_name: 'Jane', last_name: 'Smith', liveLatitude: 29.0588, liveLongitude: 76.0856 },
+  //   { id: '3', first_name: 'Bob', last_name: 'Johnson', liveLatitude: 27.0238, liveLongitude: 74.2179 },
+  //   { id: '4', first_name: 'Alice', last_name: 'Williams', liveLatitude: 12.9716, liveLongitude: 77.5946 },
+  //   { id: '5', first_name: 'Chris', last_name: 'Brown', liveLatitude: 37.78825, liveLongitude: -122.4324 },
+  // ];
 
-  useEffect(() => {
-    setWorkersData(locationData);
-  }, []);
+  // useEffect(() => {
+  //   setWorkersData(locationData);
+  // }, []);
 
 
 
   const renderMarkers = () => {
-    return workersData.map((worker, index) => (
+    console.log(workers)
+    return workers.map((worker, index) => (
       <Marker
         key={index}
         coordinate={{
@@ -222,7 +227,7 @@ const WorkerInfo = () => {
         {/* FlatList of Worker Cards */}
     
         <FlatList
-          data={filteredWorkers}
+          data={workers}
           keyExtractor={(item) => item.id}
           renderItem={renderWorkerCard}
           onScroll={handleScroll}

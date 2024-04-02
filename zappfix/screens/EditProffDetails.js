@@ -1,6 +1,7 @@
 import React, { useState,useEffect,useContext } from 'react';
 import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 import { WebView } from 'react-native-webview';
 import {
     Dropdown,
@@ -94,7 +95,9 @@ const EditProffDetails = ({ navigation }) => {
     const [valueMS, setValueMS] = useState([]);
     const [pdfUri, setPdfUri] = useState(null);
     const [pdfName,setPdfName]=useState('');
-    const {logout}=useContext(AuthContext);
+    const [pdfContent, setPdfContent] = useState('');
+    const [objOfPdfs, setobjOfPdfs] = useState({});
+    const {API, email, userToken}=useContext(AuthContext);
 
     const selectPdf = async () => {
         try {
@@ -110,7 +113,14 @@ const EditProffDetails = ({ navigation }) => {
                 console.log('Document picked:', result.assets[0].uri)
                 setPdfUri(result.assets[0].uri);
                 setPdfName(result.assets[0].name);
-                alert("Uplaoded")
+                setobjOfPdfs({...objOfPdfs,[result.assets[0].name]:result.assets[0].uri});
+                // console.log("PDF URI : ", result.assets[0].uri)
+                const pdfContent = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+                // console.log("PDF CONTENT : ", pdfContent)
+                setPdfContent(pdfContent);
+                alert("Uploaded")
                 // console.log(result.assets[0].uri);
             } else {
                 console.log('Document picking cancelled');
@@ -119,7 +129,32 @@ const EditProffDetails = ({ navigation }) => {
             console.log('Error picking document:', error);
         }
     };
-
+    const handleSubmit = async () => {
+        const resp=await fetch(`${API}/update_services`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email: email, services: valueMS, token: userToken}),
+          });
+          const data = await resp.json();
+          if (!resp.ok){
+            alert(data.error);
+          } 
+        const resp2=await fetch(`${API}/upload_certificate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email: email, certificate: pdfContent, certificate_name: pdfName, token: userToken}),
+          });
+        const data2 = await resp2.json();
+        if (!resp2.ok){
+            alert(data2.error);
+        }
+    }
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -132,13 +167,14 @@ const EditProffDetails = ({ navigation }) => {
                         enableAvatar
                         chipType="outlined"
                         value={valueMS}
-                        onChange={setValueMS}
+                        // onChange={setValueMS}
+                        onChange={(e)=>{console.log(e); setValueMS(e); console.log(valueMS)}}
                         style={styles.dropdown}
                     />
                     <TouchableOpacity style={styles.uploadButton} onPress={selectPdf}>
                         <Text style={styles.uploadButtonText}>Upload PDF</Text>
                     </TouchableOpacity>
-                    {pdfUri && (
+                    {Object.entries(objOfPdfs).map(([pdfName, pdfUri])=>(
                         <View style={styles.pdfContainer}>
                             <Text style={styles.pdfTitle}>{pdfName}</Text>
                             <WebView
@@ -147,9 +183,12 @@ const EditProffDetails = ({ navigation }) => {
                                 style={styles.pdf}
                             />
                         </View>
-                    )}
+                    ))}
                 </View>
             </ScrollView>
+            <TouchableOpacity style={styles.uploadButton} onPress={handleSubmit}>
+                <Text style={styles.uploadButtonText}>Submit</Text>
+            </TouchableOpacity>
         </View>
     );
 };

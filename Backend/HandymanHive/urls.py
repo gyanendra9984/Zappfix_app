@@ -23,6 +23,8 @@ urlpatterns = [
     path("create_request",views.create_request,name="create_request"),
     path("update_worker_location", views.update_worker_location, name="update_worker_location"),
     path("get_user_requests", views.get_user_requests, name="get_user_requests"), 
-    # path("test", views.test2, name="test"),
+    path("upload_profile_pic", views.upload_profile_pic, name="upload_profile_pic"),    
+    path("get_worker_profile", views.get_worker_profile, name="get_worker_profile"),   
+
 ]  
 
