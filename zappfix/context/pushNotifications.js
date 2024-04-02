@@ -30,7 +30,7 @@ export const usePushNotifications = () => {
                 alert("Failed to get push token for push notification!");
                 return;
             }
-            token = (await Notifications.getDevicePushTokenAsync({
+            token = (await Notifications.getExpoPushTokenAsync({
                 projectId: Constants.expoConfig?.extra?.eas.projectId,
             })).data;
             console.log('here:',token);

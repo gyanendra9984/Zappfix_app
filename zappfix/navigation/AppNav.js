@@ -11,6 +11,7 @@ import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import WorkerHome from '../screens/WorkerHome';
 import LoadingScreen from '../screens/LoadingScreen';
+import EditProffDetails from '../screens/EditProffDetails';
 
 
 const AppNav = () => {
@@ -34,7 +35,7 @@ const AppNav = () => {
           )
         ) : <AuthStack />
       } */}
-
+      {/* <EditProffDetails/> */}
       {/* {(userToken!=null && isWorker =="True") ? <WorkerAppStack/>:<AuthStack/>} */}
       {/*{ userToken!=null ? <AppStack/>:<AuthStack/>}*/}
     </NavigationContainer>

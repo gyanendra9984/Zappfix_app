@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+import base64
 from django.db.models import F, Q
 from django.db.models import ExpressionWrapper, FloatField
 from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
@@ -21,7 +22,9 @@ from .models import (
     Request,
 )
 
+
 # from .firebase import *
+
 import jwt
 import json
 import random
@@ -209,10 +212,10 @@ def user_login(request):
             print("im Here")
             otp = generate_otp()
             user.otp = otp
-            user.otp_valid_till = timezone.now() + timedelta(minutes=5)
+            user.otp_valid_till = timezone.now() + timedelta(minutes=50)
             user.save()
 
-            send_otp_email(email, otp)
+            # send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
@@ -236,16 +239,18 @@ def verify_login_otp(request):
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
+
             print("userotp=", user.otp)
             print("otp=", otp)
 
-            if user.otp == otp and user.otp_valid_till > timezone.now():
+            if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
 
                 payload = {
                     "email": user.email,
                     "exp": datetime.utcnow() + timedelta(days=1),
                     "iat": datetime.utcnow(),
                 }
+                print("otp=",otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=", token)
 
@@ -319,11 +324,13 @@ def update_services(request):
             print(2)
             for service in services:
                 try:
-                    obj = Service.objects.get(name=service)
-                    worker.services_offered.add(obj)
+                    obj, is_created = Service.objects.get_or_create(name=service)
+                    worker.services_offered.add(obj)                  
                 except Exception as e:
                     print(e)
-                    pass
+                    return JsonResponse({"error": "Error updating services"}, status=500)
+                    
+                    
 
             return JsonResponse({"message": "Services updated successfully"})
 
@@ -341,7 +348,9 @@ def get_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             worker = WorkerDetails.objects.get(email=email)
-            services = worker.services_offered_set.all()
+
+            services = worker.services_offered.all()
+            
 
             worker_services = []
 
@@ -360,17 +369,25 @@ def upload_certificate(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            email = data.get("email")
-            certificate_name = data.get("certificate_name")
-            issuing_authority = data.get("issuing_authority")
-            certificate_data = data.get("certificate_data")
 
+            email = data.get('email')
+            certificate_name = data.get('certificate_name')
+            # issuing_authority = data.get('issuing_authority')
+            certificate_data = data.get('certificate')
+            # print(certificate_data)
+            pdf_data=base64.b64decode(certificate_data)
+            print(1)
             certificate = Certification.objects.create(
                 certificate_name=certificate_name,
                 worker_email=email,
-                issuing_authority=issuing_authority,
-                certificate_data=certificate_data,
-            )
+                # issuing_authority=issuing_authority,
+                certificate_data=pdf_data                
+            ) 
+            # print(certificate_data)
+            # certificate.save()
+            return JsonResponse({"message": "Certificate uploaded successfully"})       
+            
+            
 
         except Exception as e:
             return JsonResponse({"error": "Error uploading certificate"}, status=500)
@@ -573,6 +590,40 @@ def update_worker_location(request):
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+    
+    
+@csrf_exempt
+def get_worker_profile(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email=data.get('email')
+            worker_email=data.get('worker_email')
+            worker = CustomWorker.objects.get(email=worker_email)
+            worker_details = WorkerDetails.objects.get(email=worker_email)            
+            services_offered = worker_details.services_offered.all()
+            services = [service.name for service in services_offered]
+            cert = Certification.objects.filter(worker_email=worker_email)
+            certifications = [(certification.certificate_name, certification.issuing_authority) for certification in cert]
+            
+            return JsonResponse({
+                "first_name": worker.first_name, 
+                "last_name": worker.last_name, 
+                "email": worker.email, 
+                "phone_number": worker.phone_number,                 
+                "age": worker.age,
+                "years_of_exp": worker_details.years_of_experience,
+                "services":services,
+                "certification":certifications,
+                })
+            
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching worker profile"}, status=500)
+        
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
@@ -942,30 +993,47 @@ def insert_worker(request):
                     latitude = round(random.uniform(30.8, 31.2), 4)
                     longitude = round(random.uniform(76.4, 76.8), 4)
 
-                    worker = CustomWorker.objects.create(
-                        phone_number=phone_number,
-                        first_name=first_name,
-                        last_name=last_name,
-                        email=email,
-                        age=age,
-                        gender=gender,
-                        address=address,
-                        city=city,
-                        state=state,
-                        zip_code=zip_code,
-                    )
 
-                    worker_details = WorkerDetails.objects.create(
-                        email=email, liveLatitude=latitude, liveLongitude=longitude
-                    )
-
-                    for serv in services:
-                        if not Service.objects.filter(name=serv).exists():
-                            service = Service.objects.create(name=serv)
-                        else:
+                    if CustomWorker.objects.filter(email=email).exists():
+                        worker = CustomWorker.objects.get(email=email)  
+                    else:
+                        worker = CustomWorker.objects.get_or_create(
+                            phone_number=phone_number,
+                            first_name=first_name,
+                            last_name=last_name,
+                            email=email,
+                            age=age,
+                            gender=gender,
+                            address=address,
+                            city=city,
+                            state=state,
+                            zip_code=zip_code,
+                        )
+        
+                    try: 
+                        worker_details = WorkerDetails.objects.create(
+                            email=email,
+                            liveLatitude=latitude,
+                            liveLongitude=longitude                                
+                        )
+                    except:
+                        worker_details=WorkerDetails.objects.get(email=email)
+                        
+        
+                    for serv in SERVICES:
+                        print(serv)
+                        if Service.objects.filter(name=serv).exists():
+                            print(1)
                             service = Service.objects.get(name=serv)
+                        else:
+                            print(2)
+                            service = Service.objects.create(name=serv)
 
-                        worker_details.services_offered.add(service[0])
+                                           
+                            
+                        
+                        worker_details.services_offered.add(service)
+                
 
                     worker_details.save()
                     worker.save()
@@ -979,36 +1047,25 @@ def insert_worker(request):
         return JsonResponse({"error": "Error adding worker"}, status=500)
 
 
-# --------TESTING--------
+
+
+#--------NOTIFICATION HELPER--------
 import requests
-from datetime import datetime
-
-
-def test(request):
-    # Current date and time
-    current_date_time = datetime.now().strftime("%m-%d-%Y %I:%M%p")
-
-    # Data to be sent in the POST request
-    post_data = {
-        "appId": 20412,
-        "appToken": "NsILxuDDNzAWkN67avQgQa",
-        "title": "Push title here as a string",
-        "body": "Push message here as a string",
-        "dateSent": current_date_time,
-    }
-
-    # URL to which the POST request will be sent
-    url = "https://app.nativenotify.com/api/notification"
-
-    # Sending POST request
-    response = requests.post(url, json=post_data)
-
-    # Check if request was successful
-    if response.status_code == 200:
-        # Request successful, return success message
-        return HttpResponse("Notification sent successfully")
-    else:
-        # Request failed, return error message
-        return HttpResponse(
-            "Failed to send notification. Status code: {}".format(response.status_code)
+from .notifications import templates
+def send_notfication(template, user):
+    resp=requests.post("https://exp.host/--/api/v2/push/send", 
+        headers={
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/json'
+        },
+        data=json.dumps({
+            'to': user.notification_token,
+            'sound': 'default',
+            'title': templates[template]['title'],
+            'body': templates[template]['body'],
+        })
         )
+    print(resp)
+    return JsonResponse({"message":"Notification sent successfully"})
+
