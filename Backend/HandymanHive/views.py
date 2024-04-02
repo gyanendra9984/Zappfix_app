@@ -534,9 +534,11 @@ def create_request(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            user_email = data["user_email"]
-            worker_email = data["worker_email"]
-            additional_data = data["additional_data"]
+
+            user_email = data['user_email']
+            worker_email = data['worker_email']
+            service = data['service']            
+
         except json.JSONDecodeError:
             return JsonResponse(
                 {"status": "error", "message": "Invalid JSON data"}, status=400
@@ -548,21 +550,20 @@ def create_request(request):
 
         try:
             user = CustomUser.objects.get(email=user_email)
-            worker = CustomWorker.objects.get(email=worker_email)
+            worker = CustomWorker.objects.get(email=worker_email)            
         except CustomUser.DoesNotExist:
             return JsonResponse(
                 {"status": "error", "message": "User does not exist"}, status=404
             )
         except CustomWorker.DoesNotExist:
-            return JsonResponse(
-                {"status": "error", "message": "Worker does not exist"}, status=404
-            )
 
-        Request.objects.create(user=user, worker=worker, data=additional_data)
+            return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
+        
 
-        return JsonResponse(
-            {"status": "success", "message": "Request created successfully"}
-        )
+        Request.objects.create(user=user, worker=worker, service=service)
+        
+        return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
+
     else:
         return JsonResponse(
             {"status": "error", "message": "Only POST requests are allowed"}, status=405
@@ -658,6 +659,33 @@ def upload_profile_pic(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+
+@csrf_exempt
+def get_user_requests(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            worker= CustomWorker.objects.get(email=email)
+            requests = Request.objects.filter(worker=worker)
+            user_requests = []
+            for request in requests:
+                user = request.user
+                user_requests.append({
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'service': request.service,
+                    'created_on': request.created_on,
+                    'status': request.status                                        
+                })
+            return JsonResponse({'requests': user_requests})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error fetching requests'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 ###################### RECOMMENDATION SYSTEM #######################
