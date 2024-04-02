@@ -1,5 +1,5 @@
 import React from 'react';
-import registerNNPushToken from 'native-notify';
+// import registerNNPushToken from 'native-notify';
 import AppNav from './navigation/AppNav';
 import { AuthProvider } from './context/AuthContext';
 import { usePushNotifications } from './context/pushNotifications';
