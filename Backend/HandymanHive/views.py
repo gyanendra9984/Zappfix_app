@@ -341,7 +341,7 @@ def get_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             worker = WorkerDetails.objects.get(email=email)
-            services = worker.services_offered_set.all()
+            services = worker.services_offered.all()
             
             worker_services = []
             
@@ -562,6 +562,40 @@ def update_worker_location(request):
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+    
+    
+@csrf_exempt
+def get_worker_profile(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)
+            email=data.get('email')
+            worker_email=data.get('worker_email')
+            worker = CustomWorker.objects.get(email=worker_email)
+            worker_details = WorkerDetails.objects.get(email=worker_email)            
+            services_offered = worker_details.services_offered.all()
+            services = [service.name for service in services_offered]
+            cert = Certification.objects.filter(worker_email=worker_email)
+            certifications = [(certification.certificate_name, certification.issuing_authority) for certification in cert]
+            
+            return JsonResponse({
+                "first_name": worker.first_name, 
+                "last_name": worker.last_name, 
+                "email": worker.email, 
+                "phone_number": worker.phone_number,                 
+                "age": worker.age,
+                "years_of_exp": worker_details.years_of_experience,
+                "services":services,
+                "certification":certifications,
+                })
+            
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching worker profile"}, status=500)
+        
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
