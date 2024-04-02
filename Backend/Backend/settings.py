@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.api
 
 load_dotenv()
 
@@ -111,7 +113,11 @@ DATABASES = {
     }
 }
 
-
+cloudinary.config(
+    cloud_name=os.getenv("Cloud_Name"),
+    api_key=os.getenv("Cloud_Key"),
+    api_secret=os.getenv("Cloud_Secret"),
+)
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
