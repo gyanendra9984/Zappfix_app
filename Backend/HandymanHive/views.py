@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+import base64
 from django.db.models import F, Q
 from django.db.models import ExpressionWrapper, FloatField
 from django.db.models.functions import ACos, Cos, Radians, Sin, Sqrt
@@ -206,10 +207,10 @@ def user_login(request):
             print("im Here")
             otp = generate_otp()
             user.otp = otp
-            user.otp_valid_till = timezone.now() + timedelta(minutes=5)
+            user.otp_valid_till = timezone.now() + timedelta(minutes=50)
             user.save()
 
-            send_otp_email(email, otp)
+            # send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
@@ -235,15 +236,15 @@ def verify_login_otp(request):
             else:
                 user = CustomUser.objects.get(email=email)
             print("userotp=",user.otp)
-            print("otp=",otp)
 
-            if user.otp == otp and user.otp_valid_till > timezone.now():
+            if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
 
                 payload = {
                     "email": user.email,
                     "exp": datetime.utcnow() + timedelta(days=1),
                     "iat": datetime.utcnow(),
                 }
+                print("otp=",otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=",token)
 
@@ -317,11 +318,12 @@ def update_services(request):
             print(2)
             for service in services:
                 try:
-                    obj = Service.objects.get(name=service)
-                    worker.services_offered.add(obj)                    
+                    obj, is_created = Service.objects.get_or_create(name=service)
+                    worker.services_offered.add(obj)                  
                 except Exception as e:
                     print(e)
-                    pass
+                    return JsonResponse({"error": "Error updating services"}, status=500)
+                    # pass
                     
             return JsonResponse({"message": "Services updated successfully"})
             
@@ -364,15 +366,20 @@ def upload_certificate(request):
             data = json.loads(request.body)
             email = data.get('email')
             certificate_name = data.get('certificate_name')
-            issuing_authority = data.get('issuing_authority')
-            certificate_data = data.get('certificate_data')
-            
+            # issuing_authority = data.get('issuing_authority')
+            certificate_data = data.get('certificate')
+            # print(certificate_data)
+            pdf_data=base64.b64decode(certificate_data)
+            print(1)
             certificate = Certification.objects.create(
                 certificate_name=certificate_name,
                 worker_email=email,
-                issuing_authority=issuing_authority,
-                certificate_data=certificate_data                
-            )        
+                # issuing_authority=issuing_authority,
+                certificate_data=pdf_data                
+            ) 
+            # print(certificate_data)
+            # certificate.save()
+            return JsonResponse({"message": "Certificate uploaded successfully"})       
             
             
         except Exception as e:

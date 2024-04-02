@@ -106,7 +106,7 @@ class Service(models.Model):
 class Certification(models.Model):
     certificate_name = models.CharField(max_length=255)
     worker_email = models.EmailField(max_length=255)    
-    issuing_authority = models.CharField(max_length=255)
+    issuing_authority = models.CharField(max_length=255, blank=True)
     certificate_data = models.BinaryField(blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, default='Pending')
