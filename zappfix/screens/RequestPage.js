@@ -1,24 +1,43 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../context/AuthContext';
 
-const RequestPage = () => {
+const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
+  const { email } = props.route.params;
+  const {API}= useContext(AuthContext);
+
 
   const handleTabPress = (tabName) => {
     setSelectedTab(tabName);
   };
 
-  const handleRequestService = () => {
-    Alert.alert(
+  const handleRequestService =   async () => {
+    await  Alert.alert(
       'Request Service',
       'Do you want to request service?',
       [
         {
           
           text: 'Request',
-          onPress: () => {
+          onPress: async () => {
             console.log('Service requested');
+            const UserEmail=await  AsyncStorage.getItem("email");
+            const response = await fetch(`${API}/create_request`, {
+              method: 'POST', 
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_email:UserEmail,
+                worker_email:email,
+                additional_data:"Hello Im Requesting Service"
+              }),
+            });
+            const data = await response.json();
+            console.log("Here is the data",data);
           },
         },
         {
@@ -32,6 +51,7 @@ const RequestPage = () => {
       ],
       { cancelable: true }
     );
+
   };
 
   // Dummy data for reviews
@@ -70,6 +90,7 @@ const RequestPage = () => {
           source={require('../assets/Profile.png')} // Placeholder image URL
         />
         <View style={styles.workerDetails}>
+          <Text style={styles.workerName}>{email}</Text>
           <Text style={styles.workerName}>John Doe</Text>
           <Text style={styles.workerDescription}>
             Installation, repair, and maintenance of plumbing systems.
