@@ -811,34 +811,47 @@ def insert_worker(request):
                     num_services = random.randint(1, len(SERVICES))
                     services= random.sample(SERVICES, num_services)
                     latitude = round(random.uniform(30.8, 31.2), 4)
-                    longitude = round(random.uniform(76.4, 76.8), 4)  
+                    longitude = round(random.uniform(76.4, 76.8), 4)
+
+                    if CustomWorker.objects.filter(email=email).exists():
+                        worker = CustomWorker.objects.get(email=email)  
+                    else:
+                        worker = CustomWorker.objects.get_or_create(
+                            phone_number=phone_number,
+                            first_name=first_name,
+                            last_name=last_name,
+                            email=email,
+                            age=age,
+                            gender=gender,
+                            address=address,
+                            city=city,
+                            state=state,
+                            zip_code=zip_code,
+                        )
         
-                    worker = CustomWorker.objects.create(
-                        phone_number=phone_number,
-                        first_name=first_name,
-                        last_name=last_name,
-                        email=email,
-                        age=age,
-                        gender=gender,
-                        address=address,
-                        city=city,
-                        state=state,
-                        zip_code=zip_code,
-                    )
-        
-                    worker_details = WorkerDetails.objects.create(
-                        email=email,
-                        liveLatitude=latitude,
-                        liveLongitude=longitude                                
-                    )
-        
-                    for serv in services:
-                        if not Service.objects.filter(name=serv).exists():
-                            service = Service.objects.create(name=serv)
-                        else:                            
-                            service = Service.objects.get(name=serv)
+                    try: 
+                        worker_details = WorkerDetails.objects.create(
+                            email=email,
+                            liveLatitude=latitude,
+                            liveLongitude=longitude                                
+                        )
+                    except:
+                        worker_details=WorkerDetails.objects.get(email=email)
                         
-                        worker_details.services_offered.add(service[0])
+        
+                    for serv in SERVICES:
+                        print(serv)
+                        if Service.objects.filter(name=serv).exists():
+                            print(1)
+                            service = Service.objects.get(name=serv)
+                        else:
+                            print(2)
+                            service = Service.objects.create(name=serv)
+
+                                           
+                            
+                        
+                        worker_details.services_offered.add(service)
                 
                     worker_details.save()
                     worker.save()
