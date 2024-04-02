@@ -81,13 +81,16 @@ const WorkerInfo = (props) => {
     })();
   }, []);
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollOffset } } }],
-    { useNativeDriver: false }
-  );
-
+  const handleScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    Animated.spring(scrollOffset, {
+      toValue: offsetY,
+      useNativeDriver: false
+    }).start();
+  };
+  
   const maxMapHeight = Dimensions.get('window').height / 2;
-
+  
   const mapHeight = scrollOffset.interpolate({
     inputRange: [0, maxMapHeight],
     outputRange: [maxMapHeight, 0],

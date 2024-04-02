@@ -83,14 +83,14 @@ const Map = () => {
           {/* Add more markers if needed */}
           
           {/* Example Polyline */}
-          <Polyline
+          {/* <Polyline
             coordinates={[
               { latitude: location.coords.latitude, longitude: location.coords.longitude },
               { latitude: 37.78825, longitude: -122.4324 }
             ]}
             strokeWidth={2}
             strokeColor="red"
-          />
+          /> */}
           {/* Add more Polylines if needed */}
         </MapView>
       ) : null}
