@@ -33,7 +33,7 @@ const RequestPage = (props) => {
               body: JSON.stringify({
                 user_email:UserEmail,
                 worker_email:email,
-                additional_data:"Hello Im Requesting Service"
+                service:"Hello Im Requesting Service"
               }),
             });
             const data = await response.json();

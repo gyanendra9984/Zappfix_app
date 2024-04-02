@@ -215,7 +215,7 @@ def user_login(request):
             user.otp_valid_till = timezone.now() + timedelta(minutes=50)
             user.save()
 
-            # send_otp_email(email, otp)
+            send_otp_email(email, otp)
 
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
