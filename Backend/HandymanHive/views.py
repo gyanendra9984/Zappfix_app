@@ -74,6 +74,7 @@ def user_signup(request):
             try:
                 user = AbstractUser.objects.get(email=email)
                 otp = generate_otp()
+                print("Generated Otp=",otp)
                 user.otp = otp
                 user.otp_valid_till = timezone.now() + timedelta(minutes=15)
                 user.user_details = json.dumps(data)
@@ -209,8 +210,9 @@ def user_login(request):
                 return JsonResponse(
                     {"error": "User with this email does not exist."}, status=404
                 )
-            print("im Here")
+            # print("im Here")
             otp = generate_otp()
+            # print("Generatd Otp=",otp)
             user.otp = otp
             user.otp_valid_till = timezone.now() + timedelta(minutes=50)
             user.save()
@@ -318,10 +320,12 @@ def update_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             services = data.get("services")
-            print(1)
+            print("services=",services)
+            print("email=",email)
+            # print(1)
             worker = WorkerDetails.objects.get(email=email)
             worker.services_offered.clear()
-            print(2)
+            # print(2)
             for service in services:
                 try:
                     obj, is_created = Service.objects.get_or_create(name=service)
@@ -666,7 +670,9 @@ def get_user_requests(request):
         try:
             data = json.loads(request.body)
             email = data.get('email')
+            print("mail=",email)
             worker= CustomWorker.objects.get(email=email)
+            print("Heree")
             requests = Request.objects.filter(worker=worker)
             user_requests = []
             for request in requests:

@@ -83,7 +83,7 @@ function TabNavigator() {
     >
       <Tab.Screen name="ZappFix" component={Home}  options={{headerShown:false}}/>
       <Tab.Screen name="Map" component={Map} options={{ tabBarButton:()=>null }} />
-      <Tab.Screen name="EditProfile" component={EditProfile} />
+      <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="Profile" component={Profile}/>
       <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>

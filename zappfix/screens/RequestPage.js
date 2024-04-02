@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
   const { email } = props.route.params;
   const {API}= useContext(AuthContext);
+  const [progress,setProgress]=useState(false);
 
 
   const handleTabPress = (tabName) => {
@@ -24,6 +26,7 @@ const RequestPage = (props) => {
           text: 'Request',
           onPress: async () => {
             console.log('Service requested');
+            setProgress(true);
             const UserEmail=await  AsyncStorage.getItem("email");
             const response = await fetch(`${API}/create_request`, {
               method: 'POST', 
@@ -38,6 +41,13 @@ const RequestPage = (props) => {
             });
             const data = await response.json();
             console.log("Here is the data",data);
+            if(data.status=="success"){
+               alert("Request Sent SuccessFully!!");
+            }
+            else{
+              alert(data.message);
+            }
+            setProgress(false);
           },
         },
         {
