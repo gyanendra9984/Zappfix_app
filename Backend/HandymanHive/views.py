@@ -566,6 +566,30 @@ def update_worker_location(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+@csrf_exempt
+def get_user_requests(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            worker= CustomWorker.objects.get(email=email)
+            requests = Request.objects.filter(worker=worker)
+            user_requests = []
+            for request in requests:
+                user = request.user
+                user_requests.append({
+                    'user': user.email,                    
+                    'worker_email': request.worker.email,
+                    'data': request.data,                    
+                })
+            return JsonResponse({'requests': user_requests})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error fetching requests'}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 ###################### RECOMMENDATION SYSTEM #######################
 
