@@ -32,7 +32,7 @@ import string
 import cloudinary.uploader
 from django.core.mail import send_mail
 
-
+adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in"]
 # Signup view for workers
 def index(request):
     return JsonResponse({"msg": "Hello World"})
@@ -168,7 +168,14 @@ def verify_otp(request):
                     "iat": datetime.utcnow(),
                 }
 
-                response = JsonResponse({"message": "OTP verified successfully"})
+                isAdmin=False
+                for em in adminlist:
+                    if em==email:
+                        isAdmin=True                
+                if isAdmin:                     
+                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True"})        
+                else :              
+                    response = JsonResponse({"message": "OTP verified successfully"})
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
 
                 response.set_cookie(
@@ -194,6 +201,7 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
+            
             print("Value of isWorker in userLogin=", isWorker)
 
             if isWorker == "True":
