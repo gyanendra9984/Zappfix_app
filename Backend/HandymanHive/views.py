@@ -818,7 +818,7 @@ def get_nearest_workers(request):
 
 @csrf_exempt
 def get_closest_services(request):
-    if request.method == "GET":
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
             query = data.get("query")

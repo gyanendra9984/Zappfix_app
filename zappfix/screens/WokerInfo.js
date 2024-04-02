@@ -15,13 +15,13 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from "@react-navigation/native";
 
-const WorkerInfo = () => {
+const WorkerInfo = (props) => {
   const [location, setLocation] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(new Animated.Value(0));
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [workersData, setWorkersData] = useState([]);
-  // const []
+  const {service} = props.route.params;
   const [workers,setWorkers]=useState([]);
   const navigation = useNavigation();
 
@@ -29,6 +29,7 @@ const WorkerInfo = () => {
 
   // Function to fetch nearest workers
   const fetchNearestWorkers = async () => {
+    console.log("here i am",service);
     try {
       if(!location) return;
       console.log("location", location)
@@ -38,7 +39,7 @@ const WorkerInfo = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          service: 'Carpentry',
+          service: service,
           coords: [location.coords.latitude, location.coords.longitude],
         }),
       });
