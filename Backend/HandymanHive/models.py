@@ -147,7 +147,9 @@ class WorkerDetails(models.Model):
 class Request(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
-    data = models.CharField(max_length=255)  # Additional data field
+    service = models.CharField(blank=True)
+    status = models.CharField(max_length=50, default="Pending")
+    created_on = models.DateTimeField(null=True,blank=True)   
 
     def __str__(self):
         return f"Request from {self.user.email} to {self.worker.email}"

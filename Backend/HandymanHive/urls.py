@@ -22,6 +22,7 @@ urlpatterns = [
     path("user_last_five_queries",views.user_last_five_queries,name="user_last_five_queries"),
     path("create_request",views.create_request,name="create_request"),
     path("update_worker_location", views.update_worker_location, name="update_worker_location"),
+    path("get_user_requests", views.get_user_requests, name="get_user_requests"), 
     # path("test", views.test2, name="test"),
 ]  
 

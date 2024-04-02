@@ -520,7 +520,7 @@ def create_request(request):
             data = json.loads(request.body)
             user_email = data['user_email']
             worker_email = data['worker_email']
-            additional_data = data['additional_data']
+            service = data['service']            
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
         except KeyError:
@@ -528,13 +528,14 @@ def create_request(request):
         
         try:
             user = CustomUser.objects.get(email=user_email)
-            worker = CustomWorker.objects.get(email=worker_email)
+            worker = CustomWorker.objects.get(email=worker_email)            
         except CustomUser.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'User does not exist'}, status=404)
         except CustomWorker.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
         
-        Request.objects.create(user=user, worker=worker, data=additional_data)
+
+        Request.objects.create(user=user, worker=worker, service=service)
         
         return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
     else:
@@ -578,9 +579,12 @@ def get_user_requests(request):
             for request in requests:
                 user = request.user
                 user_requests.append({
-                    'user': user.email,                    
-                    'worker_email': request.worker.email,
-                    'data': request.data,                    
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'service': request.service,
+                    'created_on': request.created_on,
+                    'status': request.status                                        
                 })
             return JsonResponse({'requests': user_requests})
         except CustomUser.DoesNotExist:
