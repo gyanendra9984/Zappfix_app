@@ -1,17 +1,17 @@
 export const categories = [
     {
         id:1,
-        name:"Electronics",
+        name:"Carpentry",
         image:'image1',
     },
     {
         id:2,
-        name:"Fashion",
+        name:"Barber",
         image:'image2',
     },
     {
         id:3,
-        name:"Home",
+        name:"Salon",
         image:'image3',
     },
     {

@@ -1,9 +1,12 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect,useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
 import { Alert } from 'react-native';
-import WorkerHistory from '../components/workerHistory';
+import WorkerHistory from './workerHistory';
 import { AuthContext } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import LoadingScreen from './LoadingScreen';
 
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
@@ -12,20 +15,13 @@ const pinSvg = `
 `;
 
 
+
 const WorkerHome = ({ navigation }) => {
     // Sample data for user requests
 
-    const  {logout} = useContext(AuthContext);
-    const userRequests = [
-        { id: 1, name: 'John Doe', problem: 'Fix leaking taps', distance:'2 miles away'},
-        { id: 2, name: 'Jane Smith', problem: 'Broken flush of toilet', distance:'3 miles away'},
-        { id: 3, name: 'Alice Johnson', problem: 'Replacement of wash basin pipe', distance:'4 miles away'},
-        { id: 4, name: 'Chris Brown', problem: 'Fixing of water heater', distance:'1 miles away'},
-        { id: 5, name: 'Emily Davis', problem: 'Replacement of shower head', distance:'3.5 miles away'},
-        { id: 6, name: 'Daniel Miller', problem: 'Fixing of water heater', distance:'2.5 miles away'},
-        // Add more requests as needed
-    ];
-
+    const  {logout,API} = useContext(AuthContext);
+    const [userRequests,setUserRequests]=useState([]);
+    const [progress,setProgress]=useState(false);
 
     // Function to handle accept button press
     const handleAccept = (id) => {
@@ -69,6 +65,38 @@ const WorkerHome = ({ navigation }) => {
         );
     };
 
+    const fetchUserRequests = async () => {
+        email= await AsyncStorage.getItem("email");
+        console.log("email=",email);
+        try {
+            // setProgress
+            setProgress(true);
+            const response = await fetch(`${API}/get_user_requests`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email:email,
+                  }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUserRequests(data.requests);
+            } else {
+                console.error('Failed to fetch user requests:', data.error);
+            }
+        } catch (error) {
+            console.error('Error fetching user requests:', error);
+        }
+        setProgress(false);
+    };
+
+    useEffect(() => {
+        fetchUserRequests();
+    }, []);
     return (
         <View style={styles.container}>
             <Text className="mt-16 font-bold text-2xl">Worker Home Screen</Text>
@@ -77,32 +105,51 @@ const WorkerHome = ({ navigation }) => {
 
             <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
-                <ScrollView style={styles.scrollView}>
-                    {userRequests.map(request => (
-                        <View key={request.id} style={styles.card} className="border border-gray-300">
-                            <Text style={styles.name}>{request.name}</Text>
-                            <Text style={styles.problem}>{request.problem}</Text>
-                            <View style={styles.distanceContainer}>
-                                <SvgXml xml={pinSvg} />
-                                <Text style={styles.distance}>{request.distance}</Text>
-                            </View>
-                            <View style={styles.buttonsContainer}>
-                                <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
-                                    <Text style={styles.buttonText}>Accept</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
-                                    <Text style={styles.buttonText}>Reject</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ))}
-                </ScrollView>
+            {progress ? (
+        <LoadingScreen />
+      ) : (
+            <ScrollView style={styles.scrollView}>
+  {userRequests ? (
+    userRequests.map(request => (
+      <View key={request.id} style={styles.card} className="border border-gray-300">
+        <Text style={styles.name}>{request.first_name}</Text>
+        <Text style={styles.problem}>{request.service}</Text>
+        <View style={styles.distanceContainer}>
+          <SvgXml xml={pinSvg} />
+          <Text style={styles.distance}>{request.status}</Text>
+        </View>
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
+            <Text style={styles.buttonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
+            <Text style={styles.buttonText}>Reject</Text>
+          </TouchableOpacity>
+        </View>
+        
+      </View>
+      
+    ))
+  ) : (
+    <View style={styles.centered}>
+      <Text>No current requests</Text>
+    </View>
+  )}
+</ScrollView>
+      )}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserRequests}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
             </View>
 
-            <Text className="mt-4 font-semibold text-xl">Worker History of Works</Text>
+            </View>
+
+            {/* <Text className="mt-4 font-semibold text-xl">Worker History of Works</Text>
             <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
-            </ScrollView>
+            </ScrollView> */}
+        
         </View>
     );
 }
@@ -176,6 +223,25 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
     },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      reloadButtonContainer: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+      },
+      reloadButton: {
+        backgroundColor: '#3498db',
+        borderRadius: 50,
+        width: 50,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      
 });
 
 export default WorkerHome;
