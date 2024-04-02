@@ -11,7 +11,8 @@ export const AuthProvider =({children}) => {
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
     const [isAdmin,setIsAdmin]=useState("False");
-    const API="http://172.23.5.104:8000"
+    const API="http://172.23.6.25:8000"
+
 
   
     const logout= async ()=>{
@@ -22,7 +23,9 @@ export const AuthProvider =({children}) => {
         setUserToken(null);
         setIsWorker("");
         setIsLoading(false);
+        setEmail("");
     }
+
     const verifyLoginOtp = async (email,otp,isAdmin) =>{
         setIsLoading(true);
         try {

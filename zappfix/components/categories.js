@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { categories } from '../constants'
 import { useState } from 'react'
 import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from '../context/AuthContext';
 
 // Helper function to dynamically resolve image names
 const resolveImage = (imageName) => {
@@ -25,6 +26,7 @@ const resolveImage = (imageName) => {
 export default function Categories() {
     const [activeCategory, setActiveCategory] = useState(null);
     const navigation = useNavigation();
+    const {logout} =useContext(AuthContext)
 
     return (
         <View style={{ marginTop: 4 }}>
@@ -44,7 +46,7 @@ export default function Categories() {
                     return (
                         <TouchableOpacity
                             key={index}
-                            onPress={() => { navigation.navigate('WorkerInfo') }}
+                            onPress={() => { navigation.navigate('WorkerInfo',{service:category.name}) }}
                             style={{ marginRight: 18, alignItems: 'center' }}
                         >
                             <View style={{ ...btnStyle, padding: 0, borderRadius: 30, shadowColor: 'black', shadowOpacity: 0.2, elevation: 2 }}>
