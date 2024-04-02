@@ -22,7 +22,7 @@ const WorkerInfo = (props) => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [workersData, setWorkersData] = useState([]);
-  // const []
+  const {service} = props.route.params;
   const [workers,setWorkers]=useState([]);
   const navigation = useNavigation();
 
@@ -33,6 +33,7 @@ const WorkerInfo = (props) => {
 
   // Function to fetch nearest workers
   const fetchNearestWorkers = async () => {
+    console.log("here i am",service);
     try {
       if(!location) return;
       // console.log("location", location)

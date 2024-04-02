@@ -13,7 +13,7 @@ import EditProfile from "../screens/EditProfile";
 import RequestPage from "../screens/RequestPage";
 import { Pressable } from "react-native";
 import Search from "../components/Search";
-import RecentSearches from "../screens/RecentSearches";
+import SearchResults from "../screens/SearchResults";
 
 const Tab = createBottomTabNavigator();
 const Drawer= createDrawerNavigator();
@@ -87,7 +87,7 @@ function TabNavigator() {
       <Tab.Screen name="Profile" component={Profile}/>
       <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="Search" component={RecentSearches} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="Search" component={SearchResults} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen
