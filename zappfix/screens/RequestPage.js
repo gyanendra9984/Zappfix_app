@@ -101,10 +101,9 @@ const RequestPage = (props) => {
         />
         <View style={styles.workerDetails}>
           <Text style={styles.workerName}>{email}</Text>
-          <Text style={styles.workerName}>John Doe</Text>
+          <Text style={styles.workerName}>Gopal Bansal</Text>
           <Text style={styles.workerDescription}>
-            Installation, repair, and maintenance of plumbing systems.
-            Proficient in interpreting blueprints
+            
           </Text>
           <View style={styles.rating}>
             <Text style={styles.ratingText}>Rating: </Text>
@@ -140,9 +139,9 @@ const RequestPage = (props) => {
   <View style={styles.tabContent}>
     {/* Display contact information */}
     <View style={styles.contactInfo}>
-      <Text style={styles.contactLabel}>Email: {contactInfo.email}</Text>
-      <Text style={styles.contactLabel}>Phone: {contactInfo.phone}</Text>
-      <Text style={styles.contactLabel}>Address: {contactInfo.address}</Text>
+      <Text style={styles.contactLabel}>Email: {email}</Text>
+      {/* <Text style={styles.contactLabel}>Phone: {contactInfo.phone}</Text>
+      <Text style={styles.contactLabel}>Address: {contactInfo.address}</Text> */}
     </View>
   </View>
       ) : (

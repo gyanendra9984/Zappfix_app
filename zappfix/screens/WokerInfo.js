@@ -29,7 +29,7 @@ const WorkerInfo = (props) => {
 
   const {API} = useContext(AuthContext);
    
-  const {service}=props.route.params;
+  // const {service}=props.route.params;
   const [progress,setProgress]=useState(false);
 
   // Function to fetch nearest workers

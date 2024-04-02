@@ -849,14 +849,18 @@ def get_closest_services(request):
                 for token in nlp(query)
                 if not token.is_stop and not token.is_punct
             ]
+            # print(query_tokens)
+            print([token.vector for token in nlp(" ".join(query_tokens))])
             query_embedding = np.mean(
                 [token.vector for token in nlp(" ".join(query_tokens))], axis=0
             )
+            # print(query_embedding)
 
             services = Service.objects.all()
 
             similarities = []
             for service in services:
+                # print(service.name)
                 service_tokens = [
                     token.text
                     for token in nlp(service.name)
@@ -903,8 +907,6 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
 ##################################HELPER FUNCTIONS####################################
 @csrf_exempt
 def insert_worker(request):
