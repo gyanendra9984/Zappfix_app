@@ -9,6 +9,8 @@ import {
     MultiselectDropdown,
 } from 'sharingan-rn-modal-dropdown';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 
@@ -57,7 +59,11 @@ const UserProfile = () => {
             
         </View>
 </View>)}
-        
+        <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserData}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
             
         </View>
     );
@@ -70,6 +76,7 @@ const EditProffDetails = ({ navigation }) => {
     const [pdfContent, setPdfContent] = useState('');
     const [objOfPdfs, setobjOfPdfs] = useState({});
     const {API, email, userToken}=useContext(AuthContext);
+    const [progress,setProgress]=useState(false);
     const data = [
         {
             value: '1',
@@ -139,10 +146,12 @@ const EditProffDetails = ({ navigation }) => {
         }
     };
     const handleSubmit = async () => {
+        setProgress(true);
         const mapping={"1":"Salon","2":"Barber","3":"Painter","4":"Home Clean","5":"Carpentry"};
         const serviceNames = valueMS.map(item => mapping[item]);
 
-        console.log("email=",email)
+        // console.log("email=",email)
+        
         const resp=await fetch(`${API}/update_services`, {
             method: 'POST',
             headers: {
@@ -155,6 +164,9 @@ const EditProffDetails = ({ navigation }) => {
           if (!resp.ok){
             alert(data.error);
           } 
+          else {
+            alert("Service Updated Successfully");
+          }
         const resp2=await fetch(`${API}/upload_certificate`, {
             method: 'POST',
             headers: {
@@ -167,6 +179,10 @@ const EditProffDetails = ({ navigation }) => {
         if (!resp2.ok){
             alert(data2.error);
         }
+        else{
+            alert("Certificates Updated Successfully");
+        }
+        setProgress(false);
     }
     return (
         <View style={styles.container}>
@@ -199,6 +215,7 @@ const EditProffDetails = ({ navigation }) => {
                     ))}
                 </View>
             </ScrollView>
+            {progress && <LoadingScreen />}
             <TouchableOpacity style={styles.uploadButton} onPress={handleSubmit}>
                 <Text style={styles.uploadButtonText}>Submit</Text>
             </TouchableOpacity>
@@ -275,4 +292,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#888',
     },
+    reloadButtonContainer: {
+        position: 'absolute',
+        bottom: -10,
+        right: 10,
+      },
+      reloadButton: {
+        backgroundColor: '#3498db',
+        borderRadius: 50,
+        width: 50,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
 });
