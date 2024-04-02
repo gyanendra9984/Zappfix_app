@@ -52,7 +52,7 @@ def send_otp_email(email, otp, type="Login"):
     send_mail(subject, message, from_email, recipient_list)
 
 
-########################## WORKER CRUD Routes #########################
+########################## SIGNUP/LOGIN #########################
 
 
 @csrf_exempt
@@ -280,6 +280,48 @@ def verify_login_otp(request):
     else:
         return JsonResponse({"error": "Invalid request method"})
 
+###################### Profile CRUD  Operations ####################
+
+@csrf_exempt
+def get_user_data(request):
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+
+            if isWorker == "True":
+
+                user = CustomWorker.objects.get(email=email)
+            else:
+                user = CustomUser.objects.get(email=email)
+
+            user_details = {
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "age": user.age,
+                "gender": user.gender,
+                "address": user.address,
+                "city": user.city,
+                "state": user.state,
+                "zip_code": user.zip_code,
+                "profile_pic": user.profile_pic,
+            }
+            return JsonResponse({"worker_details": user_details})
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token expired"}, status=300)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token"}, status=300)
+        except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error fetching user data"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def edit_personal_profile(request):
@@ -310,6 +352,83 @@ def edit_personal_profile(request):
         except Exception as e:
             return JsonResponse({"error": "Error updating profile"}, status=500)
 
+@csrf_exempt
+def upload_profile_pic(request):
+    if request.method == "POST":
+        try:
+            image_file = request.FILES.get("image")
+            email = request.POST.get("email")
+            isWorker = request.POST.get("isWorker")
+
+            if isWorker == "True":
+                user = CustomWorker.objects.get(email=email)
+            else:
+                user = CustomUser.objects.get(email=email)
+
+            upload_result = cloudinary.uploader.upload(image_file)
+
+            image_url = upload_result.get("secure_url")
+
+            user.profile_pic = image_url
+            user.save()
+            return JsonResponse({"message": "Image uploaded successfully"})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse(
+                {"error": "Error uploading image: {}".format(str(e))}, status=500
+            )
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+@csrf_exempt
+def update_worker_location(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            email = data.get("email")
+            live_latitude = data.get("liveLatitude")
+            live_longitude = data.get("liveLongitude")
+
+            worker = WorkerDetails.objects.get(email=email)
+
+            worker.liveLatitude = live_latitude
+            worker.liveLongitude = live_longitude
+            worker.save()
+
+            return JsonResponse({"message": "Worker location updated successfully"})
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating worker location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+@csrf_exempt
+def delete_user(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data.get("email")
+        isWorker = data.get("isWorker")
+
+        if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
+            user = CustomWorker.objects.get(email=email)
+            user.delete()
+
+        if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
+            user = CustomUser.objects.get(email=email)
+            user.delete()
+
+        if AbstractUser.objects.filter(email=email).exists():
+            user = AbstractUser.objects.get(email=email)
+            user.delete()
+
+        return JsonResponse({"message": "User deleted successfully"})
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+######################## SERVICES #############################
 
 @csrf_exempt
 def update_services(request):
@@ -363,6 +482,8 @@ def get_services(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+
+######################## WORKER CERTIFICATIONS #########################
 
 @csrf_exempt
 def upload_certificate(request):
@@ -423,7 +544,6 @@ def get_certificates(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
 @csrf_exempt
 def approve_certificate(request):
     if request.method == "POST":
@@ -448,86 +568,39 @@ def approve_certificate(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-@csrf_exempt
-def delete_user(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        email = data.get("email")
-        isWorker = data.get("isWorker")
-
-        if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
-            user = CustomWorker.objects.get(email=email)
-            user.delete()
-
-        if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
-            user = CustomUser.objects.get(email=email)
-            user.delete()
-
-        if AbstractUser.objects.filter(email=email).exists():
-            user = AbstractUser.objects.get(email=email)
-            user.delete()
-
-        return JsonResponse({"message": "User deleted successfully"})
-
-    return JsonResponse({"error": "Invalid request method"}, status=400)
-
+###################### REQUESTS #############################
 
 @csrf_exempt
-def get_user_data(request):
-
-    if request.method == "POST":
+def get_worker_profile(request):
+    if request.method=='POST':
         try:
             data = json.loads(request.body)
-            email = data.get("email")
-            isWorker = data.get("isWorker")
-
-            if isWorker == "True":
-
-                user = CustomWorker.objects.get(email=email)
-            else:
-                user = CustomUser.objects.get(email=email)
-
-            user_details = {
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "email": user.email,
-                "phone_number": user.phone_number,
-                "age": user.age,
-                "gender": user.gender,
-                "address": user.address,
-                "city": user.city,
-                "state": user.state,
-                "zip_code": user.zip_code,
-                "profile_pic": user.profile_pic,
-            }
-            return JsonResponse({"worker_details": user_details})
-        except jwt.ExpiredSignatureError:
-            return JsonResponse({"error": "Token expired"}, status=300)
-        except jwt.InvalidTokenError:
-            return JsonResponse({"error": "Invalid token"}, status=300)
-        except CustomWorker.DoesNotExist or CustomUser.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
+            email=data.get('email')
+            worker_email=data.get('worker_email')
+            worker = CustomWorker.objects.get(email=worker_email)
+            worker_details = WorkerDetails.objects.get(email=worker_email)            
+            services_offered = worker_details.services_offered.all()
+            services = [service.name for service in services_offered]
+            cert = Certification.objects.filter(worker_email=worker_email)
+            certifications = [(certification.certificate_name, certification.issuing_authority) for certification in cert]
+            
+            return JsonResponse({
+                "first_name": worker.first_name, 
+                "last_name": worker.last_name, 
+                "email": worker.email, 
+                "phone_number": worker.phone_number,                 
+                "age": worker.age,
+                "years_of_exp": worker_details.years_of_experience,
+                "services":services,
+                "certification":certifications,
+                })
+            
         except Exception as e:
             print(e)
-            return JsonResponse({"error": "Error fetching user data"}, status=500)
+            return JsonResponse({"error": "Error fetching worker profile"}, status=500)
+        
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def user_last_five_queries(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            email = data.get("email")
-            user = CustomUser.objects.get(email=email)
-            last_five_queries = user.get_last_five_queries()
-            return JsonResponse({"last_five_queries": last_five_queries})
-        except CustomUser.DoesNotExist:
-            return JsonResponse({"error": "Email does not exist"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid Request Method"}, status=400)
-
 
 @csrf_exempt
 def create_request(request):
@@ -569,96 +642,31 @@ def create_request(request):
             {"status": "error", "message": "Only POST requests are allowed"}, status=405
         )
 
-
 @csrf_exempt
-def update_worker_location(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        try:
-            email = data.get("email")
-            live_latitude = data.get("liveLatitude")
-            live_longitude = data.get("liveLongitude")
-
-            worker = WorkerDetails.objects.get(email=email)
-
-            worker.liveLatitude = live_latitude
-            worker.liveLongitude = live_longitude
-            worker.save()
-
-            return JsonResponse({"message": "Worker location updated successfully"})
-        except WorkerDetails.DoesNotExist:
-            return JsonResponse({"error": "Worker not found"}, status=404)
-        except Exception as e:
-            print(e)
-            return JsonResponse({"error": "Error updating worker location"}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-    
-    
-    
-@csrf_exempt
-def get_worker_profile(request):
+def update_request(request):
     if request.method=='POST':
         try:
             data = json.loads(request.body)
-            email=data.get('email')
-            worker_email=data.get('worker_email')
+            user_email = data.get('user_email')
+            worker_email = data.get('email')
+            user= CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
-            worker_details = WorkerDetails.objects.get(email=worker_email)            
-            services_offered = worker_details.services_offered.all()
-            services = [service.name for service in services_offered]
-            cert = Certification.objects.filter(worker_email=worker_email)
-            certifications = [(certification.certificate_name, certification.issuing_authority) for certification in cert]
+            service = data.get('service')
             
-            return JsonResponse({
-                "first_name": worker.first_name, 
-                "last_name": worker.last_name, 
-                "email": worker.email, 
-                "phone_number": worker.phone_number,                 
-                "age": worker.age,
-                "years_of_exp": worker_details.years_of_experience,
-                "services":services,
-                "certification":certifications,
-                })
+            request = Request.objects.get(user=user,worker=worker,service=service)
             
-        except Exception as e:
-            print(e)
-            return JsonResponse({"error": "Error fetching worker profile"}, status=500)
+            new_status = data.get('status')
+            request.status = new_status
+            
+            
+            return JsonResponse({"message":"Request Status updated successfully"})       
         
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
-def upload_profile_pic(request):
-    if request.method == "POST":
-        try:
-            image_file = request.FILES.get("image")
-            email = request.POST.get("email")
-            isWorker = request.POST.get("isWorker")
-
-            if isWorker == "True":
-                user = CustomWorker.objects.get(email=email)
-            else:
-                user = CustomUser.objects.get(email=email)
-
-            upload_result = cloudinary.uploader.upload(image_file)
-
-            image_url = upload_result.get("secure_url")
-
-            user.profile_pic = image_url
-            user.save()
-            return JsonResponse({"message": "Image uploaded successfully"})
-        except CustomUser.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
+            
+            
         except Exception as e:
-            return JsonResponse(
-                {"error": "Error uploading image: {}".format(str(e))}, status=500
-            )
+            return JsonResponse({'error': 'Error updating request'}, status=500)
     else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 def get_user_requests(request):
@@ -667,7 +675,7 @@ def get_user_requests(request):
             data = json.loads(request.body)
             email = data.get('email')
             worker= CustomWorker.objects.get(email=email)
-            requests = Request.objects.filter(worker=worker)
+            requests = Request.objects.filter(worker=worker, status='Pending')
             user_requests = []
             for request in requests:
                 user = request.user
@@ -813,7 +821,7 @@ def get_nearest_workers(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-############################SEARCH FUNCTIONALITY########################
+############################ SEARCH FUNCTIONALITY ########################
 
 
 @csrf_exempt
@@ -890,8 +898,22 @@ def get_closest_services(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+@csrf_exempt
+def user_last_five_queries(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            user = CustomUser.objects.get(email=email)
+            last_five_queries = user.get_last_five_queries()
+            return JsonResponse({"last_five_queries": last_five_queries})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "Email does not exist"}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid Request Method"}, status=400)
 
-##################################HELPER FUNCTIONS####################################
+
+################################## HELPER FUNCTIONS ####################################
 @csrf_exempt
 def insert_worker(request):
     try:
