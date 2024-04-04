@@ -101,7 +101,7 @@ const WorkerHome = ({ navigation }) => {
         <View style={styles.container}>
             <Text className="mt-16 font-bold text-2xl">Worker Home Screen</Text>
 
-            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________________</Text>
+            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________</Text>
 
             <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
