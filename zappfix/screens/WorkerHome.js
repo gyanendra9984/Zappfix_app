@@ -105,7 +105,10 @@ const WorkerHome = ({ navigation }) => {
             <Text style={styles.fullWidthSeparator}>______________________________________________________</Text>
 
 
-            <View style={styles.progressContainer}>
+
+            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________</Text>
+
+              {/*<View style={styles.progressContainer}>
                 <Svg height="100" width="100">
                     <Path
                         d="M50 10
@@ -137,7 +140,8 @@ const WorkerHome = ({ navigation }) => {
                     </SvgText>
                 </Svg>
                 <Text style={[styles.progressText, { marginLeft: 10 }]}>{percentage}% of your profile is completed</Text>
-            </View>
+            </View>*/}
+
 
             <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
