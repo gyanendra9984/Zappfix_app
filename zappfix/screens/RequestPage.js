@@ -128,6 +128,7 @@ const RequestPage = (props) => {
           <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>
           <Text style={styles.workerDescription}>
             {workerProfile.services && workerProfile.services.join(', ')}
+
           </Text>
           <View style={styles.rating}>
             <Text style={styles.ratingText}>Rating: </Text>

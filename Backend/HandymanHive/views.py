@@ -95,10 +95,10 @@ def user_signup(request):
                 user_details=json.dumps(data),
                 is_worker=isWorker,
             )
-            otp = generate_otp()
-            user.otp = otp
-            user.save()
-            send_otp_email(email, otp)
+            # otp = generate_otp()
+            # user.otp = otp
+            # user.save()
+            # send_otp_email(email, otp)
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
             print(e)
@@ -114,7 +114,6 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
@@ -126,6 +125,7 @@ def verify_otp(request):
             if str(user.is_worker) != isWorker:
                 return JsonResponse({"message": "User not found"}, status=404)
 
+            print(str(user.is_worker),isWorker,2)
             if user.otp == otp and user.otp_valid_till > timezone.now():
                 user_data = json.loads(user.user_details)
 
@@ -135,7 +135,7 @@ def verify_otp(request):
                         first_name=user_data["first_name"],
                         last_name=user_data["last_name"],
                         email=user_data["email"],
-                        age=int(user_data["age"]),
+                        age=int(user_data["age"] or 0),
                         gender=user_data["gender"],
                         address=user_data["address"],
                         city=user_data["city"],
@@ -510,7 +510,7 @@ def get_user_data(request):
                 "city": user.city,
                 "state": user.state,
                 "zip_code": user.zip_code,
-                "profile_pic": user.profile_pic,
+                "profile_pic":str(user.profile_pic),
             }
             return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
@@ -646,19 +646,20 @@ def get_worker_profile(request):
 def upload_profile_pic(request):
     if request.method == "POST":
         try:
-            image_file = request.FILES.get("image")
-            email = request.POST.get("email")
-            isWorker = request.POST.get("isWorker")
-
+            data = json.loads(request.body)
+            image_file = data.get("image")
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+            
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
 
-            upload_result = cloudinary.uploader.upload(image_file)
-
+            # print(base64.b64decode(image_file))
+            upload_result = cloudinary.uploader.upload(base64.b64decode(image_file))
             image_url = upload_result.get("secure_url")
-
+            print(image_url)
             user.profile_pic = image_url
             user.save()
             return JsonResponse({"message": "Image uploaded successfully"})
@@ -850,14 +851,18 @@ def get_closest_services(request):
                 for token in nlp(query)
                 if not token.is_stop and not token.is_punct
             ]
+            # print(query_tokens)
+            print([token.vector for token in nlp(" ".join(query_tokens))])
             query_embedding = np.mean(
                 [token.vector for token in nlp(" ".join(query_tokens))], axis=0
             )
+            # print(query_embedding)
 
             services = Service.objects.all()
 
             similarities = []
             for service in services:
+                # print(service.name)
                 service_tokens = [
                     token.text
                     for token in nlp(service.name)
@@ -904,8 +909,6 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
 ##################################HELPER FUNCTIONS####################################
 @csrf_exempt
 def insert_worker(request):

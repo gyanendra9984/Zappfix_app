@@ -1,202 +1,378 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker for image selection
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Example icon library
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { AuthContext } from '../context/AuthContext';
 
-const EditProfilePage = ({ profile, onSave, onCancel }) => {
-  const [editedProfile, setEditedProfile] = useState({ ...profile });
-  const [image, setImage] = useState(null); // State to store the selected image
+        {progress ? (
+          <LoadingScreen />
+        ) : (
+          <View style={styles.container}>
+            <View style={styles.Middle}>
+              <Text style={styles.LoginText}>Signup</Text>
+            </View>
+            <View style={styles.text2}>
+              <Text>Already have account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                <Text style={styles.signupText}> Login </Text>
+              </TouchableOpacity>
+            </View>
 
-  useEffect(() => {
-    (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to choose an image.');
-        }
-      }
-    })();
-  }, []);
-
-  const handlePickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3], // Optional: Set aspect ratio for cropping
-      quality: 1, // Optional: Adjust image quality (0-1)
-    });
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-      setEditedProfile({ ...editedProfile, photo: result.uri }); // Update editedProfile with new image URI
-    }
-  };
-
-  const handleSave = () => {
-    // Perform any validation or API calls here, considering the updated photo in editedProfile
-    onSave(editedProfile);
-  };
-
-  return (
-    <View style={styles.editContainer}>
-      <Text style={styles.editTitle}>Edit Profile</Text>
-
-      <View style={styles.editImageContainer}>
-        <TouchableOpacity onPress={handlePickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.profileImage} />
-          ) : (
-            profile.photo ? ( // Check if a profile photo exists
-              <Image source={{ uri: profile.photo }} style={styles.profileImage} />
+            {isOtpSent ? (
+              <View>
+                <View style={styles.buttonStyleX}>
+                  <View style={styles.emailInput}>
+                    <Input
+                      variant="outline"
+                      placeholder="Enter OTP"
+                      _light={{
+                        placeholderTextColor: "blueGray.400",
+                      }}
+                      _dark={{
+                        placeholderTextColor: "blueGray.50",
+                      }}
+                      onChangeText={(text) => {
+                        // Handle OTP input
+                        setOtp(text);
+                      }}
+                    />
+                  </View>
+                </View>
+                <View style={styles.buttonStyle}>
+                  <Button style={styles.buttonDesign} onPress={verifyOtp}>
+                    VERIFY OTP
+                  </Button>
+                </View>
+              </View>
             ) : (
-              <MaterialCommunityIcons name="account-image" size={80} color="gray" /> // Placeholder icon
-            ))};
-        </TouchableOpacity>
-      </View>
+              <View>
+                <View style={styles.buttonContainer}>
+                  {/* First Name  Input Field */}
+                  <View style={styles.buttonStyle}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<FontAwesome5 name="user-secret" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="First Name"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => setFirstName(text)}
+                      />
+                    </View>
+                  </View>
 
-      <View style={styles.editInfoContainer}>
-        <Text style={styles.editLabel}>Name:</Text>
-        <TextInput
-          style={styles.editInput}
-          value={editedProfile.name}
-          onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
-        />
-      </View>
+                  {/* Last Name  Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<FontAwesome5 name="envelope" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="Last Name"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setLastName(text);
+                        }}
+                      />
+                    </View>
+                  </View>
 
-      {/* Add other editable fields similarly based on your profile structure */}
+                  {/* Email Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<FontAwesome5 name="envelope" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="Email"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setEmail(text);
+                          setEmailError(""); // Clear the validation error when the user starts typing
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {emailError !== "" && (
+                    <Text style={styles.errorText}>{emailError}</Text>
+                  )}
 
-      <View style={styles.editButtons}>
-        <TouchableOpacity style={styles.editButton} onPress={handleSave}>
-          <Text style={styles.editButtonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.editButton} onPress={onCancel}>
-          <Text style={styles.editButtonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
+                  {/* Phone Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialCommunityIcons name="phone" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="Phone Number"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setPhoneNumber(text);
+                          setPhoneNumberError(""); // Clear the validation error when the user starts typing
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {phoneNumberError !== "" && (
+                    <Text style={styles.errorText}>{phoneNumberError}</Text>
+                  )}
 
-const Profile = () => {
-  const [profile, setProfile] = useState({
-    // ... your profile data
-  });
-  const { logout } = useContext(AuthContext);
+                  {/* Age Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialCommunityIcons name="phone" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="Age"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setAge(text);
+                        }}
+                      />
+                    </View>
+                  </View>
 
-  const handleSaveProfile = (editedProfile) => {
-    // Handle saving the edited profile data, e.g., make API calls
-    // Update the state with the edited profile
-    setProfile(editedProfile);
-  };
+                  {/* Gender Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Select
+                        InputLeftElement={
+                          <Icon
+                            as={<FontAwesome5 name="venus-mars" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        selectedValue={selectedGender}
+                        onValueChange={(itemValue) =>
+                          setSelectedGender(itemValue)
+                        }
+                        variant="outline"
+                        placeholder="Select Gender"
+                      >
+                        <Select.Item label="Male" value="male" />
+                        <Select.Item label="Female" value="female" />
+                        <Select.Item label="Other" value="other" />
+                      </Select>
+                    </View>
+                  </View>
 
-  const handleCancelEdit = () => {
-    // ...
-  };
+                  {/* Address Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialCommunityIcons name="phone" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="Address"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setAddress(text);
+                        }}
+                      />
+                    </View>
+                  </View>
 
-  return (
-    <View style={styles.container}>
-      <EditProfilePage profile={profile} onSave={handleSaveProfile} onCancel={handleCancelEdit} />
-    </View>
-  );
-};
+                  {/* City Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialCommunityIcons name="phone" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="City"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setCity(text);
+                        }}
+                      />
+                    </View>
+                  </View>
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-      },
-      header: {
-        alignItems: 'center',
-        marginBottom: 20,
-      },
-      profileImage: {
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            marginRight: 16,
-          },
-      name: {
-        fontSize: 20,
-        fontWeight: 'bold',
-      },
-      card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 20,
-        elevation: 3,
-      },
-      cardTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-      },
-      infoContainer: {
-        flexDirection: 'column',
-      },
-      infoItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 5,
-      },
-      bottomButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-      },
-      button: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#3498db',
-        borderRadius: 5,
-        padding: 10,
-        marginHorizontal: 5,
-      },
-      buttonText: {
-        color: '#fff',
-        marginLeft: 5,
-      },
-      editContainer: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 16,
-      },
-      editTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 16,
-      },
-      editInfoContainer: {
-        marginBottom: 16,
-      },
-      editLabel: {
-        fontSize: 16,
-        marginBottom: 8,
-      },
-      editInput: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        padding: 8,
-      },
-      editButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 20,
-      },
-      editButton: {
-        flex: 1,
-        backgroundColor: '#3498db',
-        borderRadius: 5,
-        padding: 10,
-        marginHorizontal: 5,
-      },
-      editButtonText: {
-        color: '#fff',
-        textAlign: 'center',
-      },
-});
+                  {/* State Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Input
+                        InputLeftElement={
+                          <Icon
+                            as={<MaterialCommunityIcons name="phone" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        variant="outline"
+                        placeholder="State"
+                        _light={{
+                          placeholderTextColor: "blueGray.400",
+                        }}
+                        _dark={{
+                          placeholderTextColor: "blueGray.50",
+                        }}
+                        onChangeText={(text) => {
+                          setState(text);
+                        }}
+                      />
+                    </View>
+                  </View>
+
+                  {/*  Input Field */}
+                  <View style={styles.buttonStyleX}>
+                    <View style={styles.emailInput}>
+                      <Select
+                        InputLeftElement={
+                          <Icon
+                            as={<FontAwesome5 name="venus-mars" />}
+                            size="sm"
+                            m={2}
+                            _light={{
+                              color: "black",
+                            }}
+                            _dark={{
+                              color: "gray.300",
+                            }}
+                          />
+                        }
+                        selectedValue={selectedRole}
+                        onValueChange={(itemValue) =>
+                          handleSelectedRole(itemValue)
+                        }
+                        variant="outline"
+                        placeholder="Select Role"
+                      >
+                        <Select.Item label="Worker" value="worker" />
+                        <Select.Item label="User" value="user" />
+                      </Select>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.buttonStyle}>
+                  <Button style={styles.buttonDesign} onPress={handleSignUp}>
+                    REGISTER NOW
+                  </Button>
+                </View>
+              </View>
+            )}
+
+            <StatusBar style="auto" />
+          </View>
+        )}

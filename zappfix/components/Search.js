@@ -23,6 +23,7 @@ export default function Search() {
 
   const fetchSearchResults = async (query) => {
     try {
+      navigation.navigate("Loading")
       const response = await fetch(`${API}/get_closest_services`, {
         method: 'POST',
         headers: {
