@@ -1,7 +1,8 @@
 import React, { useContext, useState,useEffect } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet,TouchableOpacity } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import LoadingScreen from './LoadingScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const EditProfile = () => {
   const [firstName, setFirstName] = useState('');
@@ -161,6 +162,11 @@ const EditProfile = () => {
           />
         </View>
       )}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserData}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
     </View>
   );
 };
@@ -177,6 +183,19 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
+  },
+  reloadButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
+  reloadButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
