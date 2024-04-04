@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,8 +10,8 @@ const RequestPage = (props) => {
   const { email } = props.route.params;
   const {API}= useContext(AuthContext);
   const [progress,setProgress]=useState(false);
-
-
+  const [workerProfile, setWorkerProfile] = useState(null);
+  
   const handleTabPress = (tabName) => {
     setSelectedTab(tabName);
   };
@@ -64,6 +64,31 @@ const RequestPage = (props) => {
 
   };
 
+  useEffect(() => {
+    const fetchWorkerProfile = async () => {
+      try {
+        const response = await fetch(`${API}/get_worker_profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: AsyncStorage.getItem("email"),worker_email:email, }),
+        });
+        const data = await response.json();
+        console.log(data,"jh")
+        if (response.ok) {
+          setWorkerProfile(data); // Set worker profile data to state
+        } else {
+          console.error('Failed to fetch worker profile:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching worker profile:', error);
+      }
+    };
+
+    fetchWorkerProfile();
+  }, [API, email]);
+
   // Dummy data for reviews
   const reviews = [
     { name: 'Alice', review: 'Great service! Highly recommended.' },
@@ -100,11 +125,9 @@ const RequestPage = (props) => {
           source={require('../assets/Profile.png')} // Placeholder image URL
         />
         <View style={styles.workerDetails}>
-          <Text style={styles.workerName}>{email}</Text>
-          <Text style={styles.workerName}>John Doe</Text>
+          <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>
           <Text style={styles.workerDescription}>
-            Installation, repair, and maintenance of plumbing systems.
-            Proficient in interpreting blueprints
+            {workerProfile.services && workerProfile.services.join(', ')}
           </Text>
           <View style={styles.rating}>
             <Text style={styles.ratingText}>Rating: </Text>
@@ -140,9 +163,9 @@ const RequestPage = (props) => {
   <View style={styles.tabContent}>
     {/* Display contact information */}
     <View style={styles.contactInfo}>
-      <Text style={styles.contactLabel}>Email: {contactInfo.email}</Text>
-      <Text style={styles.contactLabel}>Phone: {contactInfo.phone}</Text>
-      <Text style={styles.contactLabel}>Address: {contactInfo.address}</Text>
+      <Text style={styles.contactLabel}>Email: {workerProfile.email}</Text>
+      <Text style={styles.contactLabel}>Phone: {workerProfile.phone_number}</Text>
+      <Text style={styles.contactLabel}>Address: {workerProfile.address}</Text>
     </View>
   </View>
       ) : (
@@ -279,4 +302,3 @@ contactLabel: {
 });
 
 export default RequestPage;
-
