@@ -510,7 +510,7 @@ def get_user_data(request):
                 "city": user.city,
                 "state": user.state,
                 "zip_code": user.zip_code,
-                "profile_pic": user.profile_pic,
+                "profile_pic":str(user.profile_pic),
             }
             return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
@@ -645,19 +645,20 @@ def get_worker_profile(request):
 def upload_profile_pic(request):
     if request.method == "POST":
         try:
-            image_file = request.FILES.get("image")
-            email = request.POST.get("email")
-            isWorker = request.POST.get("isWorker")
-
+            data = json.loads(request.body)
+            image_file = data.get("image")
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+            
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
 
-            upload_result = cloudinary.uploader.upload(image_file)
-
+            # print(base64.b64decode(image_file))
+            upload_result = cloudinary.uploader.upload(base64.b64decode(image_file))
             image_url = upload_result.get("secure_url")
-
+            print(image_url)
             user.profile_pic = image_url
             user.save()
             return JsonResponse({"message": "Image uploaded successfully"})
