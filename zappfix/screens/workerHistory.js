@@ -86,7 +86,7 @@ const HistoryList = () => {
         <TouchableOpacity
           key={item.id}
           style={styles.item}
-          onPress={() => handleItemClick(item)}
+          onPress={() => handlePress()}
         >
           <View style={styles.rowContainer}>
             <Text style={styles.workName}>{item.workName}</Text>

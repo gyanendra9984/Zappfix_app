@@ -14,36 +14,43 @@ import * as Location from 'expo-location';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from "@react-navigation/native";
+import LoadingScreen from './LoadingScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const WorkerInfo = () => {
+const WorkerInfo = (props) => {
   const [location, setLocation] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(new Animated.Value(0));
   const [selectedRating, setSelectedRating] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [workersData, setWorkersData] = useState([]);
-  // const []
+  const {service} = props.route.params;
   const [workers,setWorkers]=useState([]);
   const navigation = useNavigation();
 
   const {API} = useContext(AuthContext);
+   
+  // const {service}=props.route.params;
+  const [progress,setProgress]=useState(false);
 
   // Function to fetch nearest workers
   const fetchNearestWorkers = async () => {
+    console.log("here i am",service);
     try {
       if(!location) return;
-      console.log("location", location)
+      // console.log("location", location)
+      setProgress(true);
       const response = await fetch(`${API}/get_nearest_workers`, {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          service: 'Carpentry',
+          service: service,
           coords: [location.coords.latitude, location.coords.longitude],
         }),
       });
       const data = await response.json();
-      console.log("Workers=",data.workers);
+      // console.log("Workers=",data.workers);
       if (response.ok) {
         setWorkersData(data.workers);
         setWorkers(data.workers);
@@ -53,6 +60,7 @@ const WorkerInfo = () => {
     } catch (error) {
       console.error('Error fetching nearest workers:', error);
     }
+    setProgress(false);
   };
 
 
@@ -70,35 +78,27 @@ const WorkerInfo = () => {
       if(location){
         fetchNearestWorkers();
       }
+      fetchNearestWorkers();
 
     })();
   }, []);
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollOffset } } }],
-    { useNativeDriver: false }
-  );
-
+  const handleScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    Animated.spring(scrollOffset, {
+      toValue: offsetY,
+      useNativeDriver: false
+    }).start();
+  };
+  
   const maxMapHeight = Dimensions.get('window').height / 2;
-
+  
   const mapHeight = scrollOffset.interpolate({
     inputRange: [0, maxMapHeight],
     outputRange: [maxMapHeight, 0],
     extrapolate: 'clamp',
   });
 
-  // const workers = [
-  //   { id: '1', name: 'John Doe', rating: 4.2, profileImage: require('../assets/Profile.png') },
-  //   { id: '2', name: 'Jane Smith', rating: 3.8, profileImage: require('../assets/Profile.png') },
-  //   { id: '3', name: 'Bob Johnson', rating: 4.5, profileImage: require('../assets/Profile.png') },
-  //   { id: '4', name: 'Alice Williams', rating: 3.9, profileImage: require('../assets/Profile.png') },
-  //   { id: '5', name: 'Chris Brown', rating: 4.1, profileImage: require('../assets/Profile.png') },
-  //   { id: '6', name: 'Emily Davis', rating: 4.3, profileImage: require('../assets/Profile.png') },
-  //   { id: '7', name: 'Daniel Miller', rating: 4.0, profileImage: require('../assets/Profile.png') },
-  //   { id: '8', name: 'Sophia Wilson', rating: 3.7, profileImage: require('../assets/Profile.png') },
-  //   { id: '9', name: 'Matthew Jones', rating: 4.4, profileImage: require('../assets/Profile.png') },
-  //   { id: '10', name: 'Olivia White', rating: 3.5, profileImage: require('../assets/Profile.png') },
-  // ];
 
   // const filteredWorkers = selectedRating
   //   ? workers.filter(worker => worker.rating >= selectedRating)
@@ -148,22 +148,6 @@ const WorkerInfo = () => {
     </View>
   );
 
-
-  // Render function for markers
-  // const locationData = [
-  //   { id: '1', first_name: 'John', last_name: 'Doe', liveLatitude: 20.1234, liveLongitude: 78.9639 },
-  //   { id: '2', first_name: 'Jane', last_name: 'Smith', liveLatitude: 29.0588, liveLongitude: 76.0856 },
-  //   { id: '3', first_name: 'Bob', last_name: 'Johnson', liveLatitude: 27.0238, liveLongitude: 74.2179 },
-  //   { id: '4', first_name: 'Alice', last_name: 'Williams', liveLatitude: 12.9716, liveLongitude: 77.5946 },
-  //   { id: '5', first_name: 'Chris', last_name: 'Brown', liveLatitude: 37.78825, liveLongitude: -122.4324 },
-  // ];
-
-  // useEffect(() => {
-  //   setWorkersData(locationData);
-  // }, []);
-
-
-
   const renderMarkers = () => {
     console.log(workers)
     return workers.map((worker, index) => (
@@ -212,11 +196,11 @@ const WorkerInfo = () => {
           </MapView>
         )}
       </Animated.View>
+      {progress ? (
+        <LoadingScreen />
+      ) : (
       <View style={styles.contentContainer}>
         <Text style={styles.serviceProvidersInfo}>Service Providers Info</Text>
-        <TouchableOpacity style={styles.uploadButton} onPress={fetchNearestWorkers}>
-                        <Text style={styles.uploadButtonText}>Reload Button for Fetching Map</Text>
-                    </TouchableOpacity>
 
         {/* Filter Dropdown Button */}
         {renderDropdownButton()}
@@ -235,6 +219,12 @@ const WorkerInfo = () => {
           
         />
       </View>
+      )}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchNearestWorkers}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
     </View>
   );
 };
@@ -336,6 +326,19 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     color: '#333',
+  },
+  reloadButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+  },
+  reloadButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
