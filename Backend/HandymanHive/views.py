@@ -630,6 +630,7 @@ def get_worker_profile(request):
                 "age": worker.age,
                 "years_of_exp": worker_details.years_of_experience,
                 "services":services,
+                "address":worker.address,
                 "certification":certifications,
                 })
             
