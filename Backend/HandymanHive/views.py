@@ -656,27 +656,38 @@ def create_request(request):
 
 @csrf_exempt
 def update_request(request):
-    if request.method=='POST':
+    if request.method == 'POST':
         try:
             data = json.loads(request.body)
             user_email = data.get('user_email')
             worker_email = data.get('email')
-            user= CustomUser.objects.get(email=user_email)
+            user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
             service = data.get('service')
             
-            request = Request.objects.get(user=user,worker=worker,service=service)
+            request_instance = Request.objects.get(user=user, worker=worker, service=service)
             
             new_status = data.get('status')
-            request.status = new_status
+            request_instance.status = new_status
+            request_instance.save()  # Save the changes
             
+            # Construct the response with updated request data
+            response_data = {
+                "message": "Request Status updated successfully",
+                "request_id": request_instance.id,
+                "user_email": request_instance.user.email,
+                "worker_email": request_instance.worker.email,
+                "service": request_instance.service,
+                "status": request_instance.status
+            }
             
-            return JsonResponse({"message":"Request Status updated successfully"})       
+            return JsonResponse(response_data)
         
         except Exception as e:
             return JsonResponse({'error': 'Error updating request'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 @csrf_exempt
 def get_user_requests(request):
@@ -696,8 +707,9 @@ def get_user_requests(request):
                     'last_name': user.last_name,
                     'email': user.email,
                     'service': request.service,
+                    'id': request.id,                                   
                     'created_on': request.created_on,
-                    'status': request.status                                        
+                    'status': request.status,     
                 })
             return JsonResponse({'requests': user_requests})
         except CustomUser.DoesNotExist:
