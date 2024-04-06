@@ -25,6 +25,6 @@ urlpatterns = [
     path("get_user_requests", views.get_user_requests, name="get_user_requests"), 
     path("upload_profile_pic", views.upload_profile_pic, name="upload_profile_pic"),    
     path("get_worker_profile", views.get_worker_profile, name="get_worker_profile"),   
-
+    path("dashboard_view",views.dashboard_view,name="dashboard_view")
 ]  
 

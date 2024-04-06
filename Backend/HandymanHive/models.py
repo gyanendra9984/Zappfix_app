@@ -62,7 +62,7 @@ class CustomWorker(models.Model):
     profile_pic = CloudinaryField("image", null=True, blank=True)
     def __str__(self):
         return self.email
-
+    verified=models.BooleanField(default=False)
 
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
@@ -151,7 +151,7 @@ class Request(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
     service = models.CharField(blank=True)
-    status = models.CharField(max_length=50, default="Pending")
+    status = models.CharField(max_length=50, default="Pending") # we will keep 3 types of status, Pending, In Progress, Completed
     created_on = models.DateTimeField(null=True,blank=True)   
 
     def __str__(self):
