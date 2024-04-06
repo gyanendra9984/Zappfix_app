@@ -95,10 +95,10 @@ def user_signup(request):
                 user_details=json.dumps(data),
                 is_worker=isWorker,
             )
-            otp = generate_otp()
-            user.otp = otp
-            user.save()
-            send_otp_email(email, otp)
+            # otp = generate_otp()
+            # user.otp = otp
+            # user.save()
+            # send_otp_email(email, otp)
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
             print(e)
@@ -114,7 +114,6 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
@@ -126,6 +125,7 @@ def verify_otp(request):
             if str(user.is_worker) != isWorker:
                 return JsonResponse({"message": "User not found"}, status=404)
 
+            print(str(user.is_worker),isWorker,2)
             if user.otp == otp and user.otp_valid_till > timezone.now():
                 user_data = json.loads(user.user_details)
 
@@ -135,7 +135,7 @@ def verify_otp(request):
                         first_name=user_data["first_name"],
                         last_name=user_data["last_name"],
                         email=user_data["email"],
-                        age=int(user_data["age"]),
+                        age=int(user_data["age"] or 0),
                         gender=user_data["gender"],
                         address=user_data["address"],
                         city=user_data["city"],
@@ -673,8 +673,6 @@ def update_request(request):
             
             return JsonResponse({"message":"Request Status updated successfully"})       
         
-            
-            
         except Exception as e:
             return JsonResponse({'error': 'Error updating request'}, status=500)
     else:
@@ -840,7 +838,7 @@ def get_nearest_workers(request):
 
 @csrf_exempt
 def get_closest_services(request):
-    if request.method == "GET":
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
             query = data.get("query")
@@ -857,14 +855,18 @@ def get_closest_services(request):
                 for token in nlp(query)
                 if not token.is_stop and not token.is_punct
             ]
+            # print(query_tokens)
+            print([token.vector for token in nlp(" ".join(query_tokens))])
             query_embedding = np.mean(
                 [token.vector for token in nlp(" ".join(query_tokens))], axis=0
             )
+            # print(query_embedding)
 
             services = Service.objects.all()
 
             similarities = []
             for service in services:
+                # print(service.name)
                 service_tokens = [
                     token.text
                     for token in nlp(service.name)
@@ -911,7 +913,7 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
+      
 @csrf_exempt
 def user_last_five_queries(request):
     if request.method == "POST":

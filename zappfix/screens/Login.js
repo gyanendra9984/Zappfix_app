@@ -41,11 +41,11 @@ function Login() {
   }
   const sendOtp = async () => {
     // Perform your signup logic here
-    if (!isEmailValid(email)) {
-      setEmailError("Please enter a valid IITRPR email address");
-      alert("Please enter a valid IITRPR email address");
-      return; // Stop the signup process if the email is not valid
-    }
+    // if (!isEmailValid(email)) {
+    //   setEmailError("Please enter a valid IITRPR email address");
+    //   alert("Please enter a valid IITRPR email address");
+    //   return; // Stop the signup process if the email is not valid
+    // }
 
     try {
       // Send a POST request to the backend with the user's information
