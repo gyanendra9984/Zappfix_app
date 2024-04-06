@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.contrib.auth.models import User
 # from django.contrib.gis.db import models
 from cloudinary.models import CloudinaryField
+from django.db import models
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 class AbstractUserManager(BaseUserManager):
@@ -64,9 +67,7 @@ class CustomWorker(models.Model):
         return self.email
 
 
-from django.db import models
-from django.core.serializers.json import DjangoJSONEncoder
-import json
+
 
 class CustomUser(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
