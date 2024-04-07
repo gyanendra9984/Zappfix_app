@@ -39,7 +39,7 @@ class CertificationModelTest(TestCase):
             
         invalid_data['worker_email'] = "johndoe@invaliddomain"
         with self.assertRaises(ValidationError):
-            Certifications.objects.create(**invalid_data)
+            Certification.objects.create(**invalid_data)
 
     def test_certificate_name_max_length(self):
         """Tests exceeding max length for certificate_name"""
