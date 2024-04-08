@@ -1,5 +1,7 @@
 
-from datetime import timedelta
+
+from datetime import datetime, timedelta
+
 import os
 import base64
 from django.db.models import F, Q
@@ -261,6 +263,7 @@ def verify_login_otp(request):
                     "email": user.email,
                     "exp": timezone.now() + timedelta(days=1),
                     "iat": timezone.now(),
+
                 }
                 print("otp=",otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
@@ -646,6 +649,7 @@ def create_request(request):
 
             return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
 
+
         Request.objects.create(
             user=user,
             worker=worker,
@@ -659,6 +663,7 @@ def create_request(request):
         return JsonResponse(
             {"status": "error", "message": "Only POST requests are allowed"}, status=405
         )
+
 
 
 @csrf_exempt
@@ -727,6 +732,39 @@ def get_user_requests(request):
 
 
 @csrf_exempt
+
+def get_progress_work(request):
+    if request.method == "GET":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = CustomWorker.objects.get(email=email)
+            progress_works = WorkHistory.objects.filter(
+                worker=worker, status="In Progress"
+            )
+
+            worker_progress_works = []
+            for work in progress_works:
+                worker_progress_works.append(
+                    {
+                        "first_name": work.user.first_name,
+                        "last_name": work.user.last_name,
+                        "email": work.user.email,
+                        "service": work.service,
+                        "started_on": work.started_on,
+                        "status": work.status,
+                    }
+                )
+
+            return JsonResponse({"progress_works": worker_progress_works})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Error fetching progress work: {e}"}, status=500
+
+              
+@csrf_exempt
 def update_work_history(request):
     if request.method == "POST":
         try:
@@ -772,9 +810,6 @@ def update_work_history(request):
             )
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-
 
 
 ###################### RECOMMENDATION SYSTEM #######################
