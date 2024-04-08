@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import os
 import base64
 from django.db.models import F, Q
@@ -20,6 +20,7 @@ from .models import (
     Certification,
     WorkerDetails,
     Request,
+    WorkHistory,
 )
 
 
@@ -165,8 +166,8 @@ def verify_otp(request):
 
                 payload = {
                     "email": user.email,
-                    "exp": datetime.utcnow() + timedelta(days=1),
-                    "iat": datetime.utcnow(),
+                    "exp": timezone.now() + timedelta(days=1),
+                    "iat": timezone.now(),
                 }
 
                 isAdmin=False
@@ -257,8 +258,8 @@ def verify_login_otp(request):
 
                 payload = {
                     "email": user.email,
-                    "exp": datetime.utcnow() + timedelta(days=1),
-                    "iat": datetime.utcnow(),
+                    "exp": timezone.now() + timedelta(days=1),
+                    "iat": timezone.now(),
                 }
                 print("otp=",otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
@@ -390,7 +391,7 @@ def upload_profile_pic(request):
             )
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
+
 @csrf_exempt
 def update_worker_location(request):
     if request.method == "POST":
@@ -414,7 +415,7 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
+
 @csrf_exempt
 def delete_user(request):
     if request.method == "POST":
@@ -643,10 +644,14 @@ def create_request(request):
         except CustomWorker.DoesNotExist:
 
             return JsonResponse({'status': 'error', 'message': 'Worker does not exist'}, status=404)
-        
 
-        Request.objects.create(user=user, worker=worker, service=service)
-        
+        Request.objects.create(
+            user=user,
+            worker=worker,
+            service=service,
+            created_on=timezone.now(),
+        )
+
         return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
 
     else:
@@ -654,29 +659,41 @@ def create_request(request):
             {"status": "error", "message": "Only POST requests are allowed"}, status=405
         )
 
+
 @csrf_exempt
 def update_request(request):
-    if request.method=='POST':
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
-            user_email = data.get('user_email')
-            worker_email = data.get('email')
-            user= CustomUser.objects.get(email=user_email)
+            user_email = data.get("user_email")
+            worker_email = data.get("worker_email")
+            user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
-            service = data.get('service')
-            
-            request = Request.objects.get(user=user,worker=worker,service=service)
-            
-            new_status = data.get('status')
-            request.status = new_status
-            
-            
-            return JsonResponse({"message":"Request Status updated successfully"})       
-        
+            service = data.get("service")
+            status = data.get("status","In Progress")
+
+            request = Request.objects.get(
+                user=user, worker=worker, service=service
+            )
+
+            request.delete()
+
+            WorkHistory.objects.create(
+                user=user,
+                worker=worker,
+                service=service,
+                status=status,
+                started_on=timezone.now(),
+            )
+
+            return JsonResponse(
+                {"message": "Request deleted and added to WorkHistory successfully"}
+            )
         except Exception as e:
-            return JsonResponse({'error': 'Error updating request'}, status=500)
+            return JsonResponse({"error": "Error updating request"}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 @csrf_exempt
 def get_user_requests(request):
@@ -706,6 +723,57 @@ def get_user_requests(request):
             return JsonResponse({'error': 'Error fetching requests'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def update_work_history(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_email = data.get("user_email")
+            worker_email = data.get("worker_email")
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+            service = data.get("service")
+            status = data.get("status","In Progress")
+            userdone = data.get("userdone", False)
+            workerdone = data.get("workerdone", False)
+
+            work_history = WorkHistory.objects.get(
+                user=user, worker=worker, service=service
+            )
+
+            if work_history:
+                if status == "rejected":
+                    work_history.delete()
+                    return JsonResponse(
+                        {"message": "Work history entry deleted successfully"}
+                    )
+                if userdone == True:
+                    work_history.userdone = userdone
+                if workerdone == True:
+                    work_history.workerdone = workerdone
+
+                if work_history.userdone and work_history.workerdone:
+                    work_history.status = "Done"
+                    work_history.done_on = timezone.now()
+
+                work_history.save()
+
+                return JsonResponse({"message": "Work history updated successfully"})
+            else:
+                return JsonResponse(
+                    {"error": "Work history entry not found"}, status=404
+                )
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Error updating work history: {str(e)}"}, status=500
+            )
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
 
 
 ###################### RECOMMENDATION SYSTEM #######################
@@ -913,7 +981,7 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-      
+
 @csrf_exempt
 def user_last_five_queries(request):
     if request.method == "POST":
@@ -1113,9 +1181,7 @@ def insert_worker(request):
         return JsonResponse({"error": "Error adding worker"}, status=500)
 
 
-
-
-#--------NOTIFICATION HELPER--------
+# --------NOTIFICATION HELPER--------
 import requests
 from .notifications import templates
 def send_notfication(template, user):
@@ -1134,4 +1200,3 @@ def send_notfication(template, user):
         )
     print(resp)
     return JsonResponse({"message":"Notification sent successfully"})
-
