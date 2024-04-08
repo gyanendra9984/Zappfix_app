@@ -479,18 +479,15 @@ def get_services(request):
             data = json.loads(request.body)
             email = data.get("email")
             worker = WorkerDetails.objects.get(email=email)
-
             services = worker.services_offered.all()
-            
-
             worker_services = []
-
             for service in services:
                 worker_services.append({"name": service.name})
-
+            return JsonResponse(worker_services, safe=False)
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "Worker does not exist"}, status=404)
         except Exception as e:
             return JsonResponse({"error": "Error fetching services"}, status=500)
-
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
