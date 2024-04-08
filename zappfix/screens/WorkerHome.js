@@ -7,7 +7,6 @@ import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LoadingScreen from './LoadingScreen';
-
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
   <path d="M12 2c-3.313 0-6 2.687-6 6 0 2.232 1.223 4.18 3 5.226v8.774h6v-8.774c1.777-1.046 3-2.994 3-5.226 0-3.313-2.687-6-6-6zm0 2c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z"/>
@@ -27,6 +26,7 @@ const WorkerHome = ({ navigation }) => {
 
     // Function to handle accept button press
     const handleAccept = (id) => {
+
         Alert.alert(
             'Confirm Acceptance',
             'Are you sure you want to accept this request?',
@@ -37,9 +37,35 @@ const WorkerHome = ({ navigation }) => {
                 },
                 {
                     text: 'Accept',
-                    onPress: () => {
-                        // Implement accept logic here
-                        console.log('Accepted request with ID:', id);
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`${API}/update_request`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                user_email: email,
+                                email: id.email,
+                                service: id.service,
+                                status: "Accepted",
+                              }),
+                            });
+                      
+                            const data = await response.json();
+                            console.log("data=",data);
+                            if (response.ok) {
+                              Alert.alert('Success', data.message);
+                              // Handle successful profile update
+                            } else {
+                              Alert.alert('Error', data.error);
+                              // Handle error from backend
+                            }
+                          } catch (error) {
+                            console.error('Error:', error);
+                            Alert.alert('Error', 'An unexpected error occurred.');
+                            // Handle unexpected errors
+                          }
                     }
                 }
             ]
@@ -58,9 +84,35 @@ const WorkerHome = ({ navigation }) => {
                 },
                 {
                     text: 'Reject',
-                    onPress: () => {
-                        // Implement reject logic here
-                        console.log('Rejected request with ID:', id);
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`${API}/update_request`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                user_email: email,
+                                email: id.email,
+                                service: id.service,
+                                status: "Rejected",
+                              }),
+                            });
+                      
+                            const data = await response.json();
+                            console.log("data=",data);
+                            if (response.ok) {
+                              Alert.alert('Success', data.message);
+                              // Handle successful profile update
+                            } else {
+                              Alert.alert('Error', data.error);
+                              // Handle error from backend
+                            }
+                          } catch (error) {
+                            console.error('Error:', error);
+                            Alert.alert('Error', 'An unexpected error occurred.');
+                            // Handle unexpected errors
+                          }
                     }
                 }
             ]
@@ -82,10 +134,10 @@ const WorkerHome = ({ navigation }) => {
                     email:email,
                   }),
             });
-
             const data = await response.json();
 
             if (response.ok) {
+                console.log("Requests=",data.requests);
                 setUserRequests(data.requests);
             } else {
                 console.error('Failed to fetch user requests:', data.error);
@@ -102,12 +154,6 @@ const WorkerHome = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <Text style={[styles.title, { marginTop: 10 }]}>Worker Home Screen</Text>
-            <Text style={styles.fullWidthSeparator}>______________________________________________________</Text>
-
-
-
-            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________</Text>
-
               {/*<View style={styles.progressContainer}>
                 <Svg height="100" width="100">
                     <Path
@@ -143,7 +189,7 @@ const WorkerHome = ({ navigation }) => {
             </View>*/}
 
 
-            <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
+            <Text className="my-1 font-semibold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
             {progress ? (
         <LoadingScreen />
@@ -159,10 +205,10 @@ const WorkerHome = ({ navigation }) => {
           <Text style={styles.distance}>{request.status}</Text>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
+          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request)}>
             <Text style={styles.buttonText}>Accept</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
+          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request)}>
             <Text style={styles.buttonText}>Reject</Text>
           </TouchableOpacity>
         </View>
@@ -186,10 +232,10 @@ const WorkerHome = ({ navigation }) => {
             </View>
 
 
-            <Text className="my-1 font-bold text-xl">Worker History of Works</Text>
+            <Text className="my-1 mt-4 font-semibold text-xl">Worker History of Works</Text>
             <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
-            </ScrollView> */}
+            </ScrollView>
         
         </View>
     );
