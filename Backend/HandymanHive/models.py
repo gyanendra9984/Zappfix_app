@@ -105,16 +105,48 @@ class Service(models.Model):
         return self.name  
 
 
+from django.core.exceptions import ValidationError
+
 class Certification(models.Model):
     certificate_name = models.CharField(max_length=255)
-    worker_email = models.EmailField(max_length=255)    
+    worker_email = models.EmailField(max_length=255)
     issuing_authority = models.CharField(max_length=255, blank=True)
     certificate_data = models.BinaryField(blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, default='Pending')
-    
+
+    def clean_worker_email(self):
+        """
+        Custom validation method to ensure a valid email address for worker_email.
+        Raises a ValidationError with a user-friendly error message if the email is invalid.
+        """
+        email = self.worker_email
+
+        # Improved email validation using a regular expression (adapt if needed)
+        import re
+        email_regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+$")
+
+        if not email_regex.match(email):
+            raise ValidationError('Please enter a valid email address.')
+
+        # Optional additional checks (e.g., domain existence, MX records)
+        # You can uncomment and implement these checks as needed:
+        # from django.core.validators import validate_email
+        # try:
+        #     validate_email(email)
+        # except ValidationError as e:
+        #     raise ValidationError(f'The email address "{email}" seems invalid: {e}')
+
+        return email
+
     def __str__(self):
-        return self.certificate_name 
+        return self.certificate_name
+
+    def save(self, *args, **kwargs):
+        # Call clean_worker_email() during save to perform validation
+        self.clean_worker_email()
+        super().save(*args, **kwargs)
+
 
 
 # Model to store professional details of workers.
