@@ -390,7 +390,7 @@ def upload_profile_pic(request):
             )
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
+
 @csrf_exempt
 def update_worker_location(request):
     if request.method == "POST":
@@ -414,7 +414,7 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
+
 @csrf_exempt
 def delete_user(request):
     if request.method == "POST":
@@ -708,6 +708,41 @@ def get_user_requests(request):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+@csrf_exempt
+def get_progress_work(request):
+    if request.method == "GET":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = CustomWorker.objects.get(email=email)
+            progress_works = WorkHistory.objects.filter(
+                worker=worker, status="In Progress"
+            )
+
+            worker_progress_works = []
+            for work in progress_works:
+                worker_progress_works.append(
+                    {
+                        "first_name": work.user.first_name,
+                        "last_name": work.user.last_name,
+                        "email": work.user.email,
+                        "service": work.service,
+                        "started_on": work.started_on,
+                        "status": work.status,
+                    }
+                )
+
+            return JsonResponse({"progress_works": worker_progress_works})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Error fetching progress work: {e}"}, status=500
+            )
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
 ###################### RECOMMENDATION SYSTEM #######################
 
 
@@ -913,7 +948,7 @@ def get_closest_services(request):
             return JsonResponse({"error": "Error fetching service"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-      
+
 @csrf_exempt
 def user_last_five_queries(request):
     if request.method == "POST":
@@ -1113,9 +1148,7 @@ def insert_worker(request):
         return JsonResponse({"error": "Error adding worker"}, status=500)
 
 
-
-
-#--------NOTIFICATION HELPER--------
+# --------NOTIFICATION HELPER--------
 import requests
 from .notifications import templates
 def send_notfication(template, user):
@@ -1134,4 +1167,3 @@ def send_notfication(template, user):
         )
     print(resp)
     return JsonResponse({"message":"Notification sent successfully"})
-
