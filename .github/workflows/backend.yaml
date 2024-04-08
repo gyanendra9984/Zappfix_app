@@ -30,16 +30,3 @@ jobs:
         source $VENV_PATH
         pip install -r requirements.txt
       working-directory: ./Backend
-
-    - name: Run migrations
-      run: |
-        source $VENV_PATH
-        python manage.py makemigrations
-        python manage.py migrate
-      working-directory: ./Backend
-
-    - name: Run server
-      run: |
-        source $VENV_PATH
-        python manage.py runserver
-      working-directory: ./Backend
