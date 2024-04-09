@@ -103,7 +103,7 @@ def update_request(request):
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
             service = data.get("service")
-            status = data.get("status","In Progress")
+            status = data.get("status")
 
             request = Request.objects.get(
                 user=user, worker=worker, service=service
@@ -111,13 +111,13 @@ def update_request(request):
 
             request.delete()
 
-            WorkHistory.objects.create(
-                user=user,
-                worker=worker,
-                service=service,
-                status=status,
-                started_on=timezone.now(),
-            )
+            if status== "Accept":
+                WorkHistory.objects.create(
+                    user=user,
+                    worker=worker,
+                    service=service,
+                    started_on=timezone.now(),
+                )
 
             return JsonResponse(
                 {"message": "Request deleted and added to WorkHistory successfully"}
@@ -162,7 +162,7 @@ def get_user_requests(request):
 ########################### WORKER HISTORY ROUTES #############################
 
 @csrf_exempt
-def get_progress_work(request):
+def get_progress_works(request):
     if request.method == "GET":
         try:
             data = json.loads(request.body)
@@ -212,7 +212,7 @@ def update_work_history(request):
             )
 
             if work_history:
-                if status == "rejected":
+                if status == "Reject":
                     work_history.delete()
                     return JsonResponse(
                         {"message": "Work history entry deleted successfully"}
@@ -241,3 +241,35 @@ def update_work_history(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
+
+@csrf_exempt
+def get_work_history(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            worker = CustomWorker.objects.get(email=email)
+            work_histories = WorkHistory.objects.filter(worker=worker, status="Done")
+
+            worker_work_histories = []
+            for work in work_histories:
+                worker_work_histories.append(
+                    {
+                        "first_name": work.user.first_name,
+                        "last_name": work.user.last_name,
+                        "email": work.user.email,
+                        "service": work.service,
+                        "started_on": work.started_on,
+                        "done_on": work.done_on,
+                    }
+                )
+
+            return JsonResponse({"work_histories": worker_work_histories})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Error fetching work history: {e}"}, status=500
+            )
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)

@@ -25,7 +25,7 @@ urlpatterns = [
     path("create_request",worker_history.create_request,name="create_request"),
     path("get_user_requests", worker_history.get_user_requests, name="get_user_requests"), 
     path("update_request", worker_history.update_request, name="update_request"), 
-    path("get_progress_work", worker_history.get_progress_work, name="get_progress_work"),
+    path("get_progress_work", worker_history.get_progress_works, name="get_progress_work"),
     path("update_work_history", worker_history.update_work_history, name="update_work_history"),     
     path("dashboard_view",admin.dashboard_view,name="dashboard_view"),
 
