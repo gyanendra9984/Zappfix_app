@@ -37,6 +37,7 @@ def get_worker_profile(request):
                 "years_of_exp": worker_details.years_of_experience,
                 "services":services,
                 "certification":certifications,
+                "verified": worker.verified,
                 })
             
         except Exception as e:

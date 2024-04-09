@@ -28,6 +28,6 @@ urlpatterns = [
     path("get_progress_work", worker_history.get_progress_works, name="get_progress_work"),
     path("update_work_history", worker_history.update_work_history, name="update_work_history"),     
     path("dashboard_view",admin.dashboard_view,name="dashboard_view"),
-
+    path("get_workers",profile.get_workers,name="get_workers"),
 ]  
 
