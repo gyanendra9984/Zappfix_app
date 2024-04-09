@@ -38,6 +38,10 @@ const Profile = () => {
         // }
       } else {
         console.error('Failed to fetch user data:', data.error);
+        if(data.error == "Token expired"){
+          alert(data.error);
+          logout();
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error);

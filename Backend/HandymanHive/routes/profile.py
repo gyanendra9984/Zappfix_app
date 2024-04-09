@@ -42,6 +42,8 @@ def get_user_data(request):
                 "zip_code": user.zip_code,
                 "profile_pic": user.profile_pic,
             }
+            if isWorker == "True":
+                user_details["verified"] = user.verified
             return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token expired"}, status=300)

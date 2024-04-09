@@ -5,6 +5,7 @@ v1
 /Backend/__pycache__
 /Backend/migrations
 /HandymanHive/__pycache__
+/HandymanHive/routes/__pycache__
 /HandymanHive/migrations
 /tests/__pycache__
 /tests/Test\ Models/__pycache__

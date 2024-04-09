@@ -6,7 +6,7 @@ from ..models import (
     Request,
 )
 
-adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in"]
+adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian@gmail.com"]
 
 
 @csrf_exempt
