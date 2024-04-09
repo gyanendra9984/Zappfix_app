@@ -95,6 +95,7 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
+        notification_id=data.get("notification_id")
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
@@ -122,6 +123,7 @@ def verify_otp(request):
                         city=user_data["city"],
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
+                        notification_token=notification_id
                     )
 
                     worker_details = WorkerDetails.objects.create(
@@ -141,6 +143,7 @@ def verify_otp(request):
                         city=user_data["city"],
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
+                        notification_token=notification_id
                     )
                     user.save()
 
