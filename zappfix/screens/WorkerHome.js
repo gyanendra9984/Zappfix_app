@@ -1,34 +1,32 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect,useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
+import { Svg, Path, Text as SvgText, SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
 import { Alert } from 'react-native';
-import WorkerHistory from '../components/workerHistory';
+import WorkerHistory from './workerHistory';
 import { AuthContext } from '../context/AuthContext';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import LoadingScreen from './LoadingScreen';
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
   <path d="M12 2c-3.313 0-6 2.687-6 6 0 2.232 1.223 4.18 3 5.226v8.774h6v-8.774c1.777-1.046 3-2.994 3-5.226 0-3.313-2.687-6-6-6zm0 2c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z"/>
 </svg>
 `;
+const circumference = 2 * Math.PI * 40;
+const percentage = 34;                          // change this value to update progress of profile.
+const greenLength = (percentage / 100) * circumference;
 
 
 const WorkerHome = ({ navigation }) => {
     // Sample data for user requests
 
-    const  {logout} = useContext(AuthContext);
-    const userRequests = [
-        { id: 1, name: 'John Doe', problem: 'Fix leaking taps', distance:'2 miles away'},
-        { id: 2, name: 'Jane Smith', problem: 'Broken flush of toilet', distance:'3 miles away'},
-        { id: 3, name: 'Alice Johnson', problem: 'Replacement of wash basin pipe', distance:'4 miles away'},
-        { id: 4, name: 'Chris Brown', problem: 'Fixing of water heater', distance:'1 miles away'},
-        { id: 5, name: 'Emily Davis', problem: 'Replacement of shower head', distance:'3.5 miles away'},
-        { id: 6, name: 'Daniel Miller', problem: 'Fixing of water heater', distance:'2.5 miles away'},
-        // Add more requests as needed
-    ];
-
+    const  {logout,API} = useContext(AuthContext);
+    const [userRequests,setUserRequests]=useState([]);
+    const [progress,setProgress]=useState(false);
 
     // Function to handle accept button press
     const handleAccept = (id) => {
+
         Alert.alert(
             'Confirm Acceptance',
             'Are you sure you want to accept this request?',
@@ -39,9 +37,35 @@ const WorkerHome = ({ navigation }) => {
                 },
                 {
                     text: 'Accept',
-                    onPress: () => {
-                        // Implement accept logic here
-                        console.log('Accepted request with ID:', id);
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`${API}/update_request`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                user_email: email,
+                                email: id.email,
+                                service: id.service,
+                                status: "Accepted",
+                              }),
+                            });
+                      
+                            const data = await response.json();
+                            console.log("data=",data);
+                            if (response.ok) {
+                              Alert.alert('Success', data.message);
+                              // Handle successful profile update
+                            } else {
+                              Alert.alert('Error', data.error);
+                              // Handle error from backend
+                            }
+                          } catch (error) {
+                            console.error('Error:', error);
+                            Alert.alert('Error', 'An unexpected error occurred.');
+                            // Handle unexpected errors
+                          }
                     }
                 }
             ]
@@ -60,49 +84,159 @@ const WorkerHome = ({ navigation }) => {
                 },
                 {
                     text: 'Reject',
-                    onPress: () => {
-                        // Implement reject logic here
-                        console.log('Rejected request with ID:', id);
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`${API}/update_request`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                user_email: email,
+                                email: id.email,
+                                service: id.service,
+                                status: "Rejected",
+                              }),
+                            });
+                      
+                            const data = await response.json();
+                            console.log("data=",data);
+                            if (response.ok) {
+                              Alert.alert('Success', data.message);
+                              // Handle successful profile update
+                            } else {
+                              Alert.alert('Error', data.error);
+                              // Handle error from backend
+                            }
+                          } catch (error) {
+                            console.error('Error:', error);
+                            Alert.alert('Error', 'An unexpected error occurred.');
+                            // Handle unexpected errors
+                          }
                     }
                 }
             ]
         );
     };
 
+    const fetchUserRequests = async () => {
+        email= await AsyncStorage.getItem("email");
+        console.log("email=",email);
+        try {
+            // setProgress
+            setProgress(true);
+            const response = await fetch(`${API}/get_user_requests`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email:email,
+                  }),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("Requests=",data.requests);
+                setUserRequests(data.requests);
+            } else {
+                console.error('Failed to fetch user requests:', data.error);
+            }
+        } catch (error) {
+            console.error('Error fetching user requests:', error);
+        }
+        setProgress(false);
+    };
+
+    useEffect(() => {
+        fetchUserRequests();
+    }, []);
     return (
         <View style={styles.container}>
-            <Text className="mt-16 font-bold text-2xl">Worker Home Screen</Text>
+            <Text style={[styles.title, { marginTop: 10 }]}>Worker Home Screen</Text>
+              {/*<View style={styles.progressContainer}>
+                <Svg height="100" width="100">
+                    <Path
+                        d="M50 10
+                            a 40 40 0 0 1 0 80
+                            a 40 40 0 0 1 0 -80"
+                        fill="none"
+                        stroke="#CCCCCC"
+                        strokeWidth="10"
+                    />
+                    <Path
+                        d="M50 10
+                            a 40 40 0 0 1 0 80
+                            a 40 40 0 0 1 0 -80"
+                        fill="none"
+                        stroke="green"
+                        strokeWidth="10"
+                        strokeDasharray={`${greenLength} ${circumference}`}
+                    />
+                    <SvgText
+                        x="40%"
+                        y="60%"
+                        dominantBaseline="middle"
+                        textAnchor="middle"
+                        fontSize="24"
+                        fill="green"
+                        fontFamily="Arial"
+                    >
+                        {percentage}%
+                    </SvgText>
+                </Svg>
+                <Text style={[styles.progressText, { marginLeft: 10 }]}>{percentage}% of your profile is completed</Text>
+            </View>*/}
 
-            <Text className="text-gray-400 mb-2 -mt-2">______________________________________________________</Text>
 
-            <Text className="my-1 font-bold text-xl">Pending User Requests</Text>
+            <Text className="my-1 font-semibold text-xl">Pending User Requests</Text>
             <View style={styles.scrollContainer} className="border border-gray-400 rounded-lg p-3">
-                <ScrollView style={styles.scrollView}>
-                    {userRequests.map(request => (
-                        <View key={request.id} style={styles.card} className="border border-gray-300">
-                            <Text style={styles.name}>{request.name}</Text>
-                            <Text style={styles.problem}>{request.problem}</Text>
-                            <View style={styles.distanceContainer}>
-                                <SvgXml xml={pinSvg} />
-                                <Text style={styles.distance}>{request.distance}</Text>
-                            </View>
-                            <View style={styles.buttonsContainer}>
-                                <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request.id)}>
-                                    <Text style={styles.buttonText}>Accept</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request.id)}>
-                                    <Text style={styles.buttonText}>Reject</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ))}
-                </ScrollView>
+            {progress ? (
+        <LoadingScreen />
+      ) : (
+            <ScrollView style={styles.scrollView}>
+  {userRequests ? (
+    userRequests.map(request => (
+      <View key={request.id} style={styles.card} className="border border-gray-300">
+        <Text style={styles.name}>{request.first_name}</Text>
+        <Text style={styles.problem}>{request.service}</Text>
+        <View style={styles.distanceContainer}>
+          <SvgXml xml={pinSvg} />
+          <Text style={styles.distance}>{request.status}</Text>
+        </View>
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(request)}>
+            <Text style={styles.buttonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleReject(request)}>
+            <Text style={styles.buttonText}>Reject</Text>
+          </TouchableOpacity>
+        </View>
+        
+      </View>
+      
+    ))
+  ) : (
+    <View style={styles.centered}>
+      <Text>No current requests</Text>
+    </View>
+  )}
+</ScrollView>
+      )}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserRequests}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
             </View>
 
-            <Text className="mt-4 font-semibold text-xl">Worker History of Works</Text>
+            </View>
+
+
+            <Text className="my-1 mt-4 font-semibold text-xl">Worker History of Works</Text>
             <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
             </ScrollView>
+        
         </View>
     );
 }
@@ -118,6 +252,12 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+    },
+    subtitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10,
     },
     scrollContainer: {
         flex: 1,
@@ -176,6 +316,44 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
     },
+    progressContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    fullWidthSeparator: {
+        fontWeight: 'bold',
+        width: '100%',
+        textAlign: 'center',
+        color: 'gray',
+        marginBottom: 15,
+        marginTop: -15,
+    },
+    progressText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'green',
+        fontFamily: 'Arial',
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      reloadButtonContainer: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+      },
+      reloadButton: {
+        backgroundColor: '#3498db',
+        borderRadius: 50,
+        width: 50,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      
 });
 
 export default WorkerHome;

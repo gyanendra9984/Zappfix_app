@@ -12,6 +12,7 @@ import WorkerInfo from "../screens/WokerInfo";
 import WorkerHome from "../screens/WorkerHome";
 import EditProffDetails from "../screens/EditProffDetails";
 import EditProfile from "../screens/EditProfile";
+import WorkerHistory from "../screens/workerHistory";
 
 const Tab = createBottomTabNavigator();
 
@@ -32,6 +33,8 @@ export default function WorkerAppStack() {
             iconName = 'information-circle';
           }else if (route.name === 'EditProfile') {
             iconName = 'person';
+          }else if (route.name === 'Worker History') {
+            iconName = 'person';
           }
 
           // You can return any component that you like here!
@@ -44,7 +47,8 @@ export default function WorkerAppStack() {
       <Tab.Screen name="Profile" component={Profile} />
       {/* <Tab.Screen name="WorkerInfo" component={WorkerInfo} /> */}
       <Tab.Screen name="EditProffDetails" component={EditProffDetails}/>
-      <Tab.Screen name="EditProfile" component={EditProfile}/>
+      <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="Worker History" component={WorkerHistory}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen

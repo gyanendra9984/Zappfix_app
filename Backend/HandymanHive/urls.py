@@ -23,8 +23,12 @@ urlpatterns = [
     path("create_request",views.create_request,name="create_request"),
     path("update_worker_location", views.update_worker_location, name="update_worker_location"),
     path("get_user_requests", views.get_user_requests, name="get_user_requests"), 
-    path("upload_profile_pic", views.upload_profile_pic, name="upload_profile_pic"),    
+    path("upload_profile_pic", views.upload_profile_pic, name="upload_profile_pic"),
     path("get_worker_profile", views.get_worker_profile, name="get_worker_profile"),   
-    path("dashboard_view",views.dashboard_view,name="dashboard_view")
+    path("dashboard_view",views.dashboard_view,name="dashboard_view"),
+    path("update_request", views.update_request, name="update_request"), 
+    path("get_progress_work", views.get_progress_work, name="get_progress_work"),
+    path("update_work_history", views.update_work_history, name="update_work_history"), 
+
 ]  
 

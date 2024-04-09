@@ -1,15 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
   const { email } = props.route.params;
   const {API}= useContext(AuthContext);
-
-
+  const [progress,setProgress]=useState(false);
+  const [workerProfile, setWorkerProfile] = useState(null);
+  
   const handleTabPress = (tabName) => {
     setSelectedTab(tabName);
   };
@@ -24,6 +26,7 @@ const RequestPage = (props) => {
           text: 'Request',
           onPress: async () => {
             console.log('Service requested');
+            setProgress(true);
             const UserEmail=await  AsyncStorage.getItem("email");
             const response = await fetch(`${API}/create_request`, {
               method: 'POST', 
@@ -33,11 +36,18 @@ const RequestPage = (props) => {
               body: JSON.stringify({
                 user_email:UserEmail,
                 worker_email:email,
-                additional_data:"Hello Im Requesting Service"
+                service:"Hello Im Requesting Service"
               }),
             });
             const data = await response.json();
             console.log("Here is the data",data);
+            if(data.status=="success"){
+               alert("Request Sent SuccessFully!!");
+            }
+            else{
+              alert(data.message);
+            }
+            setProgress(false);
           },
         },
         {
@@ -53,6 +63,31 @@ const RequestPage = (props) => {
     );
 
   };
+
+  useEffect(() => {
+    const fetchWorkerProfile = async () => {
+      try {
+        const response = await fetch(`${API}/get_worker_profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: AsyncStorage.getItem("email"),worker_email:email, }),
+        });
+        const data = await response.json();
+        console.log(data,"jh")
+        if (response.ok) {
+          setWorkerProfile(data); // Set worker profile data to state
+        } else {
+          console.error('Failed to fetch worker profile:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching worker profile:', error);
+      }
+    };
+
+    fetchWorkerProfile();
+  }, [API, email]);
 
   // Dummy data for reviews
   const reviews = [
@@ -90,11 +125,10 @@ const RequestPage = (props) => {
           source={require('../assets/Profile.png')} // Placeholder image URL
         />
         <View style={styles.workerDetails}>
-          <Text style={styles.workerName}>{email}</Text>
-          <Text style={styles.workerName}>John Doe</Text>
+          <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>
           <Text style={styles.workerDescription}>
-            Installation, repair, and maintenance of plumbing systems.
-            Proficient in interpreting blueprints
+            {workerProfile.services && workerProfile.services.join(', ')}
+
           </Text>
           <View style={styles.rating}>
             <Text style={styles.ratingText}>Rating: </Text>
@@ -130,9 +164,9 @@ const RequestPage = (props) => {
   <View style={styles.tabContent}>
     {/* Display contact information */}
     <View style={styles.contactInfo}>
-      <Text style={styles.contactLabel}>Email: {contactInfo.email}</Text>
-      <Text style={styles.contactLabel}>Phone: {contactInfo.phone}</Text>
-      <Text style={styles.contactLabel}>Address: {contactInfo.address}</Text>
+      <Text style={styles.contactLabel}>Email: {workerProfile.email}</Text>
+      <Text style={styles.contactLabel}>Phone: {workerProfile.phone_number}</Text>
+      <Text style={styles.contactLabel}>Address: {workerProfile.address}</Text>
     </View>
   </View>
       ) : (
@@ -269,4 +303,3 @@ contactLabel: {
 });
 
 export default RequestPage;
-

@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { AuthContext } from '../context/AuthContext';
 import LoadingScreen from './LoadingScreen';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import { useNavigation } from '@react-navigation/native';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
   const [progress,SetProgress]=useState(false);
+  const [profile, setProfile] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchUserData();
@@ -28,6 +32,10 @@ const Profile = () => {
       const data = await response.json();
       if (response.ok) {
         setUser(data.worker_details);
+        // console.log(data)
+        // if(data.worker_details.profile_pic){
+        //   setProfile(data.worker_details.profile_pic);
+        // }
       } else {
         console.error('Failed to fetch user data:', data.error);
       }
@@ -41,13 +49,46 @@ const Profile = () => {
 
   const handleEditProfile = () => {
     console.log('Reload Profile button pressed');
-    fetchUserData();
+    navigation.navigate("EditProfile")
   };
 
   const handleLogout = () => {
     console.log('Logout button pressed');
   };
-
+  const handleImgUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'image/*', // Allow only image files
+        copyToCacheDirectory: true, // Set to true if you want to copy the file to the app's cache directory
+      });
+  
+      if (!result.canceled ) {
+        // Do something with the selected image
+        const { uri, name, type } = result.assets[0];
+        console.log('Selected image:', { uri, name, type });
+        const image=await FileSystem.readAsStringAsync(uri,{encoding:FileSystem.EncodingType.Base64});
+        // console.log(image);
+        console.log("isWorker",isWorker.toString())
+        const resp=await fetch(`${API}/upload_profile_pic`,{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+          },
+          // credentials:'include',
+          body:JSON.stringify({email:email,token:userToken, isWorker:isWorker.toString(), image:image})
+        
+        })
+        const data=await resp.json();
+        if(!resp.ok){
+          alert(data.error);
+        }
+      } else {
+        console.log('Image selection canceled');
+      }
+    } catch (error) {
+      console.error('Error selecting image:', error);
+    }
+  }
   return (
     <View style={styles.container}>
       {progress ? (
@@ -55,13 +96,27 @@ const Profile = () => {
       ) : (
         user && (
           <View>
-            <View style={styles.profileInfo}>
-              <Image source={require('../assets/Profile.png')} style={styles.profileImage} />
-              <View style={styles.profileDetails}>
-                <Text style={styles.profileName}>{user.first_name}</Text>
-                <Text style={styles.profileId}> {user.last_name}</Text>
-              </View>
-            </View>
+                      <View style={styles.profileInfo}>
+            {user.profile_pic ? (
+              <>
+                <Image source={{ uri: user.profile_pic }} style={styles.profileImage} />
+                <View style={styles.profileDetails}>
+                  <Text style={styles.profileName}>{user.first_name}</Text>
+                  <Text style={styles.profileId}>{user.last_name}</Text>
+                </View>
+              </>
+            ) : (
+              <>
+              <TouchableOpacity onPress={handleImgUpload}>
+                <Image source={require('../assets/Profile.png')} style={styles.profileImage}/>
+              </TouchableOpacity>
+                <View style={styles.profileDetails}>
+                  <Text style={styles.profileName}>{user.first_name}</Text>
+                  <Text style={styles.profileId}>{user.last_name}</Text>
+                </View>
+              </>
+            )}
+          </View>
 
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Contact Information</Text>
@@ -96,7 +151,7 @@ const Profile = () => {
               <View style={styles.infoContainer}>
                 <View style={styles.infoItem}>
                   <Icon name="location-on" size={20} color="#555" />
-                  <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</Text>
+                  <Text>{` ${user.address}, ${user.city}, ${user.state} ${user.zip_code}`}</Text>
                 </View>
               </View>
             </View>
@@ -116,11 +171,16 @@ const Profile = () => {
             <View style={styles.bottomButtons}>
               <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
                 <Icon name="edit" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Reload Profile</Text>
+                <Text style={styles.buttonText}>Edit Profile</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5733' }]} onPress={logout}>
                 <Icon name="exit-to-app" size={20} color="#fff" />
                 <Text style={styles.buttonText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchUserData}>
+                <Icon name="refresh" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -196,6 +256,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     marginLeft: 5,
+  },
+  reloadButtonContainer: {
+    position: 'absolute',
+    bottom: -40,
+    right: -20,
+  },
+  reloadButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
