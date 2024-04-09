@@ -123,9 +123,9 @@ def verify_otp(request):
                         city=user_data["city"],
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
-                        notification_token=notification_id
+                        # notification_token=notification_id
                     )
-
+                    user.add_notification_token(notification_id)
                     worker_details = WorkerDetails.objects.create(
                         email=user_data["email"]
                     )
@@ -143,8 +143,9 @@ def verify_otp(request):
                         city=user_data["city"],
                         state=user_data["state"],
                         zip_code=user_data["zip_code"],
-                        notification_token=notification_id
+                        # notification_token=notification_id
                     )
+                    user.add_notification_token(notification_id)
                     user.save()
 
                 payload = {
@@ -226,6 +227,7 @@ def verify_login_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
+        notification_id=data.get("notification_id")
         print("isWorker=", isWorker)
 
         try:
@@ -236,7 +238,7 @@ def verify_login_otp(request):
 
             print("userotp=", user.otp)
             print("otp=", otp)
-
+            user.add_notification_token(notification_id)
             if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
 
                 payload = {

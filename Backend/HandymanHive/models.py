@@ -61,10 +61,17 @@ class CustomWorker(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-    notification_token = models.CharField(max_length=255, null=True, blank=True)
+    notification_token = models.CharField(max_length=25500, null=True, blank=True)
     profile_pic = CloudinaryField("image", null=True, blank=True)
     def __str__(self):
         return self.email
+    def get_notification_tokens(self):
+        return self.notification_token.split(";") if self.notification_token else []
+    def add_notification_token(self, token):
+        tokens = self.get_notification_tokens()
+        if token not in tokens:
+            tokens.append(token)
+            self.notification_token = ";".join(tokens)
     verified=models.BooleanField(default=False)
 
 class CustomUser(models.Model):
@@ -80,10 +87,16 @@ class CustomUser(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-    notification_token = models.CharField(max_length=255, null=True, blank=True)
+    notification_token = models.CharField(max_length=25500, null=True, blank=True)
     last_five_queries = models.JSONField(default=list)
     profile_pic = CloudinaryField("image", null=True, blank=True)
-
+    def get_notification_tokens(self):
+        return self.notification_token.split(";") if self.notification_token else []
+    def add_notification_token(self, token):
+        tokens = self.get_notification_tokens()
+        if token not in tokens:
+            tokens.append(token)
+            self.notification_token = ";".join(tokens)
     def __str__(self):
         return self.email
 
