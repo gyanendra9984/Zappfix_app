@@ -27,7 +27,7 @@ function Login() {
 
   const isEmailValid = (email) => {
     // You can implement your email validation logic here
-    const emailPattern = /^[a-zA-Z0-9._-]+@iitrpr.ac.in$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailPattern.test(email);
   };
 

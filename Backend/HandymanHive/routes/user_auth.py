@@ -17,7 +17,7 @@ import random
 import string
 from django.core.mail import send_mail
 
-adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in"]
+adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian@gmail.com"]
 
 
 
@@ -157,7 +157,7 @@ def verify_otp(request):
                 if isAdmin:                     
                     response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True"})        
                 else :              
-                    response = JsonResponse({"message": "OTP verified successfully"})
+                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False"})
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
 
                 response.set_cookie(

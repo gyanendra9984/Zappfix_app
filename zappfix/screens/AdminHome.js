@@ -1,33 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
-
+import { AuthContext } from '../context/AuthContext';
+import { useNavigation } from "@react-navigation/native";
 // Import the icon.png file
 import adminPhoto from '../assets/icon.png';
 
-const AdminHome = ({ navigation }) => {
+const AdminHome = ({ route }) => {
+    const { adminDetails } = route.params;
+    const { API, email, logout } = React.useContext(AuthContext);
+    const navigation = useNavigation();
     const handleLogout = () => {
         // Implement logout functionality here
         // For example, you can clear user token from AsyncStorage or perform any other necessary actions
         // Then navigate back to the authentication screen (e.g., AuthStack)
+        logout();
         navigation.navigate('AuthStack');
     };
+    const fetchSearchResults = async (query) => {
+        try {
+            navigation.navigate("Loading")
+            const response = await fetch(`${API}/dashboard_view`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
 
-    // Dummy data for demonstration
-    const adminDetails = {
-        username: 'admin_user',
-        email: 'admin@example.com',
-        role: 'Admin',
-        joinDate: '2024-03-19',
-    };
-    const workerStats = {
-        activeWorkers: 25,
-        pendingApproval: 5,
-    };
-    const userStats = {
-        registeredUsers: 100,
-        rejectedUsers: 10,
+            if (!response.ok) {
+                throw new Error('Error fetching Admin details');
+            }
+            const data = await response.json();
+            // Handle API response data
+            navigation.navigate("Admin DashBoard", { adminDetails: data });
+            console.log(data);
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
     };
 
+    useEffect(() => {
+        fetchSearchResults();
+    }, []);
+    
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Admin Home</Text>
@@ -35,20 +49,19 @@ const AdminHome = ({ navigation }) => {
             <Image source={adminPhoto} style={styles.photo} />
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Admin Details</Text>
-                <Text style={styles.detailText}>Username: {adminDetails.username}</Text>
-                <Text style={styles.detailText}>Email: {adminDetails.email}</Text>
-                <Text style={styles.detailText}>Role: {adminDetails.role}</Text>
-                <Text style={styles.detailText}>Join Date: {adminDetails.joinDate}</Text>
+                <Text style={styles.detailText}>Username: user_admin</Text>
+                <Text style={styles.detailText}>Email: {email}</Text>
+                <Text style={styles.detailText}>Role: Admin</Text>
             </View>
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Worker Statistics</Text>
-                <Text style={styles.detailText}>Active Workers: {workerStats.activeWorkers}</Text>
-                <Text style={styles.detailText}>Pending Approval: {workerStats.pendingApproval}</Text>
+                <Text style={styles.detailText}>Active Workers: {adminDetails.num_workers}</Text>
+                <Text style={styles.detailText}>Pending Approval: {adminDetails.num_workers-adminDetails.num_verified_workers}</Text>
             </View>
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>User Registration Statistics</Text>
-                <Text style={styles.detailText}>Registered Users: {userStats.registeredUsers}</Text>
-                <Text style={styles.detailText}>Rejected Users: {userStats.rejectedUsers}</Text>
+                <Text style={styles.detailText}>Registered Users: {adminDetails.num_users}</Text>
+                <Text style={styles.detailText}>Services Successfully Delivered: {adminDetails.num_completed_tasks}</Text>
             </View>
             <Button title="Logout" onPress={handleLogout} />
         </View>

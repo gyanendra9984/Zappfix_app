@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AdminHome from "../screens/AdminHome";
 import HandleWorkersPage from "../screens/HandleWorkersPage";
-import Profile from "../screens/Profile";
+import LoadingScreen from "../screens/LoadingScreen";
 import AdminWorkerDetailPage from "../screens/AdminWorkerDetailPage";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -19,6 +19,12 @@ function HandleWorkersStack() {
 }
 
 export default function AdminAppStack() {
+  data = {
+    num_workers: 10,
+    num_verified_workers: 0,
+    num_users: 100,
+    num_completed_tasks: 50
+  }
   return (
     <Tab.Navigator initialRouteName="AdminHome"
       screenOptions={({ route }) => ({
@@ -34,8 +40,9 @@ export default function AdminAppStack() {
         }
       })}
     >
-      <Tab.Screen name="Admin DashBoard" component={AdminHome} />
+      <Tab.Screen name="Admin DashBoard" component={AdminHome} initialParams={{adminDetails: data}} />
       <Tab.Screen name="Handle Workers" component={HandleWorkersStack} />
+      <Tab.Screen name="Loading" component={LoadingScreen} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
   );
 }
