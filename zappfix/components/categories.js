@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { categories } from '../constants'
-import { useState } from 'react'
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from '../context/AuthContext';
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, View ,Text,Avatar,Image} from "react-native";
+import { Button, View ,Text,Avatar,Image, Pressable} from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthContext } from "../context/AuthContext";
@@ -11,7 +11,7 @@ import Profile from "../screens/Profile"
 import WorkerInfo from "../screens/WokerInfo";
 import EditProfile from "../screens/EditProfile";
 import RequestPage from "../screens/RequestPage";
-import { Pressable } from "react-native";
+
 import Search from "../components/Search";
 import SearchResults from "../screens/SearchResults";
 import LoadingScreen from "../screens/LoadingScreen";

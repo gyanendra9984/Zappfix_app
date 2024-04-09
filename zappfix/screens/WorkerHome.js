@@ -1,7 +1,7 @@
 import React, { useContext, useEffect,useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Svg, Path, Text as SvgText, SvgXml } from 'react-native-svg'; // Import SvgXml for SVG support
-import { Alert } from 'react-native';
+// import { Alert } from 'react-native';
 import WorkerHistory from './workerHistory';
 import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,12 +17,13 @@ const percentage = 34;                          // change this value to update p
 const greenLength = (percentage / 100) * circumference;
 
 
-const WorkerHome = ({ navigation }) => {
+const WorkerHome = () => {
     // Sample data for user requests
 
     const  {logout,API} = useContext(AuthContext);
     const [userRequests,setUserRequests]=useState([]);
     const [progress,setProgress]=useState(false);
+    const navigation =React.useNavigation();
 
     // Function to handle accept button press
     const handleAccept = (id) => {
