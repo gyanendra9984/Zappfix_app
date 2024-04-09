@@ -219,6 +219,34 @@ def get_services(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+@csrf_exempt
+def get_workers(request):
+    if request.method == "GET":
+        try:
+            # Query all worker profiles
+            workers = CustomWorker.objects.all()
+
+            # Initialize an empty list to store worker data
+            workers_data = []
+
+            # Extract required information for each worker
+            for worker in workers:
+                worker_data = {
+                    "name": f"{worker.first_name} {worker.last_name}",
+                    "email": worker.email,
+                    "verified": worker.verified
+                }
+                workers_data.append(worker_data)
+
+            # Create JSON response
+            return JsonResponse({"workers": workers_data})
+
+        except Exception as e:
+            return JsonResponse({"error": "Error fetching workers"}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 ######################## WORKER CERTIFICATIONS #########################
 
