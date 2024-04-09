@@ -65,7 +65,7 @@ class CustomWorker(models.Model):
     profile_pic = CloudinaryField("image", null=True, blank=True)
     def __str__(self):
         return self.email
-
+    verified=models.BooleanField(default=False)
 
 class CustomUser(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
@@ -184,6 +184,7 @@ class Request(models.Model):
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
     service = models.CharField(blank=True, max_length=100)
     status = models.CharField(max_length=50, default="Pending")
+
     created_on = models.DateTimeField(null=True,blank=True)   
 
     def __str__(self):
