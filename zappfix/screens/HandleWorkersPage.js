@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 import { AuthContext } from '../context/AuthContext';
 
 const HandleWorkersPage = ({ navigation }) => {
@@ -27,9 +28,12 @@ const HandleWorkersPage = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchWorkers();
-  }, []);
+  // Refetch data every time the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchWorkers();
+    }, [])
+  );
 
   const filteredWorkers = workers.filter(worker =>
     worker.name.toLowerCase().includes(searchQuery.toLowerCase())
