@@ -5,6 +5,7 @@ from ..models import (
     CustomWorker,
     Request,
 )
+import json
 
 adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian@gmail.com"]
 
@@ -30,3 +31,21 @@ def dashboard_view(request):
         'num_completed_tasks': num_completed_tasks
     }
     return JsonResponse(data)
+
+@csrf_exempt
+def change_verification_status(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get("email")
+        if email:
+            try:
+                worker = CustomWorker.objects.get(email=email)
+                worker.verified = not worker.verified  # Reverse the verification status
+                worker.save()
+                return JsonResponse({"message": "Verification status changed successfully"})
+            except CustomWorker.DoesNotExist:
+                return JsonResponse({"error": "Worker not found"}, status=404)
+        else:
+            return JsonResponse({"error": "Email not provided"}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
