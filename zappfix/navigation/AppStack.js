@@ -19,12 +19,14 @@ import LoadingScreen from "../screens/LoadingScreen";
 const Tab = createBottomTabNavigator();
 const Drawer= createDrawerNavigator();
 const Stack= createStackNavigator();
+
 function DrawerNavigator() {
   const headerOptions = {
     title: 'Task List',
     drawerIcon: ({ focused, size, color }) => <Ionicons name="hammer" color="red" size={24} />,
   };
   
+  const {logout}= React.useContext(AuthContext);
   return (
     <Drawer.Navigator screenOptions={({ navigation }) => ({
       headerRight: () =>(
@@ -44,6 +46,7 @@ function DrawerNavigator() {
      })}>
       <Drawer.Screen name="Home Page" component={TabNavigator} options={{headerTitleContainerStyle:{width:0}}} />
       {/* <Drawer.Screen name="Search" component={RecentSearches} options={{headerTitleContainerStyle:{width:0}}}/> */}
+      {/* <Drawer.Screen name="Logout" component={logout()} /> */}
     </Drawer.Navigator>
   );
 }
