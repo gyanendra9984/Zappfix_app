@@ -1,10 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
-
+import { usePushNotifications } from "./pushNotifications";
 export const AuthContext =createContext();
 
 export const AuthProvider =({children}) => {
+  const {expoPushToken, notification} = usePushNotifications();
     const [test,setTest]=useState('Test Value');
     const [isLoading,setIsLoading]=useState(false);
     const [userToken,setUserToken]=useState(null);
@@ -47,6 +48,7 @@ export const AuthProvider =({children}) => {
                   email: email,
                   otp:otp,
                   isWorker:isWorker,
+                  notification_id: expoPushToken
                  }),
               });
       
