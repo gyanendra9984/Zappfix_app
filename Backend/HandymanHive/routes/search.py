@@ -1,5 +1,4 @@
 from django.db.models import Q
-import spacy
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from django.http import JsonResponse
