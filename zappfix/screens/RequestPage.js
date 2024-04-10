@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
-  const { email } = props.route.params;
+  const { email,service } = props.route.params;
   const {API}= useContext(AuthContext);
   const [progress,setProgress]=useState(false);
   const [workerProfile, setWorkerProfile] = useState(null);
@@ -37,7 +37,7 @@ const RequestPage = (props) => {
               body: JSON.stringify({
                 user_email:UserEmail,
                 worker_email:email,
-                service:"Hello Im Requesting Service"
+                service:service,
               }),
             });
             const data = await response.json();
@@ -77,7 +77,7 @@ const RequestPage = (props) => {
         body: JSON.stringify({ email: user_email,worker_email:email, }),
       });
       const data = await response.json();
-      console.log(data,"jhhhhhhh")
+      // console.log(data,"jhhhhhhh")
       if (response.ok) {
         setWorkerProfile(data); // Set worker profile data to state
       } else {

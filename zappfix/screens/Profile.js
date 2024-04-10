@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const { logout, isWorker, setIsLoading, API,email ,userToken} = useContext(AuthContext);
+  const { logout, isWorker, setIsLoading, API,email ,userToken,setImageUri} = useContext(AuthContext);
   const [progress,SetProgress]=useState(false);
   const [profile, setProfile] = useState(null);
   const navigation = useNavigation();
@@ -81,6 +81,10 @@ const Profile = () => {
           body:JSON.stringify({email:email,token:userToken, isWorker:isWorker, image:image})
         })
         const data=await resp.json();
+        if(resp.ok){
+          setUser(prevUser => ({ ...prevUser, profile_pic: data.url }));
+          setImageUri(data.url);
+        }
         if(!resp.ok){
           alert(data.error);
         }
@@ -99,25 +103,16 @@ const Profile = () => {
         user && (
           <View>
                       <View style={styles.profileInfo}>
-            {user.profile_pic ? (
-              <>
-                <Image source={{ uri: user.profile_pic }} style={styles.profileImage} />
-                <View style={styles.profileDetails}>
-                  <Text style={styles.profileName}>{user.first_name}</Text>
-                  <Text style={styles.profileId}>{user.last_name}</Text>
-                </View>
-              </>
-            ) : (
               <>
               <TouchableOpacity onPress={handleImgUpload}>
-                <Image source={require('../assets/Profile.png')} style={styles.profileImage}/>
+              {user.profile_pic ?(<><Image source={{ uri: user.profile_pic }} style={styles.profileImage} /></>):(<><Image source={require('../assets/Profile.png')} style={styles.profileImage}/></>)}
+                {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage}/> */}
               </TouchableOpacity>
                 <View style={styles.profileDetails}>
                   <Text style={styles.profileName}>{user.first_name}</Text>
                   <Text style={styles.profileId}>{user.last_name}</Text>
                 </View>
               </>
-            )}
           </View>
 
             <View style={styles.card}>

@@ -45,8 +45,8 @@ const HistoryList = () => {
   const navigation =useNavigation();
   const handlePress = (item) => {
     console.log("Item pressed");
-    console.log("here is the email",email);
-    navigation.navigate("Interaction Page",{email:email});
+    console.log("here is the email",item.email);
+    navigation.navigate("Interaction Page",{email:item.email,service:item.service});
   };
 
   const fetchRequestsHistory = async () => {
@@ -55,7 +55,7 @@ const HistoryList = () => {
     try {
         // setProgress
         setProgress(true);
-        const response = await fetch(`${API}/get_progress_works`, {
+        const response = await fetch(`${API}/get_user_history`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const WorkerHistory = () => {
+const User_History = () => {
   return (
     <View style={{ flex: 1 }}>
       <HistoryList />
@@ -189,5 +189,5 @@ const WorkerHistory = () => {
   );
 };
 
-export default WorkerHistory;
+export default User_History;
 // export default HistoryList;

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useContext, React } from "react";
+import React,{ useContext } from "react";
 import {
   SectionList,
   StyleSheet,
@@ -25,6 +25,7 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Login from "./Login";
 import LoadingScreen from "./LoadingScreen";
+
 
 function Signup() {
   const [firstName, setFirstName] = React.useState("");

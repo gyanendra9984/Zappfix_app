@@ -7,6 +7,7 @@ import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LoadingScreen from './LoadingScreen';
+import { useNavigation } from '@react-navigation/native';
 const pinSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="#FF0000" width="20" height="20" viewBox="0 0 24 24">
   <path d="M12 2c-3.313 0-6 2.687-6 6 0 2.232 1.223 4.18 3 5.226v8.774h6v-8.774c1.777-1.046 3-2.994 3-5.226 0-3.313-2.687-6-6-6zm0 2c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z"/>
@@ -23,11 +24,12 @@ const WorkerHome = () => {
     const  {logout,API} = useContext(AuthContext);
     const [userRequests,setUserRequests]=useState([]);
     const [progress,setProgress]=useState(false);
-    const navigation =React.useNavigation();
+    const navigation =useNavigation();
+
 
     // Function to handle accept button press
-    const handleAccept = (id) => {
-
+    const handleAccept = async (id) => {
+      
         Alert.alert(
             'Confirm Acceptance',
             'Are you sure you want to accept this request?',
@@ -39,6 +41,8 @@ const WorkerHome = () => {
                 {
                     text: 'Accept',
                     onPress: async () => {
+                      email= await AsyncStorage.getItem("email");
+                      console.log("Service=",id.service)
                         try {
                             const response = await fetch(`${API}/update_request`, {
                               method: 'POST',
@@ -46,10 +50,10 @@ const WorkerHome = () => {
                                 'Content-Type': 'application/json',
                               },
                               body: JSON.stringify({
-                                user_email: email,
-                                email: id.email,
+                                user_email: id.email,
+                                worker_email: email,
                                 service: id.service,
-                                status: "Accepted",
+                                status: "Accept",
                               }),
                             });
                       
@@ -74,7 +78,8 @@ const WorkerHome = () => {
     };
 
     // Function to handle reject button press
-    const handleReject = (id) => {
+    const handleReject =async  (id) => {
+      
         Alert.alert(
             'Confirm Rejection',
             'Are you sure you want to reject this request?',
@@ -86,6 +91,7 @@ const WorkerHome = () => {
                 {
                     text: 'Reject',
                     onPress: async () => {
+                      email= await AsyncStorage.getItem("email");
                         try {
                             const response = await fetch(`${API}/update_request`, {
                               method: 'POST',
@@ -93,8 +99,8 @@ const WorkerHome = () => {
                                 'Content-Type': 'application/json',
                               },
                               body: JSON.stringify({
-                                user_email: email,
-                                email: id.email,
+                                user_email: id.email,
+                                worker_email: email,
                                 service: id.service,
                                 status: "Rejected",
                               }),
@@ -155,7 +161,7 @@ const WorkerHome = () => {
     return (
         <View style={styles.container}>
             <Text style={[styles.title, { marginTop: 10 }]}>Worker Home Screen</Text>
-              {/*<View style={styles.progressContainer}>
+              <View style={styles.progressContainer}>
                 <Svg height="100" width="100">
                     <Path
                         d="M50 10
@@ -187,7 +193,7 @@ const WorkerHome = () => {
                     </SvgText>
                 </Svg>
                 <Text style={[styles.progressText, { marginLeft: 10 }]}>{percentage}% of your profile is completed</Text>
-            </View>*/}
+            </View>
 
 
             <Text className="my-1 font-semibold text-xl">Pending User Requests</Text>
@@ -233,10 +239,10 @@ const WorkerHome = () => {
             </View>
 
 
-            <Text className="my-1 mt-4 font-semibold text-xl">Worker History of Works</Text>
+            {/* <Text className="my-1 mt-4 font-semibold text-xl">Worker History of Works</Text>
             <ScrollView style={styles.scrollContainer} className="border border-gray-400 -p-2 my-1 rounded-lg">
             <WorkerHistory/>
-            </ScrollView>
+            </ScrollView> */}
         
         </View>
     );
