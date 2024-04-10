@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { AuthContext } from '../context/AuthContext';
 
 const HandleWorkersPage = ({ navigation }) => {
   const [workers, setWorkers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const { API } = React.useContext(AuthContext);
 
-  // Dummy worker data for demonstration
+  const fetchWorkers = async () => {
+    try {
+      const response = await fetch(`${API}/get_workers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error fetching workers');
+      }
+      
+      const data = await response.json();
+      setWorkers(data.workers);
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
+
   useEffect(() => {
-    // Fetch or set up your worker data here
-    const dummyWorkers = [
-      { id: 1, name: 'John Doe', status: 'verified' },
-      { id: 2, name: 'Jane Smith', status: 'action required' },
-      { id: 3, name: 'Alice Johnson', status: 'verified' },
-    ];
-    setWorkers(dummyWorkers);
+    fetchWorkers();
   }, []);
 
   const filteredWorkers = workers.filter(worker =>
@@ -30,8 +45,8 @@ const HandleWorkersPage = ({ navigation }) => {
       onPress={() => handleWorkerClick(item)}
     >
       <Text>{item.name}</Text>
-      <Text style={item.status === 'verified' ? styles.verified : styles.actionRequired}>
-        {item.status}
+      <Text style={item.verified ? styles.verified : styles.actionRequired}>
+        {item.verified ? 'verified' : 'not verified'}
       </Text>
     </TouchableOpacity>
   );
@@ -47,7 +62,7 @@ const HandleWorkersPage = ({ navigation }) => {
       <FlatList
         data={filteredWorkers}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.email}
       />
     </View>
   );
