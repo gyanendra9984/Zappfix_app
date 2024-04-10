@@ -11,7 +11,8 @@ export const AuthProvider =({children}) => {
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
     const [isAdmin,setIsAdmin]=useState("False");
-    const API="http://172.23.5.155:8000"
+    const API="http://172.23.5.4:8000"
+
 
 
 

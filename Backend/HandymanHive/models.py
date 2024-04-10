@@ -61,13 +61,18 @@ class CustomWorker(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-    notification_token = models.CharField(max_length=255, null=True, blank=True)
+    notification_token = models.CharField(max_length=25500, null=True, blank=True)
     profile_pic = CloudinaryField("image", null=True, blank=True)
     def __str__(self):
         return self.email
-
-
-
+    def get_notification_tokens(self):
+        return self.notification_token.split(";") if self.notification_token else []
+    def add_notification_token(self, token):
+        tokens = self.get_notification_tokens()
+        if token not in tokens:
+            tokens.append(token)
+            self.notification_token = ";".join(tokens)
+    verified=models.BooleanField(default=False)
 
 class CustomUser(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)
@@ -82,10 +87,16 @@ class CustomUser(models.Model):
     zip_code = models.CharField(max_length=10)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_valid_till = models.DateTimeField(null=True, blank=True)
-    notification_token = models.CharField(max_length=255, null=True, blank=True)
+    notification_token = models.CharField(max_length=25500, null=True, blank=True)
     last_five_queries = models.JSONField(default=list)
     profile_pic = CloudinaryField("image", null=True, blank=True)
-
+    def get_notification_tokens(self):
+        return self.notification_token.split(";") if self.notification_token else []
+    def add_notification_token(self, token):
+        tokens = self.get_notification_tokens()
+        if token not in tokens:
+            tokens.append(token)
+            self.notification_token = ";".join(tokens)
     def __str__(self):
         return self.email
 
@@ -107,16 +118,48 @@ class Service(models.Model):
         return self.name  
 
 
+from django.core.exceptions import ValidationError
+
 class Certification(models.Model):
     certificate_name = models.CharField(max_length=255)
-    worker_email = models.EmailField(max_length=255)    
+    worker_email = models.EmailField(max_length=255)
     issuing_authority = models.CharField(max_length=255, blank=True)
     certificate_data = models.BinaryField(blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, default='Pending')
-    
+
+    def clean_worker_email(self):
+        """
+        Custom validation method to ensure a valid email address for worker_email.
+        Raises a ValidationError with a user-friendly error message if the email is invalid.
+        """
+        email = self.worker_email
+
+        # Improved email validation using a regular expression (adapt if needed)
+        import re
+        email_regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+$")
+
+        if not email_regex.match(email):
+            raise ValidationError('Please enter a valid email address.')
+
+        # Optional additional checks (e.g., domain existence, MX records)
+        # You can uncomment and implement these checks as needed:
+        # from django.core.validators import validate_email
+        # try:
+        #     validate_email(email)
+        # except ValidationError as e:
+        #     raise ValidationError(f'The email address "{email}" seems invalid: {e}')
+
+        return email
+
     def __str__(self):
-        return self.certificate_name 
+        return self.certificate_name
+
+    def save(self, *args, **kwargs):
+        # Call clean_worker_email() during save to perform validation
+        self.clean_worker_email()
+        super().save(*args, **kwargs)
+
 
 
 # Model to store professional details of workers.
@@ -148,12 +191,28 @@ class WorkerDetails(models.Model):
     # Price Range
     min_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
     max_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.0)
+
 class Request(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
-    service = models.CharField(blank=True)
+    service = models.CharField(blank=True, max_length=100)
     status = models.CharField(max_length=50, default="Pending")
+
     created_on = models.DateTimeField(null=True,blank=True)   
 
     def __str__(self):
         return f"Request from {self.user.email} to {self.worker.email}"
+
+
+class WorkHistory(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
+    service = models.CharField(blank=True, max_length=100)  
+    status = models.CharField(max_length=50, default="In Progress")
+    started_on = models.DateTimeField(null=True, blank=True)
+    done_on = models.DateTimeField(null=True, blank=True)
+    userdone = models.BooleanField(default=False) 
+    workerdone = models.BooleanField(default=False) 
+
+    def __str__(self):
+        return f"Work history for {self.user.email} by {self.worker.email}"

@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useContext } from "react";
-import React from "react";
+import { useContext, React } from "react";
 import {
   SectionList,
   StyleSheet,
@@ -56,7 +55,7 @@ function Signup() {
   };
   const isEmailValid = (email) => {
     // You can implement your email validation logic here
-    const emailPattern = /^[a-zA-Z0-9._-]+@iitrpr.ac.in$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailPattern.test(email);
   };
 
@@ -116,8 +115,8 @@ function Signup() {
     }
 
     if (!isEmailValid(email)) {
-      setEmailError("Please enter a valid IITRPR email address");
-      alert("Please enter a valid IITRPR email address");
+      setEmailError("Please enter a valid email address");
+      alert("Please enter a valid email address");
       return; // Stop the signup process if the email is not valid
     }
     // Phone number validation
