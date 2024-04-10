@@ -366,10 +366,12 @@ def edit_personal_profile(request):
 def upload_profile_pic(request):
     if request.method == "POST":
         try:
-            image_file = request.FILES.get("image")
-            email = request.POST.get("email")
-            isWorker = request.POST.get("isWorker")
-
+            
+            data = json.loads(request.body)
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+            image_file = data.get("image")
+            print("Here is isWorker=",isWorker,image_file,email)
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
@@ -605,6 +607,8 @@ def get_worker_profile(request):
                 "years_of_exp": worker_details.years_of_experience,
                 "services":services,
                 "certification":certifications,
+                "address":worker.address,
+                "state":worker.state,
                 })
             
         except Exception as e:

@@ -68,15 +68,13 @@ const Profile = () => {
         console.log('Selected image:', { uri, name, type });
         const image=await FileSystem.readAsStringAsync(uri,{encoding:FileSystem.EncodingType.Base64});
         // console.log(image);
-        console.log("isWorker",isWorker.toString())
+        console.log("isWorker==",isWorker)
         const resp=await fetch(`${API}/upload_profile_pic`,{
           method:'POST',
           headers:{
             'Content-Type':'application/json',
           },
-          // credentials:'include',
-          body:JSON.stringify({email:email,token:userToken, isWorker:isWorker.toString(), image:image})
-        
+          body:JSON.stringify({email:email,token:userToken, isWorker:isWorker, image:image})
         })
         const data=await resp.json();
         if(!resp.ok){

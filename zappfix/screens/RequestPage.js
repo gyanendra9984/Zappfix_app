@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
 import LoadingScreen from './LoadingScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
@@ -64,28 +65,30 @@ const RequestPage = (props) => {
 
   };
 
-  useEffect(() => {
-    const fetchWorkerProfile = async () => {
-      try {
-        const response = await fetch(`${API}/get_worker_profile`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: AsyncStorage.getItem("email"),worker_email:email, }),
-        });
-        const data = await response.json();
-        console.log(data,"jh")
-        if (response.ok) {
-          setWorkerProfile(data); // Set worker profile data to state
-        } else {
-          console.error('Failed to fetch worker profile:', data.message);
-        }
-      } catch (error) {
-        console.error('Error fetching worker profile:', error);
+  const fetchWorkerProfile = async () => {
+    try {
+      setProgress(true);
+      const user_email=await AsyncStorage.getItem("email");
+      const response = await fetch(`${API}/get_worker_profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: user_email,worker_email:email, }),
+      });
+      const data = await response.json();
+      console.log(data,"jhhhhhhh")
+      if (response.ok) {
+        setWorkerProfile(data); // Set worker profile data to state
+      } else {
+        console.error('Failed to fetch worker profile:', data.message);
       }
-    };
-
+    } catch (error) {
+      console.error('Error fetching worker profile:', error);
+    }
+    setProgress(false);
+  };
+  useEffect(() => {
     fetchWorkerProfile();
   }, [API, email]);
 
@@ -103,11 +106,6 @@ const RequestPage = (props) => {
     { name: 'Jack', review: 'Waste of money. The job was done poorly.' },
   ];
   
-  const contactInfo = {
-    email: 'john.doe@example.com',
-    phone: '123-456-7890',
-    address: '123 Main Street, City, Country',
-  };
 
   const renderReviewItem = ({ item }) => (
     <View style={styles.reviewItem}>
@@ -119,6 +117,9 @@ const RequestPage = (props) => {
 
   return (
     <View style={styles.container}>
+    {progress || workerProfile===null ? (
+        <LoadingScreen />
+      ) : (
       <View style={styles.workerInfo}>
         <Image
           style={styles.workerPhoto}
@@ -139,6 +140,7 @@ const RequestPage = (props) => {
           </View>
         </View>
       </View>
+      )}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[
@@ -162,12 +164,15 @@ const RequestPage = (props) => {
       {/* Render contact info or reviews based on selected tab */}
       {selectedTab === 'Contact Info' ? (
   <View style={styles.tabContent}>
-    {/* Display contact information */}
+  {progress || workerProfile===null ? (
+        <LoadingScreen />
+      ) : (
     <View style={styles.contactInfo}>
       <Text style={styles.contactLabel}>Email: {workerProfile.email}</Text>
       <Text style={styles.contactLabel}>Phone: {workerProfile.phone_number}</Text>
-      <Text style={styles.contactLabel}>Address: {workerProfile.address}</Text>
+      <Text style={styles.contactLabel}>Address: {workerProfile.address},{workerProfile.state}</Text>
     </View>
+      )}
   </View>
       ) : (
         <View style={styles.tabContent}>
@@ -181,6 +186,11 @@ const RequestPage = (props) => {
       )}
       <View style={styles.separatorLine}></View>
       {/* Button at the bottom */}
+      <View style={styles.reloadButtonContainer}>
+              <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
+                <Icon name="refresh" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
       <TouchableOpacity style={styles.fullWidthButton} onPress={handleRequestService}>
         <Text style={styles.fullWidthButtonText}>Request Service</Text>
       </TouchableOpacity>
@@ -299,6 +309,19 @@ contactInfo: {
 contactLabel: {
   fontSize: 16,
   marginBottom: 5,
+},
+reloadButtonContainer: {
+  position: 'absolute',
+  bottom: 100,
+  right: 0,
+},
+reloadButton: {
+  backgroundColor: '#3498db',
+  borderRadius: 50,
+  width: 50,
+  height: 50,
+  alignItems: 'center',
+  justifyContent: 'center',
 },
 });
 

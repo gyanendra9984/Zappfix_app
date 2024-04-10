@@ -108,11 +108,11 @@ const WorkerInfo = (props) => {
     const renderWorkerCard = ({ item }) => (
       <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email})}}>
       <View style={styles.workerCard}>
-        <Image source={item.profileImage} style={styles.profileImage} />
+        <Image source={require("../assets/Profile.png")} style={styles.profileImage} />
         <View style={styles.workerInfo}>
-          <Text style={styles.workerName}>{item.first_name}</Text>
-          <Text style={styles.workerName}>{item.email}</Text>
-          <Text style={styles.ratingText}>Rating: </Text>
+          <Text style={styles.workerName}>{item.first_name} {item.last_name}</Text>
+          <Text >{item.email}</Text>
+          {/* <Text style={styles.ratingText}>Rating: </Text> */}
           <StarRating rating={item.rating} />
         </View>
       </View>
