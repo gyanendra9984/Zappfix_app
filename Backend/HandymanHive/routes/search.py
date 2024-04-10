@@ -1,5 +1,4 @@
 from django.db.models import Q
-import spacy
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from django.http import JsonResponse
@@ -13,7 +12,10 @@ from ..models import (
 import json
 import random
 import string
+from .hfcb import HuggingChat as HCA
+import os
 
+llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
 
 
 ############################ SEARCH FUNCTIONALITY ########################
@@ -29,50 +31,37 @@ def get_closest_services(request):
             user = CustomUser.objects.get(email=email)
             # Add the query using the add_query method
             user.add_query(query)
-            user.save()
+            user.save()           
+            
+            
+            
+            service_objects = Service.objects.all()
+            services = [service.name for service in service_objects]
 
-            nlp = spacy.load("en_core_web_md")
+            prompt = f"""Given a list of home utility services {services} and an input query by the homeowner: 
+            "{query}", 
+            identify the services needed by the homeowner to resolve the query.
 
-            query_tokens = [
-                token.text
-                for token in nlp(query)
-                if not token.is_stop and not token.is_punct
-            ]
-            # print(query_tokens)
-            print([token.vector for token in nlp(" ".join(query_tokens))])
-            query_embedding = np.mean(
-                [token.vector for token in nlp(" ".join(query_tokens))], axis=0
-            )
-            # print(query_embedding)
-
-            services = Service.objects.all()
-
-            similarities = []
-            for service in services:
-                # print(service.name)
-                service_tokens = [
-                    token.text
-                    for token in nlp(service.name)
-                    if not token.is_stop and not token.is_punct
-                ]
-                service_embedding = np.mean(
-                    [token.vector for token in nlp(" ".join(service_tokens))], axis=0
-                )
-                similarity = cosine_similarity([query_embedding], [service_embedding])[
-                    0
-                ][0]
-                similarities.append(similarity)
-
-            service_pairs = zip(similarities, services)
-
-            desired_services = sorted(service_pairs, key=lambda x: x[0], reverse=True)[
-                :10
-            ]
-
-            closest_services = []
-            for similarity, service in desired_services:
-                closest_services.append({"name": service.name})
-
+            Return a JSON object of up to 3 services needed by the homeowner to resolve the query in decreasing order of relevance to the query. 
+            If fewer than 3 services have decent relevance, return only relevant services. The list may be empty if no service has good enough relevance with the query.
+            """
+            prompt+= '''
+            Format of Output: 
+            {'services': ['service1', 'service2', 'service3']}
+            
+            For example:
+            Services: [plumbing, electrical repair, HVAC maintenance, appliance repair, carpentry, gardening, cleaning]
+            Query: "My kitchen sink is leaking and needs immediate fixing."
+            Output: {'services': ['plumbing', 'appliance repair']}                     
+            
+            '''
+            
+            response = llm(prompt)            
+            response = response.split("[")[1].split("]")[0]
+            response = '[' + response + ']'
+            services = json.loads(response)
+            print(response)
+            
             closest_workers = []
             workers = CustomWorker.objects.filter(
                 Q(first_name__icontains=query) | Q(last_name__icontains=query)
@@ -86,10 +75,8 @@ def get_closest_services(request):
                         "email": worker.email,
                     }
                 )
-
-            return JsonResponse(
-                {"services": closest_services, "workers": closest_workers}
-            )
+            
+            return JsonResponse({"services": services, "workers": closest_workers}) 
 
         except Exception as e:
             print(e)

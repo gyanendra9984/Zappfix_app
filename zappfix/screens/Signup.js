@@ -25,9 +25,10 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Login from "./Login";
 import LoadingScreen from "./LoadingScreen";
-
+import { usePushNotifications } from "../context/pushNotifications";
 
 function Signup() {
+  const {expoPushToken, notification} = usePushNotifications();
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -79,6 +80,7 @@ function Signup() {
           email: email,
           otp: otp,
           isWorker: isWorker,
+          notification_id: expoPushToken,
         }),
       });
 

@@ -340,3 +340,32 @@ def approve_certificate(request):
             return JsonResponse({"error": "Error approving certificate"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
+def worker_verification_status(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+
+            certificates = Certification.objects.filter(worker_email=email)
+
+            total_certificates = 0
+            verified_certificates = 0
+
+            for certificate in certificates:
+                total_certificates += 1
+                if certificate.status == "approved":
+                    verified_certificates += 1
+
+            if total_certificates > 0:
+                verification_ratio = verified_certificates / total_certificates
+            else:
+                verification_ratio = 0
+
+            return JsonResponse({"verification_ratio": verification_ratio})
+        except Exception as e:
+            return JsonResponse({"error": "Error fetching certificates"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)

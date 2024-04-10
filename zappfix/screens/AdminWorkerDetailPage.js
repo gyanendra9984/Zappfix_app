@@ -1,79 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, Linking, TouchableOpacity, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
-
+import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
+import adminPhoto from '../assets/icon.png';
 const AdminWorkerDetailPage = ({ route }) => {
   const { worker } = route.params;
+  const navigation = useNavigation();
+  const { API } = React.useContext(AuthContext);
+  const [certificates, setCertificates] = useState([]);
+  const [isApproved, setIsApproved] = useState(worker.verified);
 
-  // State to track whether the worker is approved
-  const [isApproved, setIsApproved] = useState(worker.status === 'verified');
+  useEffect(() => {
+    // Fetch certificates when the component mounts
+    fetchCertificates(worker.email);
+  }, []);
 
-  // Dummy data for demonstration
-  const workerImage = require('../assets/icon.png');
-  const workerRating = 4.5; // Example rating
-  const workerHistory = [
-    { id: 1, task: 'Task 1', date: '2024-03-18' },
-    { id: 2, task: 'Task 2', date: '2024-03-17' },
-    // Add more history as needed
-  ];
+  const fetchCertificates = async (email) => {
+    try {
+      const response = await fetch(`${API}/get_certificates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email }),
+      });
+      const data = await response.json();
+      setCertificates(data.certificates);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+    }
+  };
 
-  // Dummy PDF URL
-  const pdfUrl = 'http://www.pdf995.com/samples/pdf.pdf';
-
-  const openPdfUrl = () => {
+  const openPdfUrl = (pdfUrl) => {
     Linking.openURL(pdfUrl);
   };
 
-  // Function to handle worker approval
-  const approveWorker = () => {
-    // Set worker status to 'Approved'
-    // Update the worker's status in the database or API
-    setIsApproved(true);
-  };
-
-  // Function to handle worker disapproval
-  const disapproveWorker = () => {
-    // Set worker status to 'Action Required'
-    // Update the worker's status in the database or API
-    setIsApproved(false);
+  const changeVerificationStatus = async () => {
+    try {
+      const response = await fetch(`${API}/change_verification_status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: worker.email }),
+      });
+      const data = await response.json();
+      setIsApproved(!isApproved); // Toggle verification status
+    } catch (error) {
+      console.error('Error changing verification status:', error);
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <Image source={workerImage} style={styles.workerImage} />
+        <Image source={adminPhoto} style={styles.workerImage} />
         <Text style={styles.workerName}>{worker.name}</Text>
         <Text>Status: {isApproved ? 'Approved' : 'Action Required'}</Text>
         {/* Add more worker details */}
-        <Text>Rating: {workerRating}</Text>
+        <Text>Rating: 4.6</Text>
       </View>
-      <View style={styles.history}>
+      {/* <View style={styles.history}>
         <Text style={styles.sectionTitle}>Task History</Text>
-        {workerHistory.map((item) => (
+        {worker.history.map((item) => (
           <View key={item.id} style={styles.historyItem}>
             <Text>{item.task}</Text>
             <Text>{item.date}</Text>
           </View>
         ))}
-      </View>
-      {/* PDF Section */}
+      </View> */}
+      {/* Certificates Section */}
       <View style={styles.pdfSection}>
         <Text style={styles.sectionTitle}>Certificates</Text>
-        <TouchableOpacity onPress={openPdfUrl}>
-          <Text style={styles.downloadLink}>Download Certificate</Text>
-        </TouchableOpacity>
-        <View style={styles.pdfViewer}>
-          <WebView
-            source={{ uri: pdfUrl }}
-            allowFileAccess
-            style={styles.pdf}
-          />
-        </View>
+        {certificates.length > 0 ? (
+          certificates.map((certificate, index) => (
+            <TouchableOpacity key={index} onPress={() => openPdfUrl(certificate.certificate_data)}>
+              <Text style={styles.downloadLink}>{certificate.certificate_name}</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text>No certificates uploaded yet</Text>
+        )}
       </View>
       {/* Approve/Disapprove Button */}
       <View style={styles.buttonContainer}>
-        {!isApproved && <Button title="Approve" onPress={approveWorker} />}
-        {isApproved && <Button title="Disapprove" onPress={disapproveWorker} />}
+        <Button title={isApproved ? 'Disapprove' : 'Approve'} onPress={changeVerificationStatus} />
       </View>
     </ScrollView>
   );
@@ -119,15 +131,9 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     marginBottom: 10,
   },
-  pdfViewer: {
-    flex: 1,
-    aspectRatio: 1.5, // Adjust this aspect ratio as needed
-    borderWidth: 1,
-    borderColor: '#000',
-  },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     marginTop: 20,
   },
 });

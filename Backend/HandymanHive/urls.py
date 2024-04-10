@@ -31,5 +31,6 @@ urlpatterns = [
     path("get_user_history", worker_history.get_user_history, name="get_user_history"),
     path("dashboard_view",admin.dashboard_view,name="dashboard_view"),
     path("get_workers",profile.get_workers,name="get_workers"),
+    path("change_verification_status",admin.change_verification_status,name="change_verification_status"),
 ]  
 
