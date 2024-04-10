@@ -251,10 +251,11 @@ def verify_login_otp(request):
                 user = CustomUser.objects.get(email=email)
 
             print("userotp=", user.otp)
-            print("otp=", otp)
-
+            print(1)
+            print("otp=", user.otp_valid_till)
+            
             if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
-
+                print(1)
                 payload = {
                     "email": user.email,
                     "exp": datetime.utcnow() + timedelta(days=1),

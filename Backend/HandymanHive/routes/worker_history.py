@@ -38,6 +38,10 @@ def get_worker_profile(request):
                 "services":services,
                 "certification":certifications,
                 "verified": worker.verified,
+                "address":worker.address,
+                "state":worker.state,
+                "latitude":worker_details.liveLatitude,
+                "longitude":worker_details.liveLongitude,
                 })
             
         except Exception as e:
@@ -105,13 +109,13 @@ def update_request(request):
             worker = CustomWorker.objects.get(email=worker_email)
             service = data.get("service")
             status = data.get("status")
-
+            print("worker",worker,"user",user,"service",service)
             request = Request.objects.get(
                 user=user, worker=worker, service=service
             )
-
+            print(1)
             request.delete()
-
+            
             if status== "Accept":
                 WorkHistory.objects.create(
                     user=user,
@@ -124,6 +128,7 @@ def update_request(request):
                 {"message": "Request deleted and added to WorkHistory successfully"}
             )
         except Exception as e:
+            print(e)
             return JsonResponse({"error": "Error updating request"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
@@ -164,10 +169,13 @@ def get_user_requests(request):
 
 @csrf_exempt
 def get_progress_works(request):
-    if request.method == "GET":
+    if request.method == 'POST':
+        print(1)
         try:
+            
             data = json.loads(request.body)
             email = data.get("email")
+            print(email)
             worker = CustomWorker.objects.get(email=email)
             progress_works = WorkHistory.objects.filter(
                 worker=worker, status="In Progress"
@@ -185,6 +193,8 @@ def get_progress_works(request):
                         "status": work.status,
                     }
                 )
+            
+            print(worker_progress_works)
 
             return JsonResponse({"progress_works": worker_progress_works})
         except CustomWorker.DoesNotExist:
@@ -244,14 +254,14 @@ def update_work_history(request):
 
 
 @csrf_exempt
-def get_work_history(request):
+def get_worker_history(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             email = data.get("email")
             worker = CustomWorker.objects.get(email=email)
             work_histories = WorkHistory.objects.filter(worker=worker, status="Done")
-
+            print(2)
             worker_work_histories = []
             for work in work_histories:
                 worker_work_histories.append(
@@ -264,7 +274,7 @@ def get_work_history(request):
                         "done_on": work.done_on,
                     }
                 )
-
+            print(1)
             return JsonResponse({"work_histories": worker_work_histories})
         except CustomWorker.DoesNotExist:
             return JsonResponse({"error": "Worker not found"}, status=404)
@@ -274,3 +284,44 @@ def get_work_history(request):
             )
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+@csrf_exempt
+def get_user_history(request):
+    if request.method == 'POST':
+        
+        try:
+            
+            data = json.loads(request.body)
+            email = data.get("email")  # user email
+            
+            print(email)
+            user = CustomUser.objects.get(email=email)
+            progress_works = WorkHistory.objects.filter(
+                user=user, status="In Progress"
+            )
+
+            user_progress_works = []
+            
+
+            for work in progress_works:
+                user_progress_works.append(
+                    {
+                        "first_name": work.worker.first_name,
+                        "last_name": work.worker.last_name,
+                        "email": work.worker.email,
+                        "service": work.service,
+                        "started_on": work.started_on,
+                        "status": work.status,
+                    }
+                )
+            
+            
+
+            return JsonResponse({"progress_works": user_progress_works})
+        except CustomWorker.DoesNotExist:
+            return JsonResponse({"error": "Worker not found"}, status=404)
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Error fetching progress work: {e}"}, status=500)
