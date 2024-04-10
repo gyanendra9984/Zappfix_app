@@ -13,7 +13,10 @@ from ..models import (
 import json
 import random
 import string
+from .hfcb import HuggingChat as HCA
+import os
 
+llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
 
 
 ############################ SEARCH FUNCTIONALITY ########################
@@ -30,7 +33,7 @@ def get_closest_services(request):
             # Add the query using the add_query method
             user.add_query(query)
             user.save()
-
+            
             nlp = spacy.load("en_core_web_md")
 
             query_tokens = [
