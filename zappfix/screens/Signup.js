@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useContext, React } from "react";
+import React,{ useContext } from "react";
 import {
   SectionList,
   StyleSheet,
@@ -26,6 +26,7 @@ import axios from "axios";
 import Login from "./Login";
 import LoadingScreen from "./LoadingScreen";
 import { usePushNotifications } from "../context/pushNotifications";
+
 function Signup() {
   const {expoPushToken, notification} = usePushNotifications();
   const [firstName, setFirstName] = React.useState("");

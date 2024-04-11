@@ -63,6 +63,7 @@ class CustomWorker(models.Model):
     otp_valid_till = models.DateTimeField(null=True, blank=True)
     notification_token = models.CharField(max_length=25500, null=True, blank=True)
     profile_pic = CloudinaryField("image", null=True, blank=True)
+    verified=models.BooleanField(default=False)
     def __str__(self):
         return self.email
     def get_notification_tokens(self):
@@ -72,7 +73,7 @@ class CustomWorker(models.Model):
         if token not in tokens:
             tokens.append(token)
             self.notification_token = ";".join(tokens)
-    verified=models.BooleanField(default=False)
+   
 
 class CustomUser(models.Model):
     email = models.EmailField(primary_key=True, max_length=255, unique=True)

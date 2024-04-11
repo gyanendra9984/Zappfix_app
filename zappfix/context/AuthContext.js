@@ -12,7 +12,8 @@ export const AuthProvider =({children}) => {
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
     const [isAdmin,setIsAdmin]=useState("False");
-    const API="http://172.23.6.24:8000"
+    const [imageUri,setImageUri]=useState(null);
+    const API="http://172.23.7.14:8000"
 
 
 
@@ -91,7 +92,7 @@ export const AuthProvider =({children}) => {
     },[]);
 
     return (
-        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri}}>
             {children}
         </AuthContext.Provider>
     );

@@ -13,6 +13,7 @@ import WorkerHome from "../screens/WorkerHome";
 import EditProffDetails from "../screens/EditProffDetails";
 import EditProfile from "../screens/EditProfile";
 import WorkerHistory from "../screens/workerHistory";
+import InteractionPage from "../screens/InteractionPage";
 
 const Tab = createBottomTabNavigator();
 
@@ -49,6 +50,7 @@ export default function WorkerAppStack() {
       <Tab.Screen name="EditProffDetails" component={EditProffDetails}/>
       <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="Worker History" component={WorkerHistory}/>
+      <Tab.Screen name="Interaction Page" component={InteractionPage} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen

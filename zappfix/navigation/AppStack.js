@@ -15,6 +15,8 @@ import RequestPage from "../screens/RequestPage";
 import Search from "../components/Search";
 import SearchResults from "../screens/SearchResults";
 import LoadingScreen from "../screens/LoadingScreen";
+import User_History from "../screens/User_History";
+import User_InteractionPage from "../screens/User_InteractionPage";
 
 const Tab = createBottomTabNavigator();
 const Drawer= createDrawerNavigator();
@@ -26,13 +28,19 @@ function DrawerNavigator() {
     drawerIcon: ({ focused, size, color }) => <Ionicons name="hammer" color="red" size={24} />,
   };
   
-  const {logout}= React.useContext(AuthContext);
+  const {logout,imageUri}= React.useContext(AuthContext);
+  const [imageURL,setImage]=React.useState("");
+
+  React.useEffect(()=>{
+    console.log("Here is the image",imageUri)
+    setImage(imageUri);
+  },imageUri)
   return (
     <Drawer.Navigator screenOptions={({ navigation }) => ({
       headerRight: () =>(
          <Pressable style={{ flexDirection: 'row', alignItems: 'center' }} onPress={navigation.toggleDrawer}>
            {/* <Search /> */}
-           <Image size={5} style={{ maxHeight: 40, maxWidth: 40, borderRadius: 50, marginRight: 10 }} source={require('../assets/Profile.png')} />
+           <Image size={5} style={{ maxHeight: 40, maxWidth: 40, borderRadius: 50, marginRight: 10,height:40,width:40 }} source={imageUri ?({ uri: imageURL }):(require('../assets/Profile.png'))} />
         </Pressable>),
         headerLeft:()=>(
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -77,6 +85,8 @@ function TabNavigator() {
             iconName = 'information-circle';
           }else if (route.name === 'Profile') {
             iconName = 'person';
+          }else if(route.name=='User History'){
+            iconName ='person';
           }
 
           // You can return any component that you like here!
@@ -93,6 +103,8 @@ function TabNavigator() {
       <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="Search" component={SearchResults} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="Loading" component={LoadingScreen} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="User History" component={User_History}/>
+      <Tab.Screen name="Interaction Page" component={User_InteractionPage} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
     // <Stack.Navigator initialRouteName="Home" >
     //   <Stack.Screen

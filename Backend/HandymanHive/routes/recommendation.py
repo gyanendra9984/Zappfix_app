@@ -113,6 +113,7 @@ def get_nearest_workers(request):
             worker_details = []
 
             for worker in workers:
+                print(worker.email)
                 details = CustomWorker.objects.get(email=worker.email)
                 worker_details.append(
                     {
@@ -120,8 +121,7 @@ def get_nearest_workers(request):
                         "last_name": details.last_name,
                         "email": details.email,
                         "liveLatitude": worker.liveLatitude,
-                        "liveLongitude": worker.liveLongitude,
-                        "distance": worker.distance,
+                        "liveLongitude": worker.liveLongitude
                     }
                 )
             print("Worker Details", worker_details)

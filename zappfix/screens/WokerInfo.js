@@ -106,7 +106,7 @@ const WorkerInfo = (props) => {
   //   : workers;
 
     const renderWorkerCard = ({ item }) => (
-      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email})}}>
+      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email,service:service})}}>
       <View style={styles.workerCard}>
         <Image source={require("../assets/Profile.png")} style={styles.profileImage} />
         <View style={styles.workerInfo}>

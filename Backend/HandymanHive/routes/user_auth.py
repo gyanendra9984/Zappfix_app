@@ -55,7 +55,7 @@ def user_signup(request):
             try:
                 user = AbstractUser.objects.get(email=email)
                 otp = generate_otp()
-                print("Generated Otp=",otp)
+                # print("Generated Otp=",otp)
                 user.otp = otp
                 user.otp_valid_till = timezone.now() + timedelta(minutes=15)
                 user.user_details = json.dumps(data)
@@ -76,10 +76,10 @@ def user_signup(request):
                 user_details=json.dumps(data),
                 is_worker=isWorker,
             )
-            # otp = generate_otp()
-            # user.otp = otp
-            # user.save()
-            # send_otp_email(email, otp)
+            otp = generate_otp()
+            user.otp = otp
+            user.save()
+            send_otp_email(email, otp)
             return JsonResponse({"message": "OTP sent successfully"})
         except Exception as e:
             print(e)
@@ -95,7 +95,7 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-        notification_id=data.get("notification_id")
+        # notification_id=data.get("notification_id")
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
@@ -125,7 +125,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    user.add_notification_token(notification_id)
+                    # user.add_notification_token(notification_id)
                     worker_details = WorkerDetails.objects.create(
                         email=user_data["email"]
                     )
@@ -145,7 +145,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    user.add_notification_token(notification_id)
+                    # user.add_notification_token(notification_id)
                     user.save()
 
                 payload = {
@@ -238,7 +238,7 @@ def verify_login_otp(request):
 
             print("userotp=", user.otp)
             print("otp=", otp)
-            user.add_notification_token(notification_id)
+            # user.add_notification_token(notification_id)
             if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
 
                 payload = {
@@ -254,12 +254,14 @@ def verify_login_otp(request):
                 # response.set_cookie(
                 #     "token", token, expires=None, secure=True, samesite='None'
                 # )
-                response = JsonResponse(
-                    {
-                        "message": "OTP verified successfully",
-                        "token": token,
-                    }
-                )
+                isAdmin=False
+                for em in adminlist:
+                    if em==email:
+                        isAdmin=True                
+                if isAdmin:                     
+                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True","token":token})        
+                else :              
+                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False","token":token})
 
                 return response
 

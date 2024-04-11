@@ -28,6 +28,8 @@ def get_user_data(request):
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
+            
+            profile_pic_url = user.profile_pic.url if user.profile_pic else None
 
             user_details = {
                 "first_name": user.first_name,
@@ -40,7 +42,7 @@ def get_user_data(request):
                 "city": user.city,
                 "state": user.state,
                 "zip_code": user.zip_code,
-                "profile_pic": user.profile_pic,
+                "profile_pic": profile_pic_url,
             }
             if isWorker == "True":
                 user_details["verified"] = user.verified
@@ -90,22 +92,27 @@ def edit_personal_profile(request):
 def upload_profile_pic(request):
     if request.method == "POST":
         try:
-            image_file = request.FILES.get("image")
-            email = request.POST.get("email")
-            isWorker = request.POST.get("isWorker")
-
+            print(1)
+            data = json.loads(request.body)
+            image_file = data.get("image")
+            image_data = base64.b64decode(image_file)  # Decoding base64 data
+            email = data.get("email")
+            isWorker = data.get("isWorker")
+            print(email)
+            print(isWorker)
+            print(image_file)
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
-
-            upload_result = cloudinary.uploader.upload(image_file)
-
+            print(3)
+            upload_result = cloudinary.uploader.upload(image_data)
+            print(4)
             image_url = upload_result.get("secure_url")
-
+            print(2)
             user.profile_pic = image_url
             user.save()
-            return JsonResponse({"message": "Image uploaded successfully"})
+            return JsonResponse({"message": "Image uploaded successfully","url":image_url})
         except CustomUser.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
         except Exception as e:
