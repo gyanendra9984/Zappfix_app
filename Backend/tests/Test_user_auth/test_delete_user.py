@@ -1,7 +1,7 @@
 import json
 from django.test import RequestFactory
 from HandymanHive.models import CustomWorker, CustomUser
-from HandymanHive.views import delete_user
+from HandymanHive.routes.profile import delete_user
 import pytest
 
 

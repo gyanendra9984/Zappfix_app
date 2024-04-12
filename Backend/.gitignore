@@ -9,5 +9,7 @@ v1
 /HandymanHive/migrations
 /HandymanHive/routes/__pycache__
 /tests/__pycache__
-/tests/Test\ Models/__pycache__
+/tests/Test_Models/__pycache__
+/tests/Test_user_auth/__pycache__
+/tests/Test_certificates/__pycache__
 /cookies_snapshot
