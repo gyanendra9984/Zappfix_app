@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, StyleSheet ,Text ,TouchableOpacity,Linking,Image} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Linking, Image } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { AuthContext } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon1 from 'react-native-vector-icons/FontAwesome';
 
 const User_InteractionPage = (props) => {
   const [location, setLocation] = useState(null);
-  const {API}=useContext(AuthContext);
-  const [distance,setDistance]=useState(0);
-  const { email,service } = props.route.params;
-  const [workerProfile,setWorkerProfile]=useState([])
-  
+  const { API } = useContext(AuthContext);
+  const [distance, setDistance] = useState(0);
+  const { email, service } = props.route.params;
+  const [workerProfile, setWorkerProfile] = useState([]);
+  const [routeCoordinates, setRouteCoordinates] = useState([]);
 
   useEffect(() => {
     fetchWorkerProfile();
@@ -31,24 +30,20 @@ const User_InteractionPage = (props) => {
 
   const fetchWorkerProfile = async () => {
     try {
-    //   setProgress(true);
-      const user_email=await AsyncStorage.getItem("email");
-      console.log(user_email,email)
+      const user_email = await AsyncStorage.getItem("email");
       const response = await fetch(`${API}/get_worker_profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: user_email,worker_email:email}),
+        body: JSON.stringify({ email: user_email, worker_email: email }),
       });
-      
+
       const data = await response.json();
-      data.latitude+=0.1;
-      data.longitude+=0.1;
-      console.log("here is the data=",data);
-      // console.log(data,"jhhhhhhh")
+      data.latitude += 0.1;
+      data.longitude += 0.1;
       if (response.ok) {
-        setWorkerProfile(data); // Set worker profile data to state
+        setWorkerProfile(data);
 
         if (location && data.latitude && data.longitude) {
           const userCoords = {
@@ -61,6 +56,7 @@ const User_InteractionPage = (props) => {
           };
           const calculatedDistance = calculateDistance(userCoords, workerCoords);
           setDistance(calculatedDistance);
+          fetchRoute(userCoords, workerCoords);
         }
       } else {
         console.error('Failed to fetch worker profile:', data.message);
@@ -68,105 +64,118 @@ const User_InteractionPage = (props) => {
     } catch (error) {
       console.error('Error fetching worker profile:', error);
     }
-    // setProgress(false);
   };
+
   useEffect(() => {
     fetchWorkerProfile();
   }, [API, email]);
 
-    // Function to calculate distance using Haversine formula
   const calculateDistance = (startCoords, endCoords) => {
-    const earthRadius = 6371; // Radius of the Earth in kilometers
+    const earthRadius = 6371;
     const dLat = toRadians(endCoords.latitude - startCoords.latitude);
     const dLon = toRadians(endCoords.longitude - startCoords.longitude);
 
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(startCoords.latitude)) *
-        Math.cos(toRadians(endCoords.latitude)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(endCoords.latitude)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     const distance = earthRadius * c;
-    return distance.toFixed(2); // Return distance rounded to 2 decimal places
+    return distance.toFixed(2);
   };
 
-  // Function to convert degrees to radians
   const toRadians = (degrees) => {
     return degrees * (Math.PI / 180);
   };
-       // Function to open WhatsApp
-  const openWhatsApp = () => {
-  const phoneNumber = workerProfile.phone_number;
-  const message = `Hello,I am interested in your ${service} service. Could you please provide me with more details about the service, including what it includes, any pricing information, and how I can avail of it? Additionally, I would like to inquire about your availability.Looking forward to your response.Thank you.`;
 
-  Linking.openURL(`whatsapp://send?phone=+91${phoneNumber}&text=${encodeURIComponent(message)}`);
-};
+  const openWhatsApp = () => {
+    const phoneNumber = workerProfile.phone_number;
+    const message = `Hello, I am interested in your ${service} service. Could you please provide me with more details about the service, including what it includes, any pricing information, and how I can avail of it? Additionally, I would like to inquire about your availability. Looking forward to your response. Thank you.`;
+
+    Linking.openURL(`whatsapp://send?phone=+91${phoneNumber}&text=${encodeURIComponent(message)}`);
+  };
+
+  const fetchRoute = async (origin, destination) => {
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}?overview=full&geometries=geojson`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok && data.routes.length > 0) {
+        const routeCoordinates = data.routes[0].geometry.coordinates.map(coord => ({
+          latitude: coord[1],
+          longitude: coord[0],
+        }));
+        setRouteCoordinates(routeCoordinates);
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-    <View style={styles.mapContainer}>
-    <Text>Loading ...</Text>
-      {location && workerProfile.latitude && workerProfile.longitude && (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        >
-          {/* Current Location Marker */}
-          <Marker
-            coordinate={{
-                latitude: workerProfile.latitude, longitude: workerProfile.longitude
-            }}
-            title="Worker Location"
-            // image={require('../assets/Profile.png')}
-            // width={1}
-            // height={10}
-            // borderRadius={50}
-          />
-          {/* <Image source={require('../assets/Profile.png')} style={{width:300,height:300}}/> */}
-          {/* </Marker> */}
-          <Marker
-            coordinate={{
+      <View style={styles.mapContainer}>
+        <Text>Loading ...</Text>
+        {location && workerProfile.latitude && workerProfile.longitude && (
+          <MapView
+            style={styles.map}
+            initialRegion={{
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
             }}
-            title="Current Location"
-          />
-          
-          {/* Example Polyline */}
-          {/* <Polyline
-            coordinates={[
-              { latitude: location.coords.latitude, longitude: location.coords.longitude },
-              { latitude: workerProfile.latitude, longitude: workerProfile.longitude }
-            ]}
-            strokeWidth={2}
-            strokeColor="red"
-          /> */}
-          {/* Add more Polylines if needed */}
-        </MapView>
-      ) }
+          >
+            <Marker
+              coordinate={{
+                latitude: workerProfile.latitude,
+                longitude: workerProfile.longitude
+              }}
+              title="Worker Location"
+            >
+              <Image
+                source={require('../assets/scooter_icon.png')}
+                style={{ width: 40, height: 40 }}
+              />
+            </Marker>
+            <Marker
+              coordinate={{
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              }}
+              title="Current Location"
+            >
+              <Image
+                source={require('../assets/user_icon.png')}
+                style={{ width: 40, height: 40 }}
+              />
+            </Marker>
+            <Polyline
+              coordinates={routeCoordinates}
+              strokeWidth={2}
+              strokeColor="#FF0000"
+            />
+          </MapView>
+        )}
       </View>
       <View style={styles.whatsappContainer}>
         <TouchableOpacity onPress={openWhatsApp}>
-        <Icon name="chat" size={42} color="#3498db" />
-        
+          <Icon name="chat" size={42} color="#3498db" />
         </TouchableOpacity>
         <Text style={styles.whatsappText}>{distance} KM Away</Text>
-        {/* Render worker data here */}
       </View>
-      <View styles={styles.whatsappContainer}>
-      </View>
+      <View styles={styles.whatsappContainer}></View>
       <View style={styles.reloadButtonContainer}>
-              <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
-                <Icon name="refresh" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
+        <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
+          <Icon name="refresh" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
