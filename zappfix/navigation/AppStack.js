@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Button, View ,Text,Avatar,Image, Pressable} from "react-native";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Button, View ,Text,Avatar,Image, Pressable, StyleSheet} from "react-native";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -22,32 +22,87 @@ const Tab = createBottomTabNavigator();
 const Drawer= createDrawerNavigator();
 const Stack= createStackNavigator();
 
-function DrawerNavigator() {
-  const {imageUri}= React.useContext(AuthContext);
-  const [imageURL,setImage]=React.useState("");
+function CustomDrawerContent(props) {
+  const { logout } = React.useContext(AuthContext);
 
-  React.useEffect(()=>{
-    console.log("Here is the image",imageUri)
-    setImage(imageUri);
-  },imageUri)
   return (
-    <Drawer.Navigator screenOptions={({ navigation }) => ({
-      headerRight: () =>(
-         <Pressable style={{ flexDirection: 'row', alignItems: 'center' }} onPress={navigation.toggleDrawer}>
-           {/* <Search /> */}
-           <Image size={5} style={{ maxHeight: 40, maxWidth: 40, borderRadius: 50, marginRight: 10,height:40,width:40 }} source={imageUri ?({ uri: imageURL }):(require('../assets/Profile.png'))} />
-        </Pressable>),
-        headerLeft:()=>(
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Image  style={{ maxHeight: 50, maxWidth: 50, borderRadius: 50, marginLeft: 5 }} source={require('../assets/icon.png')} />
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <View style={styles.logoutButtonContainer}>
+        <Button title="Logout" onPress={logout} />
+      </View>
+    </DrawerContentScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  logoutButtonContainer: {
+    marginTop: 20,
+    paddingHorizontal: 16,
+  },
+});
+
+
+function DrawerNavigator() {
+  const { logout, isWorker, setIsLoading, API,email ,userToken,imageUri, setImageUri} = React.useContext(AuthContext);
+  const {user, setUser} = React.useState(null);
+  const [imageURL, setImage] = React.useState("");
+
+  React.useEffect(() => {
+    console.log("Here is the image", imageUri);
+    setImage(imageUri);
+  }, [imageUri]);
+
+
+  return (
+    <Drawer.Navigator
+      screenOptions={({ navigation }) => ({
+        headerRight: () => (
+          <Pressable
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={navigation.toggleDrawer}
+          >
+            {/* <Search /> */}
+            <Image
+              size={5}
+              style={{
+                maxHeight: 40,
+                maxWidth: 40,
+                borderRadius: 50,
+                marginRight: 10,
+                height: 40,
+                width: 40,
+              }}
+              source={
+                imageUri ? ({ uri: imageURL }) : (require("../assets/Profile.png"))
+              }
+            />
+          </Pressable>
+        ),
+        headerLeft: () => (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Image
+              style={{
+                maxHeight: 50,
+                maxWidth: 50,
+                borderRadius: 50,
+                marginLeft: 5,
+              }}
+              source={require("../assets/icon.png")}
+            />
             <Search />
           </View>
         ),
-        headerLeftContainerStyle:{width:250,maxWidth:300,marginLeft:20},
-        headerBackgroundContainerStyle:{borderWidth:1}
-
-     })}>
-      <Drawer.Screen name="Home Page" component={TabNavigator} options={{headerTitleContainerStyle:{width:0}}} />
+        headerLeftContainerStyle: { width: 250, maxWidth: 300, marginLeft: 20 },
+        headerBackgroundContainerStyle: { borderWidth: 1 },
+      })}
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+    >
+      <Drawer.Screen
+        name="Home Page"
+        component={TabNavigator}
+        options={{ headerTitleContainerStyle: { width: 0 } }}
+      />
     </Drawer.Navigator>
   );
 }
