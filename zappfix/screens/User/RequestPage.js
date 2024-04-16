@@ -2,9 +2,10 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from '../context/AuthContext';
-import LoadingScreen from './LoadingScreen';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
@@ -18,7 +19,7 @@ const RequestPage = (props) => {
   };
 
   const handleRequestService =   async () => {
-    await  Alert.alert(
+    Alert.alert(
       'Request Service',
       'Do you want to request service?',
       [
@@ -123,7 +124,7 @@ const RequestPage = (props) => {
       <View style={styles.workerInfo}>
         <Image
           style={styles.workerPhoto}
-          source={require('../assets/Profile.png')} // Placeholder image URL
+          source={require('../../assets/Profile.png')} // Placeholder image URL
         />
         <View style={styles.workerDetails}>
           <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>

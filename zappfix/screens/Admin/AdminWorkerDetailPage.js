@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, Linking, TouchableOpacity, Button } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../context/AuthContext';
+
+import { AuthContext } from '../../context/AuthContext';
+
 import adminPhoto from '../assets/icon.png';
 const AdminWorkerDetailPage = ({ route }) => {
   const { worker } = route.params;

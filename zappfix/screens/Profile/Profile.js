@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { AuthContext } from '../context/AuthContext';
-import LoadingScreen from './LoadingScreen';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
+
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const { logout, isWorker, setIsLoading, API,email ,userToken,setImageUri} = useContext(AuthContext);
   const [progress,SetProgress]=useState(false);
-  const [profile, setProfile] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -32,10 +33,6 @@ const Profile = () => {
       const data = await response.json();
       if (response.ok) {
         setUser(data.worker_details);
-        // console.log(data)
-        // if(data.worker_details.profile_pic){
-        //   setProfile(data.worker_details.profile_pic);
-        // }
       } else {
         console.error('Failed to fetch user data:', data.error);
         if(data.error == "Token expired"){
@@ -105,7 +102,7 @@ const Profile = () => {
                       <View style={styles.profileInfo}>
               <>
               <TouchableOpacity onPress={handleImgUpload}>
-              {user.profile_pic ?(<><Image source={{ uri: user.profile_pic }} style={styles.profileImage} /></>):(<><Image source={require('../assets/Profile.png')} style={styles.profileImage}/></>)}
+              {user.profile_pic ?(<><Image source={{ uri: user.profile_pic }} style={styles.profileImage} /></>):(<><Image source={require('../../assets/Profile.png')} style={styles.profileImage}/></>)}
                 {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage}/> */}
               </TouchableOpacity>
                 <View style={styles.profileDetails}>

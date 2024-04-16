@@ -12,10 +12,11 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from "@react-navigation/native";
-import LoadingScreen from './LoadingScreen';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
 
 const WorkerInfo = (props) => {
   const [location, setLocation] = useState(null);
@@ -108,7 +109,7 @@ const WorkerInfo = (props) => {
     const renderWorkerCard = ({ item }) => (
       <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email,service:service})}}>
       <View style={styles.workerCard}>
-        <Image source={require("../assets/Profile.png")} style={styles.profileImage} />
+        <Image source={require("../../assets/Profile.png")} style={styles.profileImage} />
         <View style={styles.workerInfo}>
           <Text style={styles.workerName}>{item.first_name} {item.last_name}</Text>
           <Text >{item.email}</Text>

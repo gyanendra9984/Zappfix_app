@@ -8,9 +8,11 @@ import {
     GroupDropdown,
     MultiselectDropdown,
 } from 'sharingan-rn-modal-dropdown';
-import { AuthContext } from '../context/AuthContext';
-import LoadingScreen from './LoadingScreen';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
+
 
 
 
@@ -50,7 +52,7 @@ const UserProfile = () => {
 
     return (
         <View style={styles.userProfileContainer}>
-        {user && (<View><Image source={require('../assets/Profile.png')} style={styles.avatar} />
+        {user && (<View><Image source={require('../../assets/Profile.png')} style={styles.avatar} />
         {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage} /> */}
         <View style={styles.userInfo}>
             <Text style={styles.name}>{user.first_name}{user.last_name}</Text>

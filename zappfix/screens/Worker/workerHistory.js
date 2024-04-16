@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from "../context/AuthContext";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+
+import { AuthContext } from "../../context/AuthContext";
 
 const StarRating = ({ rating }) => {
   const fullStars = Math.floor(rating);

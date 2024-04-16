@@ -4,8 +4,9 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Input, NativeBaseProvider, Button, Icon, Box, Image, AspectRatio } from 'native-base';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../context/AuthContext';
-import LoadingScreen from './LoadingScreen';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
 
 function ToggleButton({ label, active, onPress }) {
   return (
@@ -40,13 +41,6 @@ function Login() {
     setIsWorker("True");
   }
   const sendOtp = async () => {
-    // Perform your signup logic here
-    // if (!isEmailValid(email)) {
-    //   setEmailError("Please enter a valid IITRPR email address");
-    //   alert("Please enter a valid IITRPR email address");
-    //   return; // Stop the signup process if the email is not valid
-    // }
-
     try {
       // Send a POST request to the backend with the user's information
         setProgress(true);
@@ -77,7 +71,6 @@ function Login() {
         alert("OTP sent successfully")
       } else {
         alert("Failed to send OTP user not found");
-        // alert("Error code",response.message)
         // Handle the case where OTP sending fails
       }
     } catch (error) {
