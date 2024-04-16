@@ -13,6 +13,7 @@ export const AuthProvider =({children}) => {
     const [email,setEmail]=useState("");
     const [isAdmin,setIsAdmin]=useState("False");
     const [imageUri,setImageUri]=useState(null);
+    const [user, setUser] = useState(null);
     const API="http://172.23.6.5:8000"
 
 
@@ -91,8 +92,51 @@ export const AuthProvider =({children}) => {
         isLoggedIn();
     },[]);
 
+
+    const fetchUserData = async () => {
+      try {
+        // SetProgress(true);
+        console.log("HELLO 1")
+        const response = await fetch(`${API}/get_user_data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ isWorker: isWorker,email:email,token:userToken }),
+        });
+        const data = await response.json();
+        console.log("HELLO 2")
+        if (response.ok) {
+          setUser(data.worker_details);
+          console.log("data", data)
+        } else {
+          console.log("HELLO 3")
+          console.error('Failed to fetch user data:', data.error);
+          if(data.error == "Token expired"){
+            alert(data.error);
+            logout();
+          }
+        }
+      } catch (error) {
+        console.log("HELLO 4")
+        console.error('Error fetching user data:', error);
+      } finally {
+        console.log("HELLO 5")
+        
+      }
+      // SetProgress(false);
+    };
+
+    useEffect(()=>{
+      if(isWorker && email && userToken){
+        fetchUserData();
+      }
+    }
+    ,[isWorker,email,userToken]);
+
     return (
-        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri, user}}>
             {children}
         </AuthContext.Provider>
     );

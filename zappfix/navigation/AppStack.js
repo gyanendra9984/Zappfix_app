@@ -23,10 +23,20 @@ const Drawer= createDrawerNavigator();
 const Stack= createStackNavigator();
 
 function CustomDrawerContent(props) {
-  const { logout } = React.useContext(AuthContext);
+  const { logout, user } = React.useContext(AuthContext);
 
   return (
     <DrawerContentScrollView {...props}>
+      <View style={styles.profilePictureContainer}>
+        <Image
+          style={styles.profilePicture}
+          source={
+            user?.profile_pic
+              ? { uri: user.profile_pic }
+              : require("../assets/Profile.png")
+          }
+        />
+      </View>
       <DrawerItemList {...props} />
       <View style={styles.logoutButtonContainer}>
         <Button title="Logout" onPress={logout} />
@@ -40,8 +50,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 16,
   },
+  profilePictureContainer: {
+    alignItems: "center",
+    marginVertical: 16,
+  },
+  profilePicture: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
 });
-
 
 function DrawerNavigator() {
   const { logout, isWorker, setIsLoading, API,email ,userToken,imageUri, setImageUri} = React.useContext(AuthContext);
@@ -74,7 +92,7 @@ function DrawerNavigator() {
                 width: 40,
               }}
               source={
-                imageUri ? ({ uri: imageURL }) : (require("../assets/Profile.png"))
+                user?.profile_pic ? { uri: user.profile_pic }: (require("../assets/Profile.png"))
               }
             />
           </Pressable>
