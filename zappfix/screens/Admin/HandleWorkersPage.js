@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
-import { AuthContext } from '../context/AuthContext';
+
+import { AuthContext } from '../../context/AuthContext';
 
 const HandleWorkersPage = ({ navigation }) => {
   const [workers, setWorkers] = useState([]);

@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
-import { AuthContext } from '../context/AuthContext';
 import { useNavigation, useIsFocused } from "@react-navigation/native"; // Import useIsFocused hook
-// Import the icon.png file
-import adminPhoto from '../assets/icon.png';
+
+import adminPhoto from '../../assets/icon.png';
+
+import { AuthContext } from '../../context/AuthContext';
 
 const AdminHome = ({ route }) => {
     const { adminDetails } = route.params;
@@ -12,9 +13,6 @@ const AdminHome = ({ route }) => {
     const isFocused = useIsFocused(); // Use useIsFocused hook
 
     const handleLogout = () => {
-        // Implement logout functionality here
-        // For example, you can clear user token from AsyncStorage or perform any other necessary actions
-        // Then navigate back to the authentication screen (e.g., AuthStack)
         logout();
         navigation.navigate('AuthStack');
     };
@@ -22,7 +20,6 @@ const AdminHome = ({ route }) => {
     const fetchSearchResults = async () => { // Remove the query parameter as it is not used
         try {
             if (!isFocused) return; // Return if the screen is not focused
-            // navigation.navigate("Loading")
             const response = await fetch(`${API}/dashboard_view`, {
                 method: 'GET',
                 headers: {

@@ -2,20 +2,21 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Linking, Image } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { AuthContext } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const User_InteractionPage = (props) => {
+import { AuthContext } from '../../context/AuthContext';
+
+const InteractionPage = (props) => {
   const [location, setLocation] = useState(null);
   const { API } = useContext(AuthContext);
   const [distance, setDistance] = useState(0);
-  const { email, service } = props.route.params;
-  const [workerProfile, setWorkerProfile] = useState([]);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const { email } = props.route.params;
+  const [ latitutepoint, setlatitutepoint ] = useState(-1);
+  const [ longitutepoint, setlongitutepoint ] = useState(-1);
+  
 
   useEffect(() => {
-    fetchWorkerProfile();
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -25,80 +26,43 @@ const User_InteractionPage = (props) => {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+
+      // Fetch the route between user's location and a fixed point
+      const userLocation = { latitude: 30.9, longitude: 75.9 }; // as hardcoded in line 94&95
+      const fixedPoint = { latitude: location.coords.latitude, longitude: location.coords.longitude }; // Worker loccation
+      fetchRoute(userLocation, fixedPoint);
     })();
   }, []);
 
-  const fetchWorkerProfile = async () => {
+  const UpdateLocation = async () => {
     try {
-      const user_email = await AsyncStorage.getItem("email");
-      const response = await fetch(`${API}/get_worker_profile`, {
+      const response = await fetch(`${API}/update_worker_location`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: user_email, worker_email: email }),
+        body: JSON.stringify({
+          email: email,
+          liveLatitude: location.coords.latitude,
+          liveLongitude: location.coords.longitude,
+        }),
       });
-
       const data = await response.json();
-      data.latitude += 0.1;
-      data.longitude += 0.1;
       if (response.ok) {
-        setWorkerProfile(data);
-
-        if (location && data.latitude && data.longitude) {
-          const userCoords = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          };
-          const workerCoords = {
-            latitude: data.latitude,
-            longitude: data.longitude,
-          };
-          const calculatedDistance = calculateDistance(userCoords, workerCoords);
-          setDistance(calculatedDistance);
-          fetchRoute(userCoords, workerCoords);
-        }
+        alert(data.message);
       } else {
-        console.error('Failed to fetch worker profile:', data.message);
+        console.error('Failed to Update Location:', data.error);
       }
     } catch (error) {
-      console.error('Error fetching worker profile:', error);
+      console.error('Error Updating Location:', error);
     }
   };
 
-  useEffect(() => {
-    fetchWorkerProfile();
-  }, [API, email]);
-
-  const calculateDistance = (startCoords, endCoords) => {
-    const earthRadius = 6371;
-    const dLat = toRadians(endCoords.latitude - startCoords.latitude);
-    const dLon = toRadians(endCoords.longitude - startCoords.longitude);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(startCoords.latitude)) *
-      Math.cos(toRadians(endCoords.latitude)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = earthRadius * c;
-    return distance.toFixed(2);
-  };
-
-  const toRadians = (degrees) => {
-    return degrees * (Math.PI / 180);
-  };
-
   const openWhatsApp = () => {
-    const phoneNumber = workerProfile.phone_number;
-    const message = `Hello, I am interested in your ${service} service. Could you please provide me with more details about the service, including what it includes, any pricing information, and how I can avail of it? Additionally, I would like to inquire about your availability. Looking forward to your response. Thank you.`;
-
-    Linking.openURL(`whatsapp://send?phone=+91${phoneNumber}&text=${encodeURIComponent(message)}`);
+    Linking.openURL('whatsapp://send?phone=+1234567890'); // Replace +1234567890 with your WhatsApp number
   };
 
+  // Function to fetch route between origin and destination
   const fetchRoute = async (origin, destination) => {
     try {
       const url = `https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}?overview=full&geometries=geojson`;
@@ -122,7 +86,7 @@ const User_InteractionPage = (props) => {
     <View style={styles.container}>
       <View style={styles.mapContainer}>
         <Text>Loading ...</Text>
-        {location && workerProfile.latitude && workerProfile.longitude && (
+        {location ? (
           <MapView
             style={styles.map}
             initialRegion={{
@@ -132,18 +96,20 @@ const User_InteractionPage = (props) => {
               longitudeDelta: 0.0421,
             }}
           >
+            {/* User Location Marker */}
             <Marker
               coordinate={{
-                latitude: workerProfile.latitude,
-                longitude: workerProfile.longitude
+                latitude: 30.9,
+                longitude: 75.9
               }}
-              title="Worker Location"
+              title="User Location"
             >
               <Image
-                source={require('../assets/scooter_icon.png')}
+                source={require('../../assets/user_icon.png')}
                 style={{ width: 40, height: 40 }}
               />
             </Marker>
+            {/* Current Location Marker */}
             <Marker
               coordinate={{
                 latitude: location.coords.latitude,
@@ -152,27 +118,29 @@ const User_InteractionPage = (props) => {
               title="Current Location"
             >
               <Image
-                source={require('../assets/user_icon.png')}
+                source={require('../../assets/scooter_icon.png')}
                 style={{ width: 40, height: 40 }}
               />
             </Marker>
+            {/* Polyline for route */}
             <Polyline
               coordinates={routeCoordinates}
               strokeWidth={2}
-              strokeColor="#FF0000"
+              strokeColor="red"
             />
           </MapView>
-        )}
+        ) : null}
       </View>
       <View style={styles.whatsappContainer}>
         <TouchableOpacity onPress={openWhatsApp}>
           <Icon name="chat" size={42} color="#3498db" />
         </TouchableOpacity>
         <Text style={styles.whatsappText}>{distance} KM Away</Text>
+        {/* Render worker data here */}
       </View>
       <View styles={styles.whatsappContainer}></View>
       <View style={styles.reloadButtonContainer}>
-        <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
+        <TouchableOpacity style={styles.reloadButton} onPress={UpdateLocation}>
           <Icon name="refresh" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -216,4 +184,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default User_InteractionPage;
+export default InteractionPage;

@@ -1,8 +1,10 @@
 import React, { useContext, useState,useEffect } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet,TouchableOpacity } from 'react-native';
-import { AuthContext } from '../context/AuthContext';
-import LoadingScreen from './LoadingScreen';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { AuthContext } from '../../context/AuthContext';
+import LoadingScreen from '../Loading/LoadingScreen';
+
 
 const EditProfile = () => {
   const [firstName, setFirstName] = useState('');

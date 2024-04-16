@@ -2,33 +2,28 @@ import * as React from "react";
 import { Button, View ,Text,Avatar,Image, Pressable} from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
-import { AuthContext } from "../context/AuthContext";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Home from "../screens/Home";
-import Map from '../screens/Map';
-import Profile from "../screens/Profile"
-import WorkerInfo from "../screens/WokerInfo";
-import EditProfile from "../screens/EditProfile";
-import RequestPage from "../screens/RequestPage";
 
+import { AuthContext } from "../context/AuthContext";
+import Home from "../screens/User/Home";
+import Map from '../screens/User/Map';
+import Profile from "../screens/Profile/Profile"
+import WorkerInfo from "../screens/User/WokerInfo";
+import EditProfile from "../screens/Profile/EditProfile";
+import RequestPage from "../screens/User/RequestPage";
 import Search from "../components/Search";
-import SearchResults from "../screens/SearchResults";
-import LoadingScreen from "../screens/LoadingScreen";
-import User_History from "../screens/User_History";
-import User_InteractionPage from "../screens/User_InteractionPage";
+import SearchResults from "../screens/User/SearchResults";
+import LoadingScreen from "../screens/Loading/LoadingScreen";
+import User_History from "../screens/User/User_History";
+import User_InteractionPage from "../screens/User/User_InteractionPage";
 
 const Tab = createBottomTabNavigator();
 const Drawer= createDrawerNavigator();
 const Stack= createStackNavigator();
 
 function DrawerNavigator() {
-  const headerOptions = {
-    title: 'Task List',
-    drawerIcon: ({ focused, size, color }) => <Ionicons name="hammer" color="red" size={24} />,
-  };
-  
-  const {logout,imageUri}= React.useContext(AuthContext);
+  const {imageUri}= React.useContext(AuthContext);
   const [imageURL,setImage]=React.useState("");
 
   React.useEffect(()=>{
@@ -53,8 +48,6 @@ function DrawerNavigator() {
 
      })}>
       <Drawer.Screen name="Home Page" component={TabNavigator} options={{headerTitleContainerStyle:{width:0}}} />
-      {/* <Drawer.Screen name="Search" component={RecentSearches} options={{headerTitleContainerStyle:{width:0}}}/> */}
-      {/* <Drawer.Screen name="Logout" component={logout()} /> */}
     </Drawer.Navigator>
   );
 }
@@ -106,18 +99,6 @@ function TabNavigator() {
       <Tab.Screen name="User History" component={User_History}/>
       <Tab.Screen name="Interaction Page" component={User_InteractionPage} options={{ tabBarButton:()=>null }}/>
     </Tab.Navigator>
-    // <Stack.Navigator initialRouteName="Home" >
-    //   <Stack.Screen
-    //     name="ZappFix"
-    //     component={Home}
-    //     options={{
-    //       headerLeft: null, // This will hide the back button
-    //     }}
-    //   />
-    //   <Stack.Screen name="Map" component={Map}/>
-    //   <Stack.Screen name="Profile" component={Profile}/>
-    //   <Stack.Screen name="WorkerInfo" component={WorkerInfo}/>
-    // </Stack.Navigator>
   );
 }
 

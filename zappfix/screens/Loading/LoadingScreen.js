@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import * as Animatable from 'react-native-animatable';
 
 export default function LoadingScreen() {
@@ -10,7 +10,7 @@ export default function LoadingScreen() {
         easing="ease-out" 
         iterationCount="infinite" 
         style={styles.image} 
-        source={require("../assets/icon.png")}
+        source={require("../../assets/icon.png")}
       />
 
     </View>

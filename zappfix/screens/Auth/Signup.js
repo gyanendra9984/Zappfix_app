@@ -21,11 +21,10 @@ import {
 } from "native-base";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { AuthContext } from "../context/AuthContext";
-import axios from "axios";
-import Login from "./Login";
-import LoadingScreen from "./LoadingScreen";
-import { usePushNotifications } from "../context/pushNotifications";
+
+import { AuthContext } from "../../context/AuthContext";
+import LoadingScreen from "../Loading/LoadingScreen";
+import { usePushNotifications } from "../../context/pushNotifications";
 
 function Signup() {
   const {expoPushToken, notification} = usePushNotifications();

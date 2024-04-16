@@ -2,10 +2,12 @@ import * as React from "react";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AdminHome from "../screens/AdminHome";
-import HandleWorkersPage from "../screens/HandleWorkersPage";
-import LoadingScreen from "../screens/LoadingScreen";
-import AdminWorkerDetailPage from "../screens/AdminWorkerDetailPage";
+
+import AdminHome from "../screens/Admin/AdminHome";
+import HandleWorkersPage from "../screens/Admin/HandleWorkersPage";
+import LoadingScreen from "../screens/Loading/LoadingScreen";
+import AdminWorkerDetailPage from "../screens/Admin/AdminWorkerDetailPage";
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
