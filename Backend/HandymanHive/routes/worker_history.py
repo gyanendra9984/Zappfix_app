@@ -123,7 +123,7 @@ def update_request(request):
                     service=service,
                     started_on=timezone.now(),
                 )
-            # send_notfication("Accepted Work", user, {"service": service, "worker": worker.first_name})
+            send_notfication("Accepted Work", user, {"service": service, "user": worker.first_name})
             return JsonResponse(
                 {"message": "Request deleted and added to WorkHistory successfully"}
             )
