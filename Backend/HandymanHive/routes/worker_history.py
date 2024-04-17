@@ -194,15 +194,18 @@ def get_worker_history(request):
                 )
             
             for work in progressWorks:
+                status= 'In Progress'
+                if work.workerdone:
+                    status='Done'        
+                    
                 progress_works.append(
                     {
                         "first_name": work.user.first_name,
                         "last_name": work.user.last_name,
                         "email": work.user.email,
                         "service": work.service,
-                        "started_on": work.started_on,
-                        "userdone": work.userdone,
-                        "workerdone": work.workerdone
+                        "started_on": work.started_on,   
+                        "status": status,                     
                     }
                 )           
             
@@ -246,6 +249,10 @@ def get_user_history(request):
                 )
                 
             for work in progressWorks:
+                status = 'In Progress'
+                if work.userdone:
+                    status = 'Done'
+                    
                 progress_works.append(
                     {
                         "first_name": work.worker.first_name,
@@ -253,6 +260,7 @@ def get_user_history(request):
                         "email": work.worker.email,
                         "service": work.service,
                         "started_on": work.started_on,
+                        "status": status
                     }
                 )
                 
@@ -376,26 +384,42 @@ def fetch_timeline_details(request):
             service=service
         )
 
-        # Serialize the data
+        
         timeline_data = []
-        for event in work:
-            event_data = {
-                'user_email': event.user.email,
-                'worker_email': event.worker.email,
-                'service': event.service,
-                'status': event.status,
-                'started_on': event.started_on.strftime('%Y-%m-%d %H:%M:%S') if event.started_on else None,
-                'done_on': event.done_on.strftime('%Y-%m-%d %H:%M:%S') if event.done_on else None,
-                'user_acceptance_time': event.user_acceptance_time.strftime('%Y-%m-%d %H:%M:%S') if event.user_acceptance_time else None,
-                'worker_acceptance_time': event.worker_acceptance_time.strftime('%Y-%m-%d %H:%M:%S') if event.worker_acceptance_time else None,
-                'userdone': event.userdone,
-                'workerdone': event.workerdone,
-                'review_by_user': event.review_by_user,
-                'review_by_worker': event.review_by_worker
+        
+        timeline_data.append(
+            {
+                'time': work.started_on,
+                'title': 'Work Started',                
+            }            
+        )
+        timeline_data.append(
+            {
+                'time': work.user_done_on,                
+                'title': 'User marked the project as Done',                
+            }            
+        )
+        timeline_data.append(
+            {
+                'time': work.user_done_on,                
+                'time': 'User gave review ${work.user_review} and rating ${work.user_rating}',           
+            }            
+        )
+        timeline_data.append(
+            {
+                'time': work.worker_done_on,                
+                'title': 'Worker marked the project as Done',                
             }
-            timeline_data.append(event_data)
-
-        # Send the data back to the user
+        )
+        timeline_data.append(
+            {
+                'time': work.done_on,                
+                'title': 'Work Completed',
+            }
+        )
+        
+        timeline_data.sort(key=lambda x: x['time'])
+        
         return JsonResponse({'timeline_details': timeline_data})
     except (CustomUser.DoesNotExist, CustomWorker.DoesNotExist):
         return JsonResponse({'error': 'User or worker not found'}, status=404)
