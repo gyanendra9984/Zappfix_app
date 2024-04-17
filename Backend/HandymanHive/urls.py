@@ -24,16 +24,14 @@ urlpatterns = [
     path("get_worker_profile", worker_history.get_worker_profile, name="get_worker_profile"),   
     path("create_request",worker_history.create_request,name="create_request"),
     path("get_user_requests", worker_history.get_user_requests, name="get_user_requests"), 
-    path("update_request", worker_history.update_request, name="update_request"), 
-    path("get_progress_works", worker_history.get_progress_works, name="get_progress_works"),
-    path("update_work_history", worker_history.update_work_history, name="update_work_history"),   
-    path("get_worker_history", worker_history.get_worker_history, name="get_worker_history"),
-    path("get_user_history", worker_history.get_user_history, name="get_user_history"),
+    path("update_request", worker_history.update_request, name="update_request"),
     path("dashboard_view",admin.dashboard_view,name="dashboard_view"),
     path("get_workers",profile.get_workers,name="get_workers"),
     path("change_verification_status",admin.change_verification_status,name="change_verification_status"),
     path("fetch_timeline_details",worker_history.fetch_timeline_details,name="fetch_timeline_details"),
-    path("user_update_status",worker_history.user_update_status,name="user_update_status"),
-    path("worker_update_status",worker_history.worker_update_status,name="worker_update_status")
+    path("get_user_history",worker_history.get_user_history,name="get_user_history"),
+    path("get_worker_history",worker_history.get_worker_history,name="get_worker_history"),
+    path("update_worker_works",worker_history.update_worker_works,name="update_worker_works"),
+    path("update_user_works",worker_history.update_user_works,name="update_user_works"),
 ]  
 
