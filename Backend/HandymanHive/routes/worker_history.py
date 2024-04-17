@@ -167,91 +167,6 @@ def get_user_requests(request):
 
 ########################### WORKER HISTORY ROUTES #############################
 
-@csrf_exempt
-def get_progress_works(request):
-    if request.method == 'POST':
-        print(1)
-        try:
-            
-            data = json.loads(request.body)
-            email = data.get("email")
-            print(email)
-            worker = CustomWorker.objects.get(email=email)
-            progress_works = WorkHistory.objects.filter(
-                worker=worker, status="In Progress"
-            )
-
-            worker_progress_works = []
-            for work in progress_works:
-                worker_progress_works.append(
-                    {
-                        "first_name": work.user.first_name,
-                        "last_name": work.user.last_name,
-                        "email": work.user.email,
-                        "service": work.service,
-                        "started_on": work.started_on,
-                        "status": work.status,
-                    }
-                )
-            
-            print(worker_progress_works)
-
-            return JsonResponse({"progress_works": worker_progress_works})
-        except CustomWorker.DoesNotExist:
-            return JsonResponse({"error": "Worker not found"}, status=404)
-        except Exception as e:
-            return JsonResponse(
-                {"error": f"Error fetching progress work: {e}"}, status=500)
-
-              
-@csrf_exempt
-def update_work_history(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            user_email = data.get("user_email")
-            worker_email = data.get("worker_email")
-            user = CustomUser.objects.get(email=user_email)
-            worker = CustomWorker.objects.get(email=worker_email)
-            service = data.get("service")
-            status = data.get("status","In Progress")
-            userdone = data.get("userdone", False)
-            workerdone = data.get("workerdone", False)
-
-            work_history = WorkHistory.objects.get(
-                user=user, worker=worker, service=service
-            )
-
-            if work_history:
-                if status == "Reject":
-                    work_history.delete()
-                    return JsonResponse(
-                        {"message": "Work history entry deleted successfully"}
-                    )
-                if userdone == True:
-                    work_history.userdone = userdone
-                if workerdone == True:
-                    work_history.workerdone = workerdone
-
-                if work_history.userdone and work_history.workerdone:
-                    work_history.status = "Done"
-                    work_history.done_on = timezone.now()
-
-                work_history.save()
-
-                return JsonResponse({"message": "Work history updated successfully"})
-            else:
-                return JsonResponse(
-                    {"error": "Work history entry not found"}, status=404
-                )
-        except Exception as e:
-            return JsonResponse(
-                {"error": f"Error updating work history: {str(e)}"}, status=500
-            )
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
 
 @csrf_exempt
 def get_worker_history(request):
@@ -260,22 +175,47 @@ def get_worker_history(request):
             data = json.loads(request.body)
             email = data.get("email")
             worker = CustomWorker.objects.get(email=email)
-            work_histories = WorkHistory.objects.filter(worker=worker, status="Done")
-            print(2)
-            worker_work_histories = []
-            for work in work_histories:
-                worker_work_histories.append(
+            doneWorks = WorkHistory.objects.filter(worker=worker, status="Done")
+            progressWorks = WorkHistory.objects.filter(worker=worker, status="In Progress")
+            
+            progress_works = []
+            done_works = []
+            
+            for work in doneWorks:
+                done_works.append(
                     {
                         "first_name": work.user.first_name,
                         "last_name": work.user.last_name,
                         "email": work.user.email,
                         "service": work.service,
                         "started_on": work.started_on,
-                        "done_on": work.done_on,
+                        "done_on": work.done_on, 
+                        "status":"Done",
+                        "showingStatus":"Done"                       
                     }
                 )
-            print(1)
-            return JsonResponse({"work_histories": worker_work_histories})
+            
+            for work in progressWorks:
+                status= 'In Progress'
+                if work.workerdone:
+                    status='Done'        
+                    
+                progress_works.append(
+                    {
+                        "first_name": work.user.first_name,
+                        "last_name": work.user.last_name,
+                        "email": work.user.email,
+                        "service": work.service,
+                        "started_on": work.started_on,   
+                        "status": status,  
+                        "status":"In Progress",
+                        "showingStatus": status                   
+                    }
+                )           
+            
+            
+            
+            return JsonResponse({"progress_works": progress_works, "done_works": done_works})
         except CustomWorker.DoesNotExist:
             return JsonResponse({"error": "Worker not found"}, status=404)
         except Exception as e:
@@ -286,42 +226,223 @@ def get_worker_history(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-
 @csrf_exempt
 def get_user_history(request):
-    if request.method == 'POST':
-        
-        try:
-            
+    if request.method == 'POST':        
+        try:            
             data = json.loads(request.body)
-            email = data.get("email")  # user email
+            email = data.get("email")
             
-            print(email)
             user = CustomUser.objects.get(email=email)
-            progress_works = WorkHistory.objects.filter(
-                user=user, status="In Progress"
-            )
-
-            user_progress_works = []
+            doneWorks = WorkHistory.objects.filter(user=user, status="Done")
+            progressWorks = WorkHistory.objects.filter(user=user, status="In Progress")
             
-
-            for work in progress_works:
-                user_progress_works.append(
+            progress_works = []
+            done_works = []
+            
+            for work in doneWorks:
+                progress_works.append(
                     {
                         "first_name": work.worker.first_name,
                         "last_name": work.worker.last_name,
                         "email": work.worker.email,
                         "service": work.service,
                         "started_on": work.started_on,
-                        "status": work.status,
+                        "done_on": work.done_on,
+                        "status":"Done",
+                        "showingStatus":"Done"
                     }
                 )
-            
-            
-
-            return JsonResponse({"progress_works": user_progress_works})
-        except CustomWorker.DoesNotExist:
-            return JsonResponse({"error": "Worker not found"}, status=404)
+                
+            for work in progressWorks:
+                status = 'In Progress'
+                if work.userdone:
+                    status = 'Done'
+                    
+                progress_works.append(
+                    {
+                        "first_name": work.worker.first_name,
+                        "last_name": work.worker.last_name,
+                        "email": work.worker.email,
+                        "service": work.service,
+                        "started_on": work.started_on,
+                        "status":"In Progress",
+                        "showingStatus": status
+                    }
+                )
+                
+            return JsonResponse({"progress_works": progress_works, "done_works": done_works})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
         except Exception as e:
             return JsonResponse(
                 {"error": f"Error fetching progress work: {e}"}, status=500)
+    
+@csrf_exempt
+def update_user_works(request):
+    if request.method=='POST':        
+        try:
+        
+            request_data = json.loads(request.body)
+            print(1)
+            user_email = request_data.get('user_email')
+            worker_email = request_data.get('worker_email')
+            service = request_data.get('service')
+            status = request_data.get('status')           
+            user_review = request_data.get('user_review') 
+            user_rating = request_data.get('user_rating')           
+            
+            print(1)
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+            
+            
+            work = WorkHistory.objects.get(
+                user=user,
+                worker=worker,
+                service=service
+            )
+            
+            if status=='Reject' and work.status=='In Progress':
+                work.delete()
+                return JsonResponse({'message': 'Work deleted successfully'})
+            
+            if status=='Done' and work.status=='In Progress':                
+                work.userdone=True
+                if work.workerdone:
+                    work.done_on=timezone.now()
+                    work.status='Done'
+                    
+                work.user_done_on=timezone.now()
+                work.user_review = user_review
+                work.user_rating = user_rating
+                
+                work.save()
+                return JsonResponse({'message': 'Work accepted successfully'})
+            
+            return JsonResponse({'message': 'Status updated successfully'})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error Updating the status'}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def update_worker_works(request):
+    if request.method=='POST':
+        
+        try:
+            request = json.loads(request.body)
+            
+            user_email = request.get('user_email')
+            worker_email = request.get('worker_email')
+            service = request.get('service')
+            status = request.get('status')
+            
+            
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)                    
+            
+            
+            work = WorkHistory.objects.get(
+                user=user,
+                worker=worker,
+                service=service
+            )
+            
+            if status == 'Reject' and work.status == 'In Progress':
+                work.delete()
+                return JsonResponse({'message': 'Work deleted successfully'})
+            
+            if status == 'Done' and work.status == 'In Progress':
+                work.workerdone = True
+                if work.userdone:
+                    work.done_on = timezone.now()
+                    work.status = 'Done'
+                work.worker_done_on = timezone.now()
+                work.save()           
+            
+
+            return JsonResponse({'message': 'Status updated successfully'})
+        except (CustomWorker.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
+            return JsonResponse({'error': 'Error fetching details'}, status=400)
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt    
+def fetch_timeline_details(request):
+    try:
+        request_data = json.loads(request.body)
+        
+        
+        user_email = request_data.get('user_email')
+        worker_email = request_data.get('worker_email')
+        service=request_data.get('service')
+        
+        
+        user = CustomUser.objects.get(email=user_email)
+        worker = CustomWorker.objects.get(email=worker_email)
+        
+        work = WorkHistory.objects.get(
+            user=user,
+            worker=worker,
+            service=service
+        )
+
+        
+        timeline_data = []
+        print(work.started_on)
+        timeline_data.append(
+            {
+                
+                'time': work.started_on,
+                'title': 'Work Started',                
+            }            
+        )
+        if work.user_done_on:
+            print(work.user_done_on)
+            print('user')
+            timeline_data.append(
+                {
+                    'time': work.user_done_on,                
+                    'title': 'User marked the project as Done',                
+                }            
+            )       
+        
+        
+            # timeline_data.append(
+            #     {
+            #         'time': work.user_done_on,                
+            #         'title': f'User gave review {work.user_review} and rating {work.user_rating}',           
+            #     }            
+            # )
+
+        if work.worker_done_on:
+            print('worker')
+            timeline_data.append(
+                {
+                    'time': work.worker_done_on,                
+                    'title': 'Worker marked the project as Done',                
+                }
+            )
+
+        if work.done_on:
+            print('done')
+            timeline_data.append(
+                {
+                    'time': work.done_on,                
+                    'title': 'Work Completed',
+                }
+            )
+        
+        # timeline_data.sort(key=lambda x: x['time'])
+        
+        return JsonResponse({'timeline_details': timeline_data})
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': 'Error fetching details'}, status=500)
+
+    

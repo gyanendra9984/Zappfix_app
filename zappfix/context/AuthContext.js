@@ -14,7 +14,8 @@ export const AuthProvider =({children}) => {
     const [isAdmin,setIsAdmin]=useState("False");
     const [imageUri,setImageUri]=useState(null);
     const [user, setUser] = useState(null);
-    const API="http://172.23.6.5:8000"
+    const API="http://172.23.6.94:8000"
+
     const logout= async ()=>{
         setIsLoading(true);
         await AsyncStorage.removeItem('userToken');
@@ -105,6 +106,7 @@ export const AuthProvider =({children}) => {
         if (response.ok) {
           // data.worker_details.profile_pic = 'https://res.cloudinary.com/demo/image/upload/ar_1.0,c_thumb,g_face,w_0.6,z_0.7/r_max/co_black,e_outline/co_dimgrey,e_shadow,x_30,y_40/actor.png'
           setUser(data.worker_details);
+          setImageUri(data.worker_details.profile_pic)
           console.log("data", data)
         } else {
           console.log("HELLO 3")

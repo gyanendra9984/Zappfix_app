@@ -205,15 +205,24 @@ class Request(models.Model):
         return f"Request from {self.user.email} to {self.worker.email}"
 
 
+
 class WorkHistory(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
     service = models.CharField(blank=True, max_length=100)  
     status = models.CharField(max_length=50, default="In Progress")
     started_on = models.DateTimeField(null=True, blank=True)
-    done_on = models.DateTimeField(null=True, blank=True)
+    
+    
     userdone = models.BooleanField(default=False) 
     workerdone = models.BooleanField(default=False) 
+    
+    user_review = models.TextField(blank=True)
+    user_rating = models.FloatField(default=0.0)
+    
+    user_done_on = models.DateTimeField(null=True, blank=True)
+    worker_done_on = models.DateTimeField(null=True, blank=True)
+    done_on = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Work history for {self.user.email} by {self.worker.email}"
