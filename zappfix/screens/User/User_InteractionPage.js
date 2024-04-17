@@ -133,6 +133,41 @@ const User_InteractionPage = (props) => {
       console.error('Error fetching route:', error);
     }
   };
+  const submitWorkdone = async () => {
+    try {
+      if (!review.trim()) {
+        console.error("Review cannot be empty");
+        return;
+      }
+      if (rating === 0) {
+        console.error("Rating cannot be zero");
+        return;
+      }
+      const data = {
+        user_email: await AsyncStorage.getItem("email"),
+        worker_email: email,
+        service: service,
+        userdone: true,
+        rating: rating,
+        review: review,
+      };
+      const response = await fetch(`${API}/update_work_history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        console.log("Review submitted successfully");
+        setModalVisible(false);
+      } else {
+        console.error("Failed to submit review");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
 
   
   return (
