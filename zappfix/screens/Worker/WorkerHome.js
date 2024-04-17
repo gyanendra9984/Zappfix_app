@@ -41,7 +41,7 @@ const WorkerHome = () => {
                 {
                     text: 'Accept',
                     onPress: async () => {
-                      email= await AsyncStorage.getItem("email");
+                      const email= await AsyncStorage.getItem("email");
                       console.log("Service=",id.service)
                         try {
                             const response = await fetch(`${API}/update_request`, {
@@ -91,7 +91,7 @@ const WorkerHome = () => {
                 {
                     text: 'Reject',
                     onPress: async () => {
-                      email= await AsyncStorage.getItem("email");
+                      const email= await AsyncStorage.getItem("email");
                         try {
                             const response = await fetch(`${API}/update_request`, {
                               method: 'POST',
@@ -127,7 +127,7 @@ const WorkerHome = () => {
     };
 
     const fetchUserRequests = async () => {
-        email= await AsyncStorage.getItem("email");
+        const email= await AsyncStorage.getItem("email");
         console.log("email=",email);
         try {
             // setProgress

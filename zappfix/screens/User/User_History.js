@@ -51,7 +51,7 @@ const HistoryList = () => {
   };
 
   const fetchRequestsHistory = async () => {
-    email= await AsyncStorage.getItem("email");
+    const email= await AsyncStorage.getItem("email");
     console.log("email=",email);
     try {
         // setProgress

@@ -21,7 +21,7 @@ function HandleWorkersStack() {
 }
 
 export default function AdminAppStack() {
-  data = {
+  const data = {
     num_workers: 10,
     num_verified_workers: 0,
     num_users: 100,

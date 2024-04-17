@@ -36,7 +36,7 @@ const EditProfile = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        user=data.worker_details;
+        const user=data.worker_details;
         setFirstName(user.first_name);
         setLastName(user.last_name);
         setAge(user.age);
