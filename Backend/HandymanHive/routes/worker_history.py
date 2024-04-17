@@ -284,15 +284,12 @@ def update_user_works(request):
         try:
         
             request_data = json.loads(request.body)
-            print(1)
             user_email = request_data.get('user_email')
             worker_email = request_data.get('worker_email')
             service = request_data.get('service')
             status = request_data.get('status')           
             user_review = request_data.get('user_review') 
             user_rating = request_data.get('user_rating')           
-            
-            print(1)
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
             
@@ -397,7 +394,6 @@ def fetch_timeline_details(request):
         print(work.started_on)
         timeline_data.append(
             {
-                
                 'time': work.started_on,
                 'title': 'Work Started',                
             }            
@@ -444,5 +440,3 @@ def fetch_timeline_details(request):
     except Exception as e:
         print(e)
         return JsonResponse({'error': 'Error fetching details'}, status=500)
-
-    

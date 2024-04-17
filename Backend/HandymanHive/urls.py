@@ -34,3 +34,4 @@ urlpatterns = [
     path("update_worker_works",worker_history.update_worker_works,name="update_worker_works"),
     path("update_user_works",worker_history.update_user_works,name="update_user_works"),
 ]  
+
