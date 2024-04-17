@@ -24,6 +24,7 @@ adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian
 def generate_otp(length=6):
     characters = string.digits
     otp = "".join(random.choice(characters) for _ in range(length))
+    print("otp: ",otp)
     return otp
 
 
