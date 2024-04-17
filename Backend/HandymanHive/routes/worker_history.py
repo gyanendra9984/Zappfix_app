@@ -334,7 +334,7 @@ def fetch_timeline_details(request):
         # Get the emails from the request data
         user_email = request_data.get('user_email')
         worker_email = request_data.get('worker_email')
-        
+        service=request_data.get('service')
         # Get the user and worker objects based on the provided emails
         user = CustomUser.objects.get(email=user_email)
         worker = CustomWorker.objects.get(email=worker_email)
@@ -343,7 +343,8 @@ def fetch_timeline_details(request):
         timeline_events = WorkHistory.objects.filter(
             user=user,
             worker=worker,
-            status="In Progress"
+            status="In Progress",
+            service=service
         ).order_by('started_on')
 
         # Serialize the data
@@ -371,3 +372,71 @@ def fetch_timeline_details(request):
         return JsonResponse({'error': 'User or worker not found'}, status=404)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON format in request body'}, status=400)
+    
+
+def user_update_status(request):
+    try:
+        # Load the JSON data from the request body
+        request_data = json.loads(request.body)
+        
+        # Get the user email, worker email, and service from the request data
+        user_email = request_data.get('user_email')
+        worker_email = request_data.get('worker_email')
+        service = request_data.get('service')
+        status = request_data.get('status')
+        
+        # Get the user object based on the provided email
+        user = CustomUser.objects.get(email=user_email)
+        
+        # Query the work history event for the specific user, worker, and service
+        event = WorkHistory.objects.get(
+            user=user,
+            worker__email=worker_email,
+            service=service,
+            status="In Progress"
+        )
+
+        # Update the time fields based on the current status
+        if status == "Accepted":
+            event.user_acceptance_time = timezone.now()
+        elif status == "Done":
+            event.done_on = timezone.now()
+        event.save()
+
+        return JsonResponse({'message': 'Status updated successfully'})
+    except (CustomUser.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
+        return JsonResponse({'error': 'Invalid user or JSON format in request body or no matching timeline event found'}, status=400)
+
+
+def worker_update_status(request):
+    try:
+        # Load the JSON data from the request body
+        request_data = json.loads(request.body)
+        
+        # Get the user email, worker email, and service from the request data
+        user_email = request_data.get('user_email')
+        worker_email = request_data.get('worker_email')
+        service = request_data.get('service')
+        status = request_data.get('status')
+        
+        # Get the worker object based on the provided email
+        worker = CustomWorker.objects.get(email=worker_email)
+        
+        # Query the work history event for the specific user, worker, and service
+        event = WorkHistory.objects.get(
+            user__email=user_email,
+            worker=worker,
+            service=service,
+            status="In Progress"
+        )
+
+        # Update the time fields based on the current status
+        if status == "Accepted":
+            event.worker_acceptance_time = timezone.now()
+        elif status == "Done":
+            event.done_on = timezone.now()
+        event.save()
+
+        return JsonResponse({'message': 'Status updated successfully'})
+    except (CustomWorker.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
+        return JsonResponse({'error': 'Invalid worker or JSON format in request body or no matching timeline event found'}, status=400)
