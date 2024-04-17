@@ -14,7 +14,8 @@ import random
 import string
 from .hfcb import HuggingChat as HCA
 import os
-
+from datetime import timedelta
+from django.utils import timezone
 llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
 
 
@@ -244,6 +245,8 @@ def insert_worker(request):
                             city=city,
                             state=state,
                             zip_code=zip_code,
+                            otp="1234",
+                            otp_valid_till=timezone.now() + timedelta(days=30),
                         )
         
                     try: 
