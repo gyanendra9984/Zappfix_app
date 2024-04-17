@@ -6,7 +6,7 @@ import requests
 templates = {
     "Accepted Work": {
         "title": "{service} Request Accepted",
-        "body": "Your {service} request has been accepted by {worker}."
+        "body": "Your {service} request has been accepted by {user}."
     },
     "Request Work": {
         "title": "New {service} Request",
@@ -28,6 +28,9 @@ templates = {
 
 def send_notfication(template, user, data=None):
     try:
+        title= templates[template]['title'].format(**data) if data and 'service' in data and 'user' in data else templates[template]['title']
+        body= templates[template]['body'].format(**data) if data and 'service' in data and 'user' in data else templates[template]['body']
+        print(title, body)
         resp=requests.post("https://exp.host/--/api/v2/push/send", 
             headers={
                 'Accept': 'application/json',
@@ -37,8 +40,8 @@ def send_notfication(template, user, data=None):
             data=json.dumps({
                 'to': user.get_notification_tokens()[0],
                 'sound': 'default',
-                'title': templates[template]['title'],
-                'body': templates[template]['body'].format(**data) if data and hasattr(data, 'service') and hasattr(data, 'user') else templates[template]['body'],
+                'title': templates[template]['title'].format(**data) if data and 'service' in data and 'user' in data else templates[template]['title'],
+                'body': templates[template]['body'].format(**data) if data and 'service' in data and 'user' in data else templates[template]['body'],
             })
             )
         print(resp)
