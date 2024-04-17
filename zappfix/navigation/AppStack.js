@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
 
 
 function DrawerNavigator() {
-  const { logout, isWorker, setIsLoading, API, email, userToken, imageUri, setImageUri } = React.useContext(AuthContext);
-  const { user, setUser } = React.useState(null);
+  const { logout, isWorker, setIsLoading, API, email, userToken, imageUri, setImageUri, user } = React.useContext(AuthContext);
+  // const { user, setUser } = React.useState(null);
   const [imageURL, setImage] = React.useState("");
 
   React.useEffect(() => {
@@ -126,19 +126,19 @@ function DrawerNavigator() {
           >
             {/* <Search /> */}
             <Image
-              size={5}
-              style={{
-                maxHeight: 40,
-                maxWidth: 40,
-                borderRadius: 50,
-                marginRight: 10,
-                height: 40,
-                width: 40,
-              }}
-              source={
-                user?.profile_pic ? { uri: user.profile_pic } : (require("../assets/Profile.png"))
-              }
-            />
+            size={5}
+            style={{
+              maxHeight: 40,
+              maxWidth: 40,
+              borderRadius: 50,
+              marginRight: 10,
+              height: 40,
+              width: 40,
+            }}
+            source={
+              user?.profile_pic ? { uri: user.profile_pic } : require("../assets/Profile.png")
+            }
+          />
           </Pressable>
         ),
         headerLeft: () => (
