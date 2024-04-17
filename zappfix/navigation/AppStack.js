@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, View ,Text,Avatar,Image, Pressable, StyleSheet} from "react-native";
+import { Button, View, Text, Avatar, Image, Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,53 +17,97 @@ import SearchResults from "../screens/User/SearchResults";
 import LoadingScreen from "../screens/Loading/LoadingScreen";
 import User_History from "../screens/User/User_History";
 import User_InteractionPage from "../screens/User/User_InteractionPage";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Tab = createBottomTabNavigator();
-const Drawer= createDrawerNavigator();
-const Stack= createStackNavigator();
+const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
-function CustomDrawerContent(props) {
+const CustomDrawerContent = (props) => {
   const { logout, user } = React.useContext(AuthContext);
 
   return (
-    <DrawerContentScrollView {...props}>
-      <View style={styles.profilePictureContainer}>
-        <Image
-          style={styles.profilePicture}
-          source={
-            user?.profile_pic
-              ? { uri: user.profile_pic }
-              : require("../assets/Profile.png")
-          }
-        />
-      </View>
-      <DrawerItemList {...props} />
-      <View style={styles.logoutButtonContainer}>
-        <Button title="Logout" onPress={logout} />
-      </View>
-    </DrawerContentScrollView>
+    <View style={styles.container}>
+      <DrawerContentScrollView {...props} contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.profileContainer}>
+          <Image
+            style={styles.profilePicture}
+            source={user?.profile_pic ? { uri: user.profile_pic } : require('../assets/Profile.png')}
+          />
+          <View style={styles.profileInfo}>
+            <Text style={styles.name}>{user?.first_name} {user?.last_name}</Text>
+            <Text style={styles.detail}>Age: {user?.age}</Text>
+            <Text style={styles.detail}>Gender: {user?.gender}</Text>
+          </View>
+        </View>
+        <DrawerItemList {...props} />
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Icon name="logout" size={24} color="#fff" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </DrawerContentScrollView>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  logoutButtonContainer: {
-    marginTop: 20,
-    paddingHorizontal: 16,
+  container: {
+    flex: 1,
   },
-  profilePictureContainer: {
-    alignItems: "center",
-    marginVertical: 16,
+  scrollViewContent: {
+    paddingVertical: 20,
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    marginTop: 20,
   },
   profilePicture: {
     width: 80,
     height: 80,
     borderRadius: 40,
+    marginRight: 16,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  detail: {
+    fontSize: 16,
+    color: '#666',
+  },
+  logoutContainer: {
+    paddingHorizontal: 16,
+    marginTop: 20,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ff5252',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
 });
 
+
 function DrawerNavigator() {
-  const { logout, isWorker, setIsLoading, API,email ,userToken,imageUri, setImageUri} = React.useContext(AuthContext);
-  const {user, setUser} = React.useState(null);
+  const { logout, isWorker, setIsLoading, API, email, userToken, imageUri, setImageUri } = React.useContext(AuthContext);
+  const { user, setUser } = React.useState(null);
   const [imageURL, setImage] = React.useState("");
 
   React.useEffect(() => {
@@ -92,7 +136,7 @@ function DrawerNavigator() {
                 width: 40,
               }}
               source={
-                user?.profile_pic ? { uri: user.profile_pic }: (require("../assets/Profile.png"))
+                user?.profile_pic ? { uri: user.profile_pic } : (require("../assets/Profile.png"))
               }
             />
           </Pressable>
@@ -125,18 +169,18 @@ function DrawerNavigator() {
   );
 }
 
-export default function AppStack(){
+export default function AppStack() {
   return (
-      <Stack.Navigator>
-        <Stack.Screen name="DrawerNavigator" component={DrawerNavigator}  options={{headerShown:false}}/>
-      </Stack.Navigator>
-    
+    <Stack.Navigator>
+      <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} options={{ headerShown: false }} />
+    </Stack.Navigator>
+
   );
 };
 
 function TabNavigator() {
   return (
-    <Tab.Navigator initialRouteName="Home" 
+    <Tab.Navigator initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -149,28 +193,28 @@ function TabNavigator() {
             iconName = 'person';
           } else if (route.name === 'WorkerInfo') {
             iconName = 'information-circle';
-          }else if (route.name === 'Profile') {
+          } else if (route.name === 'Profile') {
             iconName = 'person';
-          }else if(route.name=='User History'){
-            iconName ='person';
+          } else if (route.name == 'User History') {
+            iconName = 'person';
           }
 
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        headerShown:false
+        headerShown: false
       })}
     >
-      <Tab.Screen name="ZappFix" component={Home}  options={{headerShown:false}}/>
-      <Tab.Screen name="Map" component={Map} options={{ tabBarButton:()=>null }} />
-      <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="Profile" component={Profile}/>
-      <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="Search" component={SearchResults} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="Loading" component={LoadingScreen} options={{ tabBarButton:()=>null }}/>
-      <Tab.Screen name="User History" component={User_History}/>
-      <Tab.Screen name="Interaction Page" component={User_InteractionPage} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="ZappFix" component={Home} options={{ headerShown: false }} />
+      <Tab.Screen name="Map" component={Map} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="WorkerInfo" component={WorkerInfo} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="RequestPage" component={RequestPage} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Search" component={SearchResults} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Loading" component={LoadingScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="User History" component={User_History} />
+      <Tab.Screen name="Interaction Page" component={User_InteractionPage} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }

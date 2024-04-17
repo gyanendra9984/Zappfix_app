@@ -108,6 +108,7 @@ export const AuthProvider =({children}) => {
         const data = await response.json();
         console.log("HELLO 2")
         if (response.ok) {
+          // data.worker_details.profile_pic = 'https://res.cloudinary.com/demo/image/upload/ar_1.0,c_thumb,g_face,w_0.6,z_0.7/r_max/co_black,e_outline/co_dimgrey,e_shadow,x_30,y_40/actor.png'
           setUser(data.worker_details);
           console.log("data", data)
         } else {
