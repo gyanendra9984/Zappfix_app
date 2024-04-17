@@ -14,7 +14,8 @@ export const AuthProvider =({children}) => {
     const [isAdmin,setIsAdmin]=useState("False");
     const API = "http://192.168.238.130:8000";
     const [imageUri,setImageUri]=useState(null);
-  
+    const [user, setUser] = useState(null);
+    const API="http://172.23.6.5:8000"
     const logout= async ()=>{
         setIsLoading(true);
         await AsyncStorage.removeItem('userToken');
@@ -87,8 +88,52 @@ export const AuthProvider =({children}) => {
         isLoggedIn();
     },[]);
 
+
+    const fetchUserData = async () => {
+      try {
+        // SetProgress(true);
+        console.log("HELLO 1")
+        const response = await fetch(`${API}/get_user_data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ isWorker: isWorker,email:email,token:userToken }),
+        });
+        const data = await response.json();
+        console.log("HELLO 2")
+        if (response.ok) {
+          // data.worker_details.profile_pic = 'https://res.cloudinary.com/demo/image/upload/ar_1.0,c_thumb,g_face,w_0.6,z_0.7/r_max/co_black,e_outline/co_dimgrey,e_shadow,x_30,y_40/actor.png'
+          setUser(data.worker_details);
+          console.log("data", data)
+        } else {
+          console.log("HELLO 3")
+          console.error('Failed to fetch user data:', data.error);
+          if(data.error == "Token expired"){
+            alert(data.error);
+            logout();
+          }
+        }
+      } catch (error) {
+        console.log("HELLO 4")
+        console.error('Error fetching user data:', error);
+      } finally {
+        console.log("HELLO 5")
+        
+      }
+      // SetProgress(false);
+    };
+
+    useEffect(()=>{
+      if(isWorker && email && userToken){
+        fetchUserData();
+      }
+    }
+    ,[isWorker,email,userToken]);
+
     return (
-        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri, user}}>
             {children}
         </AuthContext.Provider>
     );
