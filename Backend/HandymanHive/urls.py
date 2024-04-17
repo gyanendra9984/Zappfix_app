@@ -32,6 +32,8 @@ urlpatterns = [
     path("dashboard_view",admin.dashboard_view,name="dashboard_view"),
     path("get_workers",profile.get_workers,name="get_workers"),
     path("change_verification_status",admin.change_verification_status,name="change_verification_status"),
-    path("fetch_timeline_details",worker_history.fetch_timeline_details,name="fetch_timeline_details")
+    path("fetch_timeline_details",worker_history.fetch_timeline_details,name="fetch_timeline_details"),
+    path("user_update_status",worker_history.user_update_status,name="user_update_status"),
+    path("worker_update_status",worker_history.worker_update_status,name="worker_update_status")
 ]  
 
