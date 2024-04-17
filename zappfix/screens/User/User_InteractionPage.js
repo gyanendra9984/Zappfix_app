@@ -1,10 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Linking, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Linking,
+  Image,
+  Modal,
+  Pressable,
+  TextInput,
+  SafeAreaView,
+} from "react-native";
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Rating } from "react-native-ratings";
 import { AuthContext } from '../../context/AuthContext';
 
 const User_InteractionPage = (props) => {
@@ -14,7 +25,11 @@ const User_InteractionPage = (props) => {
   const { email, service } = props.route.params;
   const [workerProfile, setWorkerProfile] = useState([]);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
 
+  
   useEffect(() => {
     fetchWorkerProfile();
     (async () => {
@@ -118,7 +133,43 @@ const User_InteractionPage = (props) => {
       console.error('Error fetching route:', error);
     }
   };
+  const submitWorkdone = async () => {
+    try {
+      if (!review.trim()) {
+        console.error("Review cannot be empty");
+        return;
+      }
+      if (rating === 0) {
+        console.error("Rating cannot be zero");
+        return;
+      }
+      const data = {
+        user_email: await AsyncStorage.getItem("email"),
+        worker_email: email,
+        service: service,
+        userdone: true,
+        rating: rating,
+        review: review,
+      };
+      const response = await fetch(`${API}/update_work_history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        console.log("Review submitted successfully");
+        setModalVisible(false);
+      } else {
+        console.error("Failed to submit review");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
 
+  
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
@@ -136,12 +187,12 @@ const User_InteractionPage = (props) => {
             <Marker
               coordinate={{
                 latitude: workerProfile.latitude,
-                longitude: workerProfile.longitude
+                longitude: workerProfile.longitude,
               }}
               title="Worker Location"
             >
               <Image
-                source={require('../../assets/scooter_icon.png')}
+                source={require("../../assets/scooter_icon.png")}
                 style={{ width: 40, height: 40 }}
               />
             </Marker>
@@ -153,7 +204,7 @@ const User_InteractionPage = (props) => {
               title="Current Location"
             >
               <Image
-                source={require('../../assets/user_icon.png')}
+                source={require("../../assets/user_icon.png")}
                 style={{ width: 40, height: 40 }}
               />
             </Marker>
@@ -165,15 +216,70 @@ const User_InteractionPage = (props) => {
           </MapView>
         )}
       </View>
-      <View style={styles.whatsappContainer}>
-        <TouchableOpacity onPress={openWhatsApp}>
-          <Icon name="chat" size={42} color="#3498db" />
-        </TouchableOpacity>
-        <Text style={styles.whatsappText}>{distance} KM Away</Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoRow}>
+          <TouchableOpacity style={styles.infoItem} onPress={openWhatsApp}>
+            <Icon name="chat" size={42} color="#3498db" />
+          </TouchableOpacity>
+          <Text style={styles.infoItem}>{distance} KM Away</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setModalVisible(true)}
+          >
+            <Icon name="done" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Add Review</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <SafeAreaView style={styles.reviewContainer}>
+              <TextInput
+                style={styles.inputContainer}
+                onChangeText={(text) => setReview(text)}
+                value={review}
+                placeholder="Write your review..."
+                multiline={true}
+              />
+            </SafeAreaView>
+            <Rating startingValue={0} onFinishRating={setRating} fractions={1} jumpValue={0.5} />
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.button, styles.buttonSubmit]}
+                onPress={() => setModalVisible(!modalVisible)}
+              >
+                <Text style={styles.buttonText}>Close</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.buttonSubmit]}
+                onPress={() => {submitWorkdone}}
+              >
+                <Text style={styles.buttonText}>Submit</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <View styles={styles.whatsappContainer}></View>
       <View style={styles.reloadButtonContainer}>
-        <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
+        <TouchableOpacity
+          style={styles.reloadButton}
+          onPress={fetchWorkerProfile}
+        >
           <Icon name="refresh" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -184,7 +290,7 @@ const User_InteractionPage = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   mapContainer: {
     flex: 6,
@@ -194,27 +300,93 @@ const styles = StyleSheet.create({
   },
   whatsappContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
   },
   whatsappText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+  },
+  infoContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  infoItem: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#3498db",
+    borderRadius: 5,
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    marginLeft: 5,
   },
   reloadButtonContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 120,
     right: 20,
   },
   reloadButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 50,
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  reviewContainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 5,
+    height: 150,
+    width: 200,
+  },
+  inputContainer: {
+    textAlignVertical: "top",
+    maxHeight: 150,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    width: "80%",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
+  },
+
+  buttonSubmit: {
+    paddingHorizontal: 26,
   },
 });
+
 
 export default User_InteractionPage;

@@ -12,14 +12,10 @@ export const AuthProvider =({children}) => {
     const [isWorker,setIsWorker]=useState("");
     const [email,setEmail]=useState("");
     const [isAdmin,setIsAdmin]=useState("False");
+    const API = "http://192.168.238.130:8000";
     const [imageUri,setImageUri]=useState(null);
     const [user, setUser] = useState(null);
     const API="http://172.23.6.5:8000"
-
-
-
-
-  
     const logout= async ()=>{
         setIsLoading(true);
         await AsyncStorage.removeItem('userToken');

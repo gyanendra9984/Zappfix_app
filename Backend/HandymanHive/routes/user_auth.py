@@ -8,7 +8,7 @@ from django.db.models import F
 from ..models import (
     AbstractUser,
     CustomUser,
-    CustomWorker,    
+    CustomWorker,
     WorkerDetails,
 )
 import jwt
@@ -17,13 +17,17 @@ import random
 import string
 from django.core.mail import send_mail
 
-adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian@gmail.com"]
-
+adminlist = [
+    "2021csb1062@iitrpr.ac.in",
+    "2021csb1124@iitrpr.ac.in",
+    "alankritkadian@gmail.com",
+]
 
 
 def generate_otp(length=6):
     characters = string.digits
     otp = "".join(random.choice(characters) for _ in range(length))
+    print("otp: ",otp)
     return otp
 
 
@@ -95,19 +99,19 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-        # notification_id=data.get("notification_id")
+        notification_id=data.get("notification_id")
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
         if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
-
+        print(1)
         try:
             user = AbstractUser.objects.get(email=email)
             if str(user.is_worker) != isWorker:
                 return JsonResponse({"message": "User not found"}, status=404)
 
-            print(str(user.is_worker),isWorker,2)
+            print(str(user.is_worker), isWorker, 2)
             if user.otp == otp and user.otp_valid_till > timezone.now():
                 user_data = json.loads(user.user_details)
 
@@ -125,7 +129,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    # user.add_notification_token(notification_id)
+                    user.add_notification_token(notification_id)
                     worker_details = WorkerDetails.objects.create(
                         email=user_data["email"]
                     )
@@ -145,7 +149,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    # user.add_notification_token(notification_id)
+                    user.add_notification_token(notification_id)
                     user.save()
 
                 payload = {
@@ -154,14 +158,18 @@ def verify_otp(request):
                     "iat": timezone.now(),
                 }
 
-                isAdmin=False
+                isAdmin = False
                 for em in adminlist:
-                    if em==email:
-                        isAdmin=True                
-                if isAdmin:                     
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True"})        
-                else :              
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False"})
+                    if em == email:
+                        isAdmin = True
+                if isAdmin:
+                    response = JsonResponse(
+                        {"message": "OTP verified successfully", "isAdmin": "True"}
+                    )
+                else:
+                    response = JsonResponse(
+                        {"message": "OTP verified successfully", "isAdmin": "False"}
+                    )
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
 
                 response.set_cookie(
@@ -187,7 +195,7 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
-            
+
             print("Value of isWorker in userLogin=", isWorker)
 
             if isWorker == "True":
@@ -227,7 +235,7 @@ def verify_login_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-        notification_id=data.get("notification_id")
+        notification_id = data.get("notification_id")
         print("isWorker=", isWorker)
 
         try:
@@ -238,30 +246,42 @@ def verify_login_otp(request):
 
             print("userotp=", user.otp)
             print("otp=", otp)
-            # user.add_notification_token(notification_id)
+            user.add_notification_token(notification_id)
             if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
+                user.add_notification_token(notification_id)
 
                 payload = {
                     "email": user.email,
                     "exp": timezone.now() + timedelta(days=1),
                     "iat": timezone.now(),
-
                 }
-                print("otp=",otp)
+                print("otp=", otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=", token)
 
                 # response.set_cookie(
                 #     "token", token, expires=None, secure=True, samesite='None'
                 # )
-                isAdmin=False
+                isAdmin = False
                 for em in adminlist:
-                    if em==email:
-                        isAdmin=True                
-                if isAdmin:                     
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True","token":token})        
-                else :              
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False","token":token})
+                    if em == email:
+                        isAdmin = True
+                if isAdmin:
+                    response = JsonResponse(
+                        {
+                            "message": "OTP verified successfully",
+                            "isAdmin": "True",
+                            "token": token,
+                        }
+                    )
+                else:
+                    response = JsonResponse(
+                        {
+                            "message": "OTP verified successfully",
+                            "isAdmin": "False",
+                            "token": token,
+                        }
+                    )
 
                 return response
 
