@@ -14,7 +14,9 @@ export const AuthProvider =({children}) => {
     const [isAdmin,setIsAdmin]=useState("False");
     const API="http://172.23.7.148:8000"
     const [imageUri,setImageUri]=useState(null);
+
     const API="http://172.23.6.97:8000"
+
 
 
 

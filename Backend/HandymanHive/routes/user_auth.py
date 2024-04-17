@@ -8,7 +8,7 @@ from django.db.models import F
 from ..models import (
     AbstractUser,
     CustomUser,
-    CustomWorker,    
+    CustomWorker,
     WorkerDetails,
 )
 import jwt
@@ -17,8 +17,11 @@ import random
 import string
 from django.core.mail import send_mail
 
-adminlist=["2021csb1062@iitrpr.ac.in","2021csb1124@iitrpr.ac.in","alankritkadian@gmail.com"]
-
+adminlist = [
+    "2021csb1062@iitrpr.ac.in",
+    "2021csb1124@iitrpr.ac.in",
+    "alankritkadian@gmail.com",
+]
 
 
 def generate_otp(length=6):
@@ -108,7 +111,7 @@ def verify_otp(request):
             if str(user.is_worker) != isWorker:
                 return JsonResponse({"message": "User not found"}, status=404)
 
-            print(str(user.is_worker),isWorker,2)
+            print(str(user.is_worker), isWorker, 2)
             if user.otp == otp and user.otp_valid_till > timezone.now():
                 user_data = json.loads(user.user_details)
 
@@ -155,14 +158,18 @@ def verify_otp(request):
                     "iat": timezone.now(),
                 }
 
-                isAdmin=False
+                isAdmin = False
                 for em in adminlist:
-                    if em==email:
-                        isAdmin=True                
-                if isAdmin:                     
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True"})        
-                else :              
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False"})
+                    if em == email:
+                        isAdmin = True
+                if isAdmin:
+                    response = JsonResponse(
+                        {"message": "OTP verified successfully", "isAdmin": "True"}
+                    )
+                else:
+                    response = JsonResponse(
+                        {"message": "OTP verified successfully", "isAdmin": "False"}
+                    )
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
 
                 response.set_cookie(
@@ -188,7 +195,7 @@ def user_login(request):
             data = json.loads(request.body)
             email = data.get("email")
             isWorker = data.get("isWorker")
-            
+
             print("Value of isWorker in userLogin=", isWorker)
 
             if isWorker == "True":
@@ -228,7 +235,7 @@ def verify_login_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-        notification_id=data.get("notification_id")
+        notification_id = data.get("notification_id")
         print("isWorker=", isWorker)
 
         try:
@@ -247,23 +254,34 @@ def verify_login_otp(request):
                     "email": user.email,
                     "exp": timezone.now() + timedelta(days=1),
                     "iat": timezone.now(),
-
                 }
-                print("otp=",otp)
+                print("otp=", otp)
                 token = jwt.encode(payload, os.getenv("Secret_Key"), algorithm="HS256")
                 print("token during login=", token)
 
                 # response.set_cookie(
                 #     "token", token, expires=None, secure=True, samesite='None'
                 # )
-                isAdmin=False
+                isAdmin = False
                 for em in adminlist:
-                    if em==email:
-                        isAdmin=True                
-                if isAdmin:                     
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"True","token":token})        
-                else :              
-                    response = JsonResponse({"message": "OTP verified successfully","isAdmin":"False","token":token})
+                    if em == email:
+                        isAdmin = True
+                if isAdmin:
+                    response = JsonResponse(
+                        {
+                            "message": "OTP verified successfully",
+                            "isAdmin": "True",
+                            "token": token,
+                        }
+                    )
+                else:
+                    response = JsonResponse(
+                        {
+                            "message": "OTP verified successfully",
+                            "isAdmin": "False",
+                            "token": token,
+                        }
+                    )
 
                 return response
 
