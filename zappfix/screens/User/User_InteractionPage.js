@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   Linking,
   Image,
-  
+  Modal,
+  Pressable,
+  TextInput,
+  SafeAreaView,
 } from "react-native";
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Rating } from "react-native-ratings";
 import { AuthContext } from '../../context/AuthContext';
 
 const User_InteractionPage = (props) => {
@@ -22,7 +25,10 @@ const User_InteractionPage = (props) => {
   const { email, service } = props.route.params;
   const [workerProfile, setWorkerProfile] = useState([]);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
- 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
+
   
   useEffect(() => {
     fetchWorkerProfile();
@@ -186,7 +192,7 @@ const User_InteractionPage = (props) => {
         <View style={styles.infoRow}>
           <TouchableOpacity
             style={styles.button}
-           
+            onPress={() => setModalVisible(true)}
           >
             <Icon name="done" size={20} color="#fff" />
             <Text style={styles.buttonText}>Add Review</Text>
@@ -194,7 +200,45 @@ const User_InteractionPage = (props) => {
         </View>
       </View>
 
-      
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <SafeAreaView style={styles.reviewContainer}>
+              <TextInput
+                style={styles.inputContainer}
+                onChangeText={(text) => setReview(text)}
+                value={review}
+                placeholder="Write your review..."
+                multiline={true}
+              />
+            </SafeAreaView>
+            <Rating startingValue={0} onFinishRating={setRating} fractions={1} jumpValue={0.5} />
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.button, styles.buttonSubmit]}
+                onPress={() => setModalVisible(!modalVisible)}
+              >
+                <Text style={styles.buttonText}>Close</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.buttonSubmit]}
+                onPress={() => {submitWorkdone}}
+              >
+                <Text style={styles.buttonText}>Submit</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <View styles={styles.whatsappContainer}></View>
       <View style={styles.reloadButtonContainer}>
         <TouchableOpacity
@@ -271,7 +315,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  
+  reviewContainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 5,
+    height: 150,
+    width: 200,
+  },
+  inputContainer: {
+    textAlignVertical: "top",
+    maxHeight: 150,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    width: "80%",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
+  },
+
+  buttonSubmit: {
+    paddingHorizontal: 26,
+  },
 });
 
 
