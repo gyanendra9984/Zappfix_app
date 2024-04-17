@@ -217,7 +217,8 @@ class WorkHistory(models.Model):
     userdone = models.BooleanField(default=False) 
     workerdone = models.BooleanField(default=False) 
     
-    user_reviews = models.TextField(blank=True)
+    user_review = models.TextField(blank=True)
+    user_rating = models.FloatField(default=0.0)
     
     user_done_on = models.DateTimeField(null=True, blank=True)
     worker_done_on = models.DateTimeField(null=True, blank=True)

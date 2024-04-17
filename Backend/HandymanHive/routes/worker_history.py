@@ -189,7 +189,7 @@ def get_worker_history(request):
                         "email": work.user.email,
                         "service": work.service,
                         "started_on": work.started_on,
-                        "done_on": work.done_on,
+                        "done_on": work.done_on,                        
                     }
                 )
             
@@ -201,6 +201,8 @@ def get_worker_history(request):
                         "email": work.user.email,
                         "service": work.service,
                         "started_on": work.started_on,
+                        "userdone": work.userdone,
+                        "workerdone": work.workerdone
                     }
                 )           
             
@@ -261,100 +263,122 @@ def get_user_history(request):
             return JsonResponse(
                 {"error": f"Error fetching progress work: {e}"}, status=500)
     
-
-def user_update_status(request):
-    try:
-        # Load the JSON data from the request body
-        request_data = json.loads(request.body)
+@csrf_exempt
+def update_user_works(request):
+    if request.method=='POST':        
+        try:
         
-        # Get the user email, worker email, and service from the request data
-        user_email = request_data.get('user_email')
-        worker_email = request_data.get('worker_email')
-        service = request_data.get('service')
-        status = request_data.get('status')
+            request_data = json.loads(request.body)
+            
+            user_email = request_data.get('user_email')
+            worker_email = request_data.get('worker_email')
+            service = request_data.get('service')
+            status = request_data.get('status')           
+            user_review = request.get('user_review') 
+            user_rating = request.get('user_rating')           
+            
+            
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)
+            
+            
+            work = WorkHistory.objects.get(
+                user=user,
+                worker=worker,
+                service=service
+            )
+            
+            if status=='Reject' and work.status=='In Progress':
+                work.delete()
+                return JsonResponse({'message': 'Work deleted successfully'})
+            
+            if status=='Done' and work.status=='In Progress':                
+                work.userdone=True
+                if work.workerdone:
+                    work.done_on=timezone.now()
+                    work.status='Done'
+                    
+                work.user_done_on=timezone.now()
+                work.user_review = user_review
+                work.user_rating = user_rating
+                
+                work.save()
+                return JsonResponse({'message': 'Work accepted successfully'})
+            
+            return JsonResponse({'message': 'Status updated successfully'})
+        except Exception as e:
+            return JsonResponse({'error': 'Error Updating the status'}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def update_worker_works(request):
+    if request.method=='POST':
         
-        # Get the user object based on the provided email
-        user = CustomUser.objects.get(email=user_email)
+        try:
+            request = json.loads(request.body)
+            
+            user_email = request.get('user_email')
+            worker_email = request.get('worker_email')
+            service = request.get('service')
+            status = request.get('status')
+            
+            
+            user = CustomUser.objects.get(email=user_email)
+            worker = CustomWorker.objects.get(email=worker_email)                    
+            
+            
+            work = WorkHistory.objects.get(
+                user=user,
+                worker=worker,
+                service=service
+            )
+            
+            if status == 'Reject' and work.status == 'In Progress':
+                work.delete()
+                return JsonResponse({'message': 'Work deleted successfully'})
+            
+            if status == 'Done' and work.status == 'In Progress':
+                work.workerdone = True
+                if work.userdone:
+                    work.done_on = timezone.now()
+                    work.status = 'Done'
+                work.worker_done_on = timezone.now()
+                work.save()           
+            
+
+            return JsonResponse({'message': 'Status updated successfully'})
+        except (CustomWorker.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
+            return JsonResponse({'error': 'Error fetching details'}, status=400)
         
-        # Query the work history event for the specific user, worker, and service
-        event = WorkHistory.objects.get(
-            user=user,
-            worker__email=worker_email,
-            service=service,
-            status="In Progress"
-        )
-
-        # Update the time fields based on the current status
-        if status == "Accepted":
-            event.user_acceptance_time = timezone.now()
-        elif status == "Done":
-            event.done_on = timezone.now()
-        event.save()
-
-        return JsonResponse({'message': 'Status updated successfully'})
-    except (CustomUser.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
-        return JsonResponse({'error': 'Invalid user or JSON format in request body or no matching timeline event found'}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-def worker_update_status(request):
-    try:
-        # Load the JSON data from the request body
-        request_data = json.loads(request.body)
-        
-        # Get the user email, worker email, and service from the request data
-        user_email = request_data.get('user_email')
-        worker_email = request_data.get('worker_email')
-        service = request_data.get('service')
-        status = request_data.get('status')
-        
-        # Get the worker object based on the provided email
-        worker = CustomWorker.objects.get(email=worker_email)
-        
-        # Query the work history event for the specific user, worker, and service
-        event = WorkHistory.objects.get(
-            user__email=user_email,
-            worker=worker,
-            service=service,
-            status="In Progress"
-        )
-
-        # Update the time fields based on the current status
-        if status == "Accepted":
-            event.worker_acceptance_time = timezone.now()
-        elif status == "Done":
-            event.done_on = timezone.now()
-        event.save()
-
-        return JsonResponse({'message': 'Status updated successfully'})
-    except (CustomWorker.DoesNotExist, json.JSONDecodeError, WorkHistory.DoesNotExist):
-        return JsonResponse({'error': 'Invalid worker or JSON format in request body or no matching timeline event found'}, status=400)
-
-
-    
+@csrf_exempt    
 def fetch_timeline_details(request):
     try:
-        # Load the JSON data from the request body
         request_data = json.loads(request.body)
         
-        # Get the emails from the request data
+        
         user_email = request_data.get('user_email')
         worker_email = request_data.get('worker_email')
         service=request_data.get('service')
-        # Get the user and worker objects based on the provided emails
+        
+        
         user = CustomUser.objects.get(email=user_email)
         worker = CustomWorker.objects.get(email=worker_email)
         
-        # Query work history events for the specific user and worker in progress
-        timeline_events = WorkHistory.objects.filter(
+        work = WorkHistory.objects.get(
             user=user,
             worker=worker,
-            status="In Progress",
             service=service
-        ).order_by('started_on')
+        )
 
         # Serialize the data
         timeline_data = []
-        for event in timeline_events:
+        for event in work:
             event_data = {
                 'user_email': event.user.email,
                 'worker_email': event.worker.email,
