@@ -138,7 +138,7 @@ const InteractionPage = (props) => {
         <Text style={styles.whatsappText}>{distance} KM Away</Text>
         {/* Render worker data here */}
       </View>
-      <View styles={styles.whatsappContainer}></View>
+      <View styles={styles.whatsappContainer}/>
       <View style={styles.reloadButtonContainer}>
         <TouchableOpacity style={styles.reloadButton} onPress={UpdateLocation}>
           <Icon name="refresh" size={20} color="#fff" />

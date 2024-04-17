@@ -24,3 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: zappfix
+
+      # - name: Run Linting
+      #   run: npx eslint .
+      #   working-directory: zappfix
+

@@ -185,7 +185,7 @@ const RequestPage = (props) => {
           />
         </View>
       )}
-      <View style={styles.separatorLine}></View>
+      <View style={styles.separatorLine}/>
       {/* Button at the bottom */}
       <View style={styles.reloadButtonContainer}>
               <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
