@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React,{ useContext } from "react";
+import React, { useContext } from "react";
 import {
   SectionList,
   StyleSheet,
@@ -21,11 +21,11 @@ import {
 } from "native-base";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
 import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import Login from "./Login";
 import LoadingScreen from "../Loading/LoadingScreen";
 import { usePushNotifications } from "../../context/pushNotifications";
-
 function Signup() {
   const {expoPushToken, notification} = usePushNotifications();
   const [firstName, setFirstName] = React.useState("");
@@ -33,7 +33,7 @@ function Signup() {
   const [email, setEmail] = React.useState("");
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [selectedGender, setSelectedGender] = React.useState("");
-  const [selectedRole, setSelectedRole] = React.useState("");
+  const [selectedRole, setSelectedRole] = React.useState("User");
   const [phoneNumberError, setPhoneNumberError] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [city, setCity] = React.useState("");

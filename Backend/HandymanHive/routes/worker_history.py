@@ -10,7 +10,7 @@ from ..models import (
     WorkHistory,
 )
 import json
-
+from .notifications import send_notfication
 
 ###################### REQUEST PAGE ROUTES #############################
 
@@ -88,7 +88,7 @@ def create_request(request):
             service=service,
             created_on=timezone.now(),
         )
-
+        send_notfication("Request Work", worker, {"service": service, "user": user.first_name})
         return JsonResponse({'status': 'success', 'message': 'Request created successfully'})
 
     else:
@@ -123,7 +123,7 @@ def update_request(request):
                     service=service,
                     started_on=timezone.now(),
                 )
-
+            # send_notfication("Accepted Work", user, {"service": service, "worker": worker.first_name})
             return JsonResponse(
                 {"message": "Request deleted and added to WorkHistory successfully"}
             )

@@ -96,13 +96,13 @@ def verify_otp(request):
         email = data.get("email")
         otp = data.get("otp")
         isWorker = data.get("isWorker")
-        # notification_id=data.get("notification_id")
+        notification_id=data.get("notification_id")
         if isWorker == "True" and CustomWorker.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
 
         if isWorker == "False" and CustomUser.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already exists"}, status=405)
-
+        print(1)
         try:
             user = AbstractUser.objects.get(email=email)
             if str(user.is_worker) != isWorker:
@@ -126,7 +126,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    # user.add_notification_token(notification_id)
+                    user.add_notification_token(notification_id)
                     worker_details = WorkerDetails.objects.create(
                         email=user_data["email"]
                     )
@@ -146,7 +146,7 @@ def verify_otp(request):
                         zip_code=user_data["zip_code"],
                         # notification_token=notification_id
                     )
-                    # user.add_notification_token(notification_id)
+                    user.add_notification_token(notification_id)
                     user.save()
 
                 payload = {
@@ -239,8 +239,9 @@ def verify_login_otp(request):
 
             print("userotp=", user.otp)
             print("otp=", otp)
-            # user.add_notification_token(notification_id)
+            user.add_notification_token(notification_id)
             if str(user.otp) == str(otp) and user.otp_valid_till > timezone.now():
+                user.add_notification_token(notification_id)
 
                 payload = {
                     "email": user.email,
