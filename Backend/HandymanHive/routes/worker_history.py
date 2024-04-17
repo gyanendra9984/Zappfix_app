@@ -325,3 +325,49 @@ def get_user_history(request):
         except Exception as e:
             return JsonResponse(
                 {"error": f"Error fetching progress work: {e}"}, status=500)
+        
+def fetch_timeline_details(request):
+    try:
+        # Load the JSON data from the request body
+        request_data = json.loads(request.body)
+        
+        # Get the emails from the request data
+        user_email = request_data.get('user_email')
+        worker_email = request_data.get('worker_email')
+        
+        # Get the user and worker objects based on the provided emails
+        user = CustomUser.objects.get(email=user_email)
+        worker = CustomWorker.objects.get(email=worker_email)
+        
+        # Query work history events for the specific user and worker in progress
+        timeline_events = WorkHistory.objects.filter(
+            user=user,
+            worker=worker,
+            status="In Progress"
+        ).order_by('started_on')
+
+        # Serialize the data
+        timeline_data = []
+        for event in timeline_events:
+            event_data = {
+                'user_email': event.user.email,
+                'worker_email': event.worker.email,
+                'service': event.service,
+                'status': event.status,
+                'started_on': event.started_on.strftime('%Y-%m-%d %H:%M:%S') if event.started_on else None,
+                'done_on': event.done_on.strftime('%Y-%m-%d %H:%M:%S') if event.done_on else None,
+                'user_acceptance_time': event.user_acceptance_time.strftime('%Y-%m-%d %H:%M:%S') if event.user_acceptance_time else None,
+                'worker_acceptance_time': event.worker_acceptance_time.strftime('%Y-%m-%d %H:%M:%S') if event.worker_acceptance_time else None,
+                'userdone': event.userdone,
+                'workerdone': event.workerdone,
+                'review_by_user': event.review_by_user,
+                'review_by_worker': event.review_by_worker
+            }
+            timeline_data.append(event_data)
+
+        # Send the data back to the user
+        return JsonResponse({'timeline_details': timeline_data})
+    except (CustomUser.DoesNotExist, CustomWorker.DoesNotExist):
+        return JsonResponse({'error': 'User or worker not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format in request body'}, status=400)

@@ -205,6 +205,7 @@ class Request(models.Model):
         return f"Request from {self.user.email} to {self.worker.email}"
 
 
+
 class WorkHistory(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(CustomWorker, on_delete=models.CASCADE)
@@ -214,6 +215,11 @@ class WorkHistory(models.Model):
     done_on = models.DateTimeField(null=True, blank=True)
     userdone = models.BooleanField(default=False) 
     workerdone = models.BooleanField(default=False) 
+    user_request_time = models.DateTimeField(null=True, blank=True)
+    review_by_user = models.BooleanField(default=False)
+    review_by_worker = models.BooleanField(default=False)
+    user_acceptance_time = models.DateTimeField(null=True, blank=True)
+    worker_acceptance_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Work history for {self.user.email} by {self.worker.email}"
