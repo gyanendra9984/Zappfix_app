@@ -16,12 +16,10 @@ import json
 @csrf_exempt
 def get_workers_on_price(request):
     if request.method == "GET":
+        
         try:
-            data = json.loads(request.body)
-            service_name = data.get("service_name")
-
+            service_name = request.GET.get('service_name')
             service = Service.objects.get(name=service_name)
-
             top_five_workers_details = (
                 WorkerDetails.objects.filter(isAvailable=True)
                 .filter(services_offered__in=[service])

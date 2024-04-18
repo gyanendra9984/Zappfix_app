@@ -5,8 +5,8 @@ from django.urls import reverse
 from HandymanHive.models import AbstractUser, CustomWorker
 from unittest.mock import patch
 
-# @patch('HandymanHive.views.send_otp_email')
-# @patch('HandymanHive.views.generate_otp')
+# @patch('HandymanHive.routes.send_otp_email')
+# @patch('HandymanHive.routes.generate_otp')
 @pytest.mark.django_db
 class TestLogin(TestCase):
     # def test_valid_login(self, mock_generate_otp, mock_send_otp_email):
@@ -38,7 +38,7 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Invalid request method", response.json().get("error", ""))
 
-    # @patch('HandymanHive.views.timezones.now')
+    # @patch('HandymanHive.routes.timezones.now')
     # def test_expired_otp(self, mock_now):
     #     mock_now.return_value = datetime.now() + timedelta(minutes=10)
     #     client = Client()

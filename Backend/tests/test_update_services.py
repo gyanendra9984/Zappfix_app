@@ -2,7 +2,7 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 from HandymanHive.models import WorkerDetails, Service
-from HandymanHive.views import update_services
+from HandymanHive.routes import update_services
 
 class UpdateServicesTestCase(TestCase):
     def setUp(self):

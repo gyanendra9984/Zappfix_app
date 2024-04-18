@@ -1,5 +1,5 @@
 from django.urls import path
-from .routes import user_auth, profile, recommendation, search, worker_history, admin
+from .routes import *
 
 urlpatterns = [
     path("user_signup", user_auth.user_signup, name="user_signup"),
