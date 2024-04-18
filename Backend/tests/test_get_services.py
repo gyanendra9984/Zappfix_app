@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from django.http import JsonResponse
-from HandymanHive.views import get_services
+from HandymanHive.routes import get_services
 from HandymanHive.models import WorkerDetails, Service
 import json
 
