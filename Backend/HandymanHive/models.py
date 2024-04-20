@@ -183,7 +183,7 @@ class WorkerDetails(models.Model):
     years_of_experience = models.IntegerField(default=0)
 
     # Reviews and Ratings
-    customer_reviews = models.TextField(blank=True)
+    customer_reviews = models.JSONField(default=list)
     overall_rating = models.FloatField(default=0.0)
     
     

@@ -1,3 +1,4 @@
+import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -289,10 +290,12 @@ def update_user_works(request):
             service = request_data.get('service')
             status = request_data.get('status')           
             user_review = request_data.get('user_review') 
-            user_rating = request_data.get('user_rating')           
+            user_rating = request_data.get('user_rating')  
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
             
+            worker_details = WorkerDetails.objects.get(email=worker_email)
+            time_str = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
             
             work = WorkHistory.objects.get(
                 user=user,
@@ -315,6 +318,19 @@ def update_user_works(request):
                 work.user_rating = user_rating
                 
                 work.save()
+            
+            
+                worker_details.customer_reviews.append(
+                    {
+                        "user": user.first_name,
+                        "rating": user_rating,
+                        "service": service,
+                        "review": user_review,
+                        "time": time_str                    
+                    }
+                ) 
+                
+                worker_details.save()  
                 return JsonResponse({'message': 'Work accepted successfully'})
             
             return JsonResponse({'message': 'Status updated successfully'})
@@ -437,6 +453,31 @@ def fetch_timeline_details(request):
         # timeline_data.sort(key=lambda x: x['time'])
         
         return JsonResponse({'timeline_details': timeline_data})
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': 'Error fetching details'}, status=500)
+    except (CustomUser.DoesNotExist, CustomWorker.DoesNotExist):
+        return JsonResponse({'error': 'User or worker not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format in request body'}, status=400)
+    
+@csrf_exempt
+def fetch_reviews(request):
+    if request.method=='POST':        
+        try:
+        
+            request_data = json.loads(request.body)
+            user_email = request_data.get('user_email')
+            worker_email = request_data.get('worker_email')
+            
+            
+            worker_details = WorkerDetails.objects.get(email=worker_email)
+            reviews = worker_details.customer_reviews           
+            
+            
+            
+            return JsonResponse({'reviews': reviews})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Error fetching reviews'}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+

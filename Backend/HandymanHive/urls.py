@@ -33,5 +33,6 @@ urlpatterns = [
     path("get_worker_history",worker_history.get_worker_history,name="get_worker_history"),
     path("update_worker_works",worker_history.update_worker_works,name="update_worker_works"),
     path("update_user_works",worker_history.update_user_works,name="update_user_works"),
+    path("fetch_reviews",worker_history.fetch_reviews,name="fetch_reviews"),
 ]  
 
