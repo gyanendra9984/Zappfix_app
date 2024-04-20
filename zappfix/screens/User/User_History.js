@@ -47,7 +47,13 @@ const HistoryList = () => {
   const handlePress = (item) => {
     console.log("Item pressed");
     console.log("here is the email",item.email);
-    navigation.navigate("Interaction Page",{email:item.email,service:item.service});
+    if(item.showingStatus==="In Progress"){
+      navigation.navigate("Interaction Page",{email:item.email,service:item.service,status:item.status});
+    }
+    else {
+      navigation.navigate("TimeLine",{email:item.email,service:item.service});
+    }
+    
   };
 
   const fetchRequestsHistory = async () => {

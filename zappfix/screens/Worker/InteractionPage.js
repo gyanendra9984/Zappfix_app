@@ -5,13 +5,14 @@ import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { AuthContext } from '../../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const InteractionPage = (props) => {
   const [location, setLocation] = useState(null);
   const { API } = useContext(AuthContext);
   const [distance, setDistance] = useState(0);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const { email } = props.route.params;
+  const { email , service } = props.route.params;
   const [ latitutepoint, setlatitutepoint ] = useState(-1);
   const [ longitutepoint, setlongitutepoint ] = useState(-1);
   
@@ -36,13 +37,14 @@ const InteractionPage = (props) => {
 
   const UpdateLocation = async () => {
     try {
+      const worker_email=await AsyncStorage.getItem('email');
       const response = await fetch(`${API}/update_worker_location`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
+          email: worker_email,
           liveLatitude: location.coords.latitude,
           liveLongitude: location.coords.longitude,
         }),
@@ -81,7 +83,39 @@ const InteractionPage = (props) => {
       console.error('Error fetching route:', error);
     }
   };
-
+  const handleReject= async () =>{
+    alert("Reject is pressed");
+  }
+  const submitWorkdone = async () => {
+    // console.log("Hi")
+    try {
+      const worker_email=await AsyncStorage.getItem("email");
+      console.log("Worker email=",worker_email,"user email=",email,"service=",service)
+      const data = {
+        user_email: email,
+        worker_email: worker_email,
+        service: service,
+        workerdone: true,
+        // rating: rating,
+        // review: review,
+      };
+      const response = await fetch(`${API}/update_work_history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        console.log("Work Done successfully");
+        alert("Work Done successfully");
+      } else {
+        console.error("Failed To send work done!!");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
@@ -102,7 +136,7 @@ const InteractionPage = (props) => {
                 latitude: 30.9,
                 longitude: 75.9
               }}
-              title="User Location"
+              title={email}
             >
               <Image
                 source={require('../../assets/user_icon.png')}
@@ -115,7 +149,7 @@ const InteractionPage = (props) => {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
               }}
-              title="Current Location"
+              title="Current Worker Location"
             >
               <Image
                 source={require('../../assets/scooter_icon.png')}
@@ -131,14 +165,29 @@ const InteractionPage = (props) => {
           </MapView>
         ) : null}
       </View>
-      <View style={styles.whatsappContainer}>
-        <TouchableOpacity onPress={openWhatsApp}>
-          <Icon name="chat" size={42} color="#3498db" />
-        </TouchableOpacity>
-        <Text style={styles.whatsappText}>{distance} KM Away</Text>
-        {/* Render worker data here */}
+      <View style={styles.infoContainer}>
+        <View style={styles.infoRow}>
+          <TouchableOpacity style={styles.infoItem} onPress={openWhatsApp}>
+            <Icon name="chat" size={42} color="#3498db" />
+          </TouchableOpacity>
+          <Text style={styles.infoItem}>{distance} KM Away</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => submitWorkdone()}
+          >
+            <Icon name="done" size={20} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleReject}
+          >
+            <Icon name="close" size={20} color="#fff"/>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View styles={styles.whatsappContainer}/>
       <View style={styles.reloadButtonContainer}>
         <TouchableOpacity style={styles.reloadButton} onPress={UpdateLocation}>
           <Icon name="refresh" size={20} color="#fff" />
@@ -181,6 +230,31 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#3498db",
+    borderRadius: 5,
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  infoContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  infoItem: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

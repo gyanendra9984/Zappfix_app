@@ -45,9 +45,9 @@ const HistoryList = () => {
   const {API}= useContext(AuthContext);
   const navigation =useNavigation();
   const handlePress = (item) => {
-    console.log("Item pressed");
-    console.log("here is the email",email);
-    navigation.navigate("Interaction Page",{email:email});
+    console.log("Item pressed",item.email);
+    console.log("here is the email",item.email);
+    navigation.navigate("Interaction Page",{email:item.email,service:item.service});
   };
 
   const fetchRequestsHistory = async () => {
