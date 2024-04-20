@@ -190,7 +190,9 @@ def get_worker_history(request):
                         "email": work.user.email,
                         "service": work.service,
                         "started_on": work.started_on,
-                        "done_on": work.done_on,                        
+                        "done_on": work.done_on, 
+                        "status":"Done",
+                        "showingStatus":"Done"                       
                     }
                 )
             
@@ -206,7 +208,9 @@ def get_worker_history(request):
                         "email": work.user.email,
                         "service": work.service,
                         "started_on": work.started_on,   
-                        "status": status,                     
+                        "status": status,  
+                        "status":"In Progress",
+                        "showingStatus": status                   
                     }
                 )           
             
@@ -238,7 +242,7 @@ def get_user_history(request):
             done_works = []
             
             for work in doneWorks:
-                done_works.append(
+                progress_works.append(
                     {
                         "first_name": work.worker.first_name,
                         "last_name": work.worker.last_name,
@@ -246,6 +250,8 @@ def get_user_history(request):
                         "service": work.service,
                         "started_on": work.started_on,
                         "done_on": work.done_on,
+                        "status":"Done",
+                        "showingStatus":"Done"
                     }
                 )
                 
@@ -261,7 +267,8 @@ def get_user_history(request):
                         "email": work.worker.email,
                         "service": work.service,
                         "started_on": work.started_on,
-                        "status": status
+                        "status":"In Progress",
+                        "showingStatus": status
                     }
                 )
                 
@@ -278,14 +285,12 @@ def update_user_works(request):
         try:
         
             request_data = json.loads(request.body)
-            
             user_email = request_data.get('user_email')
             worker_email = request_data.get('worker_email')
             service = request_data.get('service')
             status = request_data.get('status')           
             user_review = request_data.get('user_review') 
             user_rating = request_data.get('user_rating')  
-            
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
             
@@ -402,39 +407,50 @@ def fetch_timeline_details(request):
 
         
         timeline_data = []
-        
+        print(work.started_on)
         timeline_data.append(
             {
                 'time': work.started_on,
                 'title': 'Work Started',                
             }            
         )
-        timeline_data.append(
-            {
-                'time': work.user_done_on,                
-                'title': 'User marked the project as Done',                
-            }            
-        )
-        timeline_data.append(
-            {
-                'time': work.user_done_on,                
-                'time': 'User gave review ${work.user_review} and rating ${work.user_rating}',           
-            }            
-        )
-        timeline_data.append(
-            {
-                'time': work.worker_done_on,                
-                'title': 'Worker marked the project as Done',                
-            }
-        )
-        timeline_data.append(
-            {
-                'time': work.done_on,                
-                'title': 'Work Completed',
-            }
-        )
+        if work.user_done_on:
+            print(work.user_done_on)
+            print('user')
+            timeline_data.append(
+                {
+                    'time': work.user_done_on,                
+                    'title': 'User marked the project as Done',                
+                }            
+            )       
         
-        timeline_data.sort(key=lambda x: x['time'])
+        
+            # timeline_data.append(
+            #     {
+            #         'time': work.user_done_on,                
+            #         'title': f'User gave review {work.user_review} and rating {work.user_rating}',           
+            #     }            
+            # )
+
+        if work.worker_done_on:
+            print('worker')
+            timeline_data.append(
+                {
+                    'time': work.worker_done_on,                
+                    'title': 'Worker marked the project as Done',                
+                }
+            )
+
+        if work.done_on:
+            print('done')
+            timeline_data.append(
+                {
+                    'time': work.done_on,                
+                    'title': 'Work Completed',
+                }
+            )
+        
+        # timeline_data.sort(key=lambda x: x['time'])
         
         return JsonResponse({'timeline_details': timeline_data})
     except (CustomUser.DoesNotExist, CustomWorker.DoesNotExist):
@@ -464,3 +480,4 @@ def fetch_reviews(request):
 
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import Timeline from 'react-native-timeline-flatlist'
 import {
   View,
   StyleSheet,
@@ -17,17 +18,19 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Rating } from "react-native-ratings";
 import { AuthContext } from '../../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 const User_InteractionPage = (props) => {
   const [location, setLocation] = useState(null);
   const { API } = useContext(AuthContext);
   const [distance, setDistance] = useState(0);
-  const { email, service } = props.route.params;
+  const { email, service,status } = props.route.params;
   const [workerProfile, setWorkerProfile] = useState([]);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
+  const navigation=useNavigation();
 
   
   useEffect(() => {
@@ -134,6 +137,7 @@ const User_InteractionPage = (props) => {
     }
   };
   const submitWorkdone = async () => {
+    // console.log("Hi")
     try {
       if (!review.trim()) {
         console.error("Review cannot be empty");
@@ -143,15 +147,16 @@ const User_InteractionPage = (props) => {
         console.error("Rating cannot be zero");
         return;
       }
+      const user_email=await AsyncStorage.getItem("email");
       const data = {
-        user_email: await AsyncStorage.getItem("email"),
+        user_email: user_email,
         worker_email: email,
         service: service,
-        userdone: true,
-        rating: rating,
-        review: review,
+        status:"Done",
+        user_rating: rating,
+        user_review: review,
       };
-      const response = await fetch(`${API}/update_work_history`, {
+      const response = await fetch(`${API}/update_user_works`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,6 +166,8 @@ const User_InteractionPage = (props) => {
       if (response.ok) {
         console.log("Review submitted successfully");
         setModalVisible(false);
+        alert("Review submitted successfully");
+        navigation.navigate("User History")
       } else {
         console.error("Failed to submit review");
       }
@@ -169,12 +176,49 @@ const User_InteractionPage = (props) => {
     }
   };
 
-  
+  const handleReject= async () =>{
+    console.log("Hi")
+    try {
+      if (!review.trim()) {
+        console.error("Review cannot be empty");
+        return;
+      }
+      if (rating === 0) {
+        console.error("Rating cannot be zero");
+        return;
+      }
+      const user_email=await AsyncStorage.getItem("email");
+      const data = {
+        user_email: user_email,
+        worker_email: email,
+        service: service,
+        status:"Reject",
+        user_rating: rating,
+        user_review: review,
+      };
+      const response = await fetch(`${API}/update_user_works`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        console.log("Rejected successfully");
+        setModalVisible(false);
+        alert("Rejected successfully");
+        navigation.navigate("User History")
+      } else {
+        console.error("Failed to submit ");
+      }
+    } catch (error) {
+      console.error("Error submitting :", error);
+    }
+  }
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
-        <Text>Loading ...</Text>
-        {location && workerProfile.latitude && workerProfile.longitude && (
+        {location && workerProfile.latitude && workerProfile.longitude && status==="In Progress" && (
           <MapView
             style={styles.map}
             initialRegion={{
@@ -230,7 +274,12 @@ const User_InteractionPage = (props) => {
             onPress={() => setModalVisible(true)}
           >
             <Icon name="done" size={20} color="#fff" />
-            <Text style={styles.buttonText}>Add Review</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleReject}
+          >
+            <Icon name="close" size={20} color="#fff"/>
           </TouchableOpacity>
         </View>
       </View>
@@ -265,7 +314,7 @@ const User_InteractionPage = (props) => {
               </Pressable>
               <Pressable
                 style={[styles.button, styles.buttonSubmit]}
-                onPress={() => {submitWorkdone}}
+                onPress={() => {submitWorkdone()}}
               >
                 <Text style={styles.buttonText}>Submit</Text>
               </Pressable>

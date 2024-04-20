@@ -18,13 +18,14 @@ import LoadingScreen from "../screens/Loading/LoadingScreen";
 import User_History from "../screens/User/User_History";
 import User_InteractionPage from "../screens/User/User_InteractionPage";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import TimeLine from "../screens/User/TimeLine";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 const CustomDrawerContent = (props) => {
-  const { logout, user } = React.useContext(AuthContext);
+  const { logout, user,imageUri } = React.useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -32,7 +33,7 @@ const CustomDrawerContent = (props) => {
         <View style={styles.profileContainer}>
           <Image
             style={styles.profilePicture}
-            source={user?.profile_pic ? { uri: user.profile_pic } : require('../assets/Profile.png')}
+            source={user?.profile_pic ? { uri: imageUri } : require('../assets/Profile.png')}
           />
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{user?.first_name} {user?.last_name}</Text>
@@ -136,7 +137,7 @@ function DrawerNavigator() {
               width: 40,
             }}
             source={
-              user?.profile_pic ? { uri: user.profile_pic } : require("../assets/Profile.png")
+              user?.profile_pic ? { uri: imageUri } : require("../assets/Profile.png")
             }
           />
           </Pressable>
@@ -215,6 +216,7 @@ function TabNavigator() {
       <Tab.Screen name="Loading" component={LoadingScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="User History" component={User_History} />
       <Tab.Screen name="Interaction Page" component={User_InteractionPage} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="TimeLine" component={TimeLine} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
