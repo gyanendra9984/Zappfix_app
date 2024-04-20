@@ -98,7 +98,6 @@ def create_request(request):
         )
 
 
-
 @csrf_exempt
 def update_request(request):
     if request.method == "POST":
@@ -163,7 +162,6 @@ def get_user_requests(request):
             return JsonResponse({'error': 'Error fetching requests'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 
 
 ########################### WORKER HISTORY ROUTES #############################
@@ -278,7 +276,7 @@ def get_user_history(request):
         except Exception as e:
             return JsonResponse(
                 {"error": f"Error fetching progress work: {e}"}, status=500)
-    
+
 @csrf_exempt
 def update_user_works(request):
     if request.method=='POST':        
@@ -389,23 +387,20 @@ def update_worker_works(request):
 def fetch_timeline_details(request):
     try:
         request_data = json.loads(request.body)
-        
-        
+
         user_email = request_data.get('user_email')
         worker_email = request_data.get('worker_email')
         service=request_data.get('service')
-        
-        
+
         user = CustomUser.objects.get(email=user_email)
         worker = CustomWorker.objects.get(email=worker_email)
-        
+
         work = WorkHistory.objects.get(
             user=user,
             worker=worker,
             service=service
         )
 
-        
         timeline_data = []
         print(work.started_on)
         timeline_data.append(
@@ -423,14 +418,13 @@ def fetch_timeline_details(request):
                     'title': 'User marked the project as Done',                
                 }            
             )       
-        
-        
-            # timeline_data.append(
-            #     {
-            #         'time': work.user_done_on,                
-            #         'title': f'User gave review {work.user_review} and rating {work.user_rating}',           
-            #     }            
-            # )
+
+            timeline_data.append(
+                {
+                    'time': work.user_done_on,                
+                    'title': f'User gave review {work.user_review} and rating {work.user_rating}',           
+                }            
+            )
 
         if work.worker_done_on:
             print('worker')
@@ -449,15 +443,16 @@ def fetch_timeline_details(request):
                     'title': 'Work Completed',
                 }
             )
-        
-        # timeline_data.sort(key=lambda x: x['time'])
-        
+
+        timeline_data = [entry for entry in timeline_data if entry["time"] is not None]
+        timeline_data.sort(key=lambda x: x["time"])
+
         return JsonResponse({'timeline_details': timeline_data})
     except (CustomUser.DoesNotExist, CustomWorker.DoesNotExist):
         return JsonResponse({'error': 'User or worker not found'}, status=404)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON format in request body'}, status=400)
-    
+
 @csrf_exempt
 def fetch_reviews(request):
     if request.method=='POST':        
@@ -480,4 +475,3 @@ def fetch_reviews(request):
 
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
