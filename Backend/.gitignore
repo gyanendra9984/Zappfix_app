@@ -14,4 +14,6 @@ v1
 /tests/Test_profile/__pycache__
 /tests/Test_recommendations/__pycache__
 /tests/Test_search/__pycache__
+/tests/Test_worker_history/__pycache__
 /cookies_snapshot
+/.coverage
