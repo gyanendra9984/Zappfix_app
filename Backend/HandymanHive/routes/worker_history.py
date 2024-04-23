@@ -103,12 +103,14 @@ def create_request(request):
         except CustomWorker.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Worker does not exist"}, status=404)
 
+
         except Exception as e:
             print(e)
             return JsonResponse({"status": "error", "message": "Error creating request"}, status=500)
 
     else:
         return JsonResponse({"status": "error", "message": "Only POST requests are allowed"}, status=405)
+
 
 @csrf_exempt
 def update_request(request):
@@ -211,7 +213,6 @@ def get_user_requests(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 
 
 ########################### WORKER HISTORY ROUTES #############################
@@ -523,11 +524,24 @@ def fetch_timeline_details(request):
         })
 
         if work.user_done_on:
-            timeline_data.append({
-                'time': work.user_done_on,
-                'title': 'User marked the project as Done',                
-            })
-        
+
+            print(work.user_done_on)
+            print('user')
+            timeline_data.append(
+                {
+                    'time': work.user_done_on,                
+                    'title': 'User marked the project as Done',                
+                }            
+            )       
+
+#             timeline_data.append(
+#                 {
+#                     'time': work.user_done_on,                
+#                     'title': f'User gave review {work.user_review} and rating {work.user_rating}',           
+#                 }            
+#             )
+
+
         if work.worker_done_on:
             timeline_data.append({
                 'time': work.worker_done_on,
@@ -539,7 +553,6 @@ def fetch_timeline_details(request):
                 'time': work.done_on,
                 'title': 'Work Completed',
             })
-        
         return JsonResponse({'timeline_details': timeline_data})
 
     except KeyError as e:
