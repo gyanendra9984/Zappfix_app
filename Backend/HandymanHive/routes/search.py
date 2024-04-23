@@ -16,7 +16,7 @@ from .hfcb import HuggingChat as HCA
 import os
 from datetime import timedelta
 from django.utils import timezone
-llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
+
 
 
 ############################ SEARCH FUNCTIONALITY ########################
@@ -56,11 +56,12 @@ def get_closest_services(request):
             Output: {'services': ['plumbing', 'appliance repair']}                     
             
             '''
-            
+            llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
             response = llm(prompt)            
             response = response.split("[")[1].split("]")[0]
             response = '[' + response + ']'
-            services = json.loads(response)
+            response_json = response.replace("'", "\"")
+            services = json.loads(response_json)
             print(response)
             
             closest_workers = []

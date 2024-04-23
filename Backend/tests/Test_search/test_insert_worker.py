@@ -3,7 +3,6 @@ from django.test import Client
 from django.urls import reverse
 from HandymanHive.models import CustomWorker, Service, WorkerDetails
 import json
-from HandymanHive.routes.search import insert_worker
 
 
 class InsertWorkerTestCase(TestCase):

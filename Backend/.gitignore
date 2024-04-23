@@ -11,7 +11,7 @@ v1
 /tests/__pycache__
 /tests/Test_Models/__pycache__
 /tests/Test_user_auth/__pycache__
-/tests/Test_certificates/__pycache__
+/tests/Test_profile/__pycache__
 /tests/Test_recommendations/__pycache__
 /tests/Test_search/__pycache__
 /cookies_snapshot
