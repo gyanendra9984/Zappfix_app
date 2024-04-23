@@ -110,7 +110,7 @@ def create_request(request):
     else:
         return JsonResponse({"status": "error", "message": "Only POST requests are allowed"}, status=405)
 
-
+@csrf_exempt
 def update_request(request):
     if request.method == "POST":
         try:
@@ -429,7 +429,7 @@ def update_user_works(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
+@csrf_exempt
 def update_worker_works(request):
     if request.method == 'POST':
         try:
@@ -560,6 +560,7 @@ def fetch_timeline_details(request):
     except Exception as e:
         print(e)
         return JsonResponse({'error': 'Error fetching timeline details'}, status=500)
+        
 @csrf_exempt
 def fetch_reviews(request):
     if request.method == 'POST':
