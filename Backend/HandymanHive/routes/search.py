@@ -260,12 +260,12 @@ def insert_worker(request):
                         
         
                     for serv in SERVICES:
-                        print(serv)
+                        # print(serv)
                         if Service.objects.filter(name=serv).exists():
-                            print(1)
+                            # print(1)
                             service = Service.objects.get(name=serv)
                         else:
-                            print(2)
+                            # print(2)
                             service = Service.objects.create(name=serv)
 
                                            
