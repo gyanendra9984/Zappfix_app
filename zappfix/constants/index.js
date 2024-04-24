@@ -1,7 +1,7 @@
 export const categories = [
     {
         id:1,
-        name:"Carpentry",
+        name:"Carpenter",
         image:'image1',
     },
     {
@@ -11,43 +11,33 @@ export const categories = [
     },
     {
         id:3,
-        name:"Salon",
+        name:"Car Service",
         image:'image3',
     },
     {
         id:4,
-        name:"Sports",
+        name:"Chef",
         image:'image4',
     },
     {
         id:5,
-        name:"Plumbers",
+        name:"Chimney Sweep",
         image:'image5',
     },
     {
         id:6,
-        name:"Others",
+        name:"Manicure",
         image:'image6',
     },
     {
         id:7,
-        name:"Games",
+        name:"Pest Control",
         image:'image7',
     },
     {
         id:8,
-        name:"Cars",
+        name:"Plumber",
         image:'image8',
-    },
-    {
-        id:9,
-        name:"Books",
-        image:'image9',
-    },
-    {
-        id:10,
-        name:"Movies",
-        image:'image10',
     },
 ]
 
