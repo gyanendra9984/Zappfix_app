@@ -7,7 +7,7 @@ from HandymanHive.models import CustomUser, CustomWorker, Request
 class CreateRequestTest(TestCase):
     def setUp(self):
         self.client = Client()
-        self.url = reverse('create_request')  # replace with your url name
+        self.url = reverse('create_request')  
         self.user = CustomUser.objects.create(email='user@test.com',age=20)
         self.worker = CustomWorker.objects.create(email='worker@test.com',age=20)
 
