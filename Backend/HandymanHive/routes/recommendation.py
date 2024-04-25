@@ -8,6 +8,7 @@ from ..models import (
     CustomWorker,
     Service,
     WorkerDetails,
+    WorkHistory
 )
 import json
 
@@ -129,5 +130,57 @@ def get_nearest_workers(request):
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error fetching workers"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+    
+@csrf_exempt    
+def get_all_services(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)            
+            services = Service.objects.all()
+            service_list = []
+            for service in services:
+                service_list.append({
+                    "name":service.name,
+                    "description":service.description
+                    }
+                )
+                
+            services                 
+            return JsonResponse({"services":service_list})
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error":"Error fetching services"}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt    
+def get_top_trending_services(request):
+    if request.method=='POST':
+        try:
+            data = json.loads(request.body)            
+            services = Service.objects.all()
+            service_dict = {}
+            for service in services:
+                service_dict[service.name]=0
+            
+            works= WorkHistory.objects.all() 
+            for work in works:
+               if Service.objects.filter(name=work.service):
+                   service_dict[work.service]+=1
+            
+            services = sorted(service_dict.items(), key=lambda item: item[1], reverse=True)[:10]  
+             
+            service_list = [{"name":service[0], "count": service[1]} for service in services]
+                            
+            return JsonResponse({"top_services":service_list})        
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error":"Error fetching services"}, status=500)
+        
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)

@@ -34,5 +34,7 @@ urlpatterns = [
     path("update_worker_works",worker_history.update_worker_works,name="update_worker_works"),
     path("update_user_works",worker_history.update_user_works,name="update_user_works"),
     path("fetch_reviews",worker_history.fetch_reviews,name="fetch_reviews"),
+    path("get_all_services", recommendation.get_all_services, name="get_all_services"),
+    path("get_top_trending_services", recommendation.get_top_trending_services, name="get_top_trending_services")
 ]  
 
