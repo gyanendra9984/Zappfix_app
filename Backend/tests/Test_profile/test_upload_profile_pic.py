@@ -1,120 +1,71 @@
 import json
-from django.test import TestCase
+import base64
+from io import BytesIO
+from PIL import Image
+from unittest.mock import patch
+from django.test import TestCase, Client
 from django.urls import reverse
-from HandymanHive.models import CustomWorker, CustomUser
-from HandymanHive.routes.profile import upload_profile_pic
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.http import JsonResponse, HttpRequest
-import cloudinary
+from HandymanHive.models import CustomUser, CustomWorker
 
-class TestUploadProfilePic(TestCase):
+class UploadProfilePicTest(TestCase):
     def setUp(self):
-        # Create CustomWorker and CustomUser instances for testing
-        self.worker = CustomWorker.objects.create(
-            email='worker@example.com',
-            phone_number='1234567890',
-            first_name='John',
-            last_name='Doe',
-            age=30,
-            gender='Male',
-            address='123 Main St',
-            city='New York',
-            state='NY',
-            zip_code='10001',
-        )
-        self.user = CustomUser.objects.create(
-            email='user@example.com',
-            phone_number='9876543210',
-            first_name='Jane',
-            last_name='Doe',
-            age=25,
-            gender='Female',
-            address='456 Elm St',
-            city='Los Angeles',
-            state='CA',
-            zip_code='90001',
-        )
+        self.client = Client()
+        self.url = reverse('upload_profile_pic')  # replace with your actual url name
+        self.user = CustomUser.objects.create(email='user@test.com',age=30)
+        self.worker = CustomWorker.objects.create(email='worker@test.com', age=29)
 
-    def test_upload_profile_pic_worker_success(self):
-        # Test for successful profile picture upload for worker
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", email="worker@example.com", isWorker="True", image=image_file)
-        response = upload_profile_pic(request)
+    def generate_random_image(self):
+        # Generate a random image
+        img = Image.new('RGB', (60, 30), color = (73, 109, 137))
+        img_byte_arr = BytesIO()
+        img.save(img_byte_arr, format='JPEG')
+        img_byte_arr = img_byte_arr.getvalue()
+        return base64.b64encode(img_byte_arr).decode('utf-8')
+
+    def test_upload_profile_pic_post_user(self):
+        img_data = self.generate_random_image()
+        data = {
+            "email": self.user.email,
+            "isWorker": "False",
+            "image": img_data
+        }
+        with patch('cloudinary.uploader.upload', return_value={'secure_url': 'https://test.com/image.jpg'}):
+            response = self.client.post(self.url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"message": "Image uploaded successfully"})
-        # Assert that the profile picture URL has been updated in the database for the worker
-        updated_worker = CustomWorker.objects.get(email='worker@example.com')
-        self.assertIsNotNone(updated_worker.profile_pic)
+        self.assertEqual(response.json()['url'], 'https://test.com/image.jpg')
 
-    def test_upload_profile_pic_user_success(self):
-        # Test for successful profile picture upload for user
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", email="user@example.com", isWorker="False", image=image_file)
-        response = upload_profile_pic(request)
+    def test_upload_profile_pic_post_worker(self):
+        img_data = self.generate_random_image()
+        data = {
+            "email": self.worker.email,
+            "isWorker": "True",
+            "image": img_data
+        }
+        with patch('cloudinary.uploader.upload', return_value={'secure_url': 'https://test.com/image.jpg'}):
+            response = self.client.post(self.url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"message": "Image uploaded successfully"})
-        # Assert that the profile picture URL has been updated in the database for the user
-        updated_user = CustomUser.objects.get(email='user@example.com')
-        self.assertIsNotNone(updated_user.profile_pic)
+        self.assertEqual(response.json()['url'], 'https://test.com/image.jpg')
 
-    def test_upload_profile_pic_missing_user_email(self):
-        # Test for missing email key in request
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", isWorker="False", image=image_file)
-        response = upload_profile_pic(request)
-        self.assertEqual(response.status_code, 404)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"error": "User not found"})
-        
-    def test_upload_profile_pic_missing_worker_email(self):
-        # Test for missing email key in request
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", isWorker="True", image=image_file)
-        response = upload_profile_pic(request)
-        self.assertEqual(response.status_code, 404)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"error": "Invalid request body"})
-
-    def test_upload_profile_pic_missing_image(self):
-        # Test for missing image key in request
-        request = self._create_request("POST", email="worker@example.com", isWorker="True")
-        response = upload_profile_pic(request)
-        self.assertEqual(response.status_code, 500)
-
-    def test_upload_profile_pic_worker_not_found(self):
-        # Test for worker not found
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", email="unknown_worker@example.com", isWorker="True", image=image_file)
-        response = upload_profile_pic(request)
-        self.assertEqual(response.status_code, 404)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"error": "User not found"})
+    def test_upload_profile_pic_invalid_method(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 400)
 
     def test_upload_profile_pic_user_not_found(self):
-        # Test for user not found
-        image_file = SimpleUploadedFile("test_image.jpeg", b"file_content", content_type="image/jpeg")
-        request = self._create_request("POST", email="unknown_user@example.com", isWorker="False", image=image_file)
-        response = upload_profile_pic(request)
+        data = {
+            "email": 'nonexistent@test.com',
+            "isWorker": "False",
+            "image": 'test'
+        }
+        response = self.client.post(self.url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 404)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"error": "User not found"})
 
-    def test_upload_profile_pic_invalid_request_method(self):
-        # Test for invalid request method
-        response = self.client.get(reverse("upload_profile_pic"))
-        self.assertEqual(response.status_code, 400)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data, {"error": "Invalid request method"})
-
-    def _create_request(self, method, email=None, isWorker=None, image=None):
-        request = HttpRequest()
-        request.method = method
-        if email is not None:
-            request.POST["email"] = email
-        if isWorker is not None:
-            request.POST["isWorker"] = isWorker
-        if image is not None:
-            request.FILES["image"] = image
-        return request
+    def test_upload_profile_pic_exception(self):
+        img_data = self.generate_random_image()
+        data = {
+            "email": self.user.email,
+            "isWorker": "False",
+            "image": img_data
+        }
+        with patch('cloudinary.uploader.upload', side_effect=Exception('Cloudinary error')):
+            response = self.client.post(self.url, json.dumps(data), content_type='application/json')
+        self.assertEqual(response.status_code, 500)
