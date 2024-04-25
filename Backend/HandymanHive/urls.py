@@ -16,6 +16,7 @@ urlpatterns = [
     path("get_certificates", profile.get_certificates, name="get_certificates"),
     path("approve_certificate", profile.approve_certificate, name="approve_certificate"),
     path("upload_certificate", profile.upload_certificate, name="upload_certificate"),
+    path("worker_verification_status", profile.worker_verification_status, name="worker_verification_status"),
     path("get_nearest_workers", recommendation.get_nearest_workers, name="get_nearest_workers"),
     path("get_workers_on_price", recommendation.get_workers_on_price, name="get_workers_on_price"),    
     path("get_closest_services", search.get_closest_services, name="get_closest_services"),
