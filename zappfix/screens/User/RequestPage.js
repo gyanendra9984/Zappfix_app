@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect,useCallback } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useFocusEffect } from "@react-navigation/native";
 
 import { AuthContext } from '../../context/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
@@ -92,6 +93,12 @@ const RequestPage = (props) => {
   useEffect(() => {
     fetchWorkerProfile();
   }, [API, email]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchWorkerProfile();
+    }, [email,service])
+  );
 
   // Dummy data for reviews
   const reviews = [
@@ -187,11 +194,6 @@ const RequestPage = (props) => {
       )}
       <View style={styles.separatorLine}/>
       {/* Button at the bottom */}
-      <View style={styles.reloadButtonContainer}>
-              <TouchableOpacity style={styles.reloadButton} onPress={fetchWorkerProfile}>
-                <Icon name="refresh" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
       <TouchableOpacity style={styles.fullWidthButton} onPress={handleRequestService}>
         <Text style={styles.fullWidthButtonText}>Request Service</Text>
       </TouchableOpacity>
@@ -310,19 +312,6 @@ contactInfo: {
 contactLabel: {
   fontSize: 16,
   marginBottom: 5,
-},
-reloadButtonContainer: {
-  position: 'absolute',
-  bottom: 100,
-  right: 0,
-},
-reloadButton: {
-  backgroundColor: '#3498db',
-  borderRadius: 50,
-  width: 50,
-  height: 50,
-  alignItems: 'center',
-  justifyContent: 'center',
 },
 });
 

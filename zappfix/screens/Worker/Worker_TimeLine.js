@@ -5,7 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 
-const TimeLine = (props) => {
+const Worker_TimeLine = (props) => {
   const { API, logout } = useContext(AuthContext);
   const { email, service } = props.route.params;
   const [timelineData, setTimelineData] = useState([]);
@@ -17,7 +17,7 @@ const TimeLine = (props) => {
   );
   const fetchTimeline = async () => {
     try {
-      const user_email = await AsyncStorage.getItem("email");
+      const worker_email = await AsyncStorage.getItem("email");
       const response = await fetch(`${API}/fetch_timeline_details`, {
         method: "POST",
         headers: {
@@ -25,8 +25,8 @@ const TimeLine = (props) => {
         },
         credentials: "include",
         body: JSON.stringify({
-          user_email: user_email,
-          worker_email: email,
+          user_email: email,
+          worker_email: worker_email,
           service: service,
         }),
       });
@@ -116,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TimeLine;
+export default Worker_TimeLine;

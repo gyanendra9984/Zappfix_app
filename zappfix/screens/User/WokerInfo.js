@@ -12,7 +12,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -57,10 +57,13 @@ const WorkerInfo = (props) => {
         setWorkersData(data.workers);
         setWorkers(data.workers);
       } else {
-        console.error('Failed to fetch nearest workers:', data.error);
+        alert("No Workers Exist for These service!!");
+        setWorkers([])
+        // console.error('Failed to fetch nearest workers:', data.error);
       }
     } catch (error) {
-      console.error('Error fetching nearest workers:', error);
+      alert(error)
+      // console.error('Error fetching nearest workers:', error);
     }
     setProgress(false);
   };
@@ -84,6 +87,12 @@ const WorkerInfo = (props) => {
 
     })();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNearestWorkers();
+    }, [service])
+  );
 
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
@@ -222,11 +231,6 @@ const WorkerInfo = (props) => {
         />
       </View>
       )}
-      <View style={styles.reloadButtonContainer}>
-              <TouchableOpacity style={styles.reloadButton} onPress={fetchNearestWorkers}>
-                <Icon name="refresh" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
     </View>
   );
 };
@@ -328,19 +332,6 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     color: '#333',
-  },
-  reloadButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 10,
-  },
-  reloadButton: {
-    backgroundColor: '#3498db',
-    borderRadius: 50,
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 

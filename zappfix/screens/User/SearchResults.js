@@ -17,8 +17,8 @@ const SearchResults = ({ route, navigation }) => {
       <FlatList
         data={searchResults.services} // Assuming services are provided in the "services" array
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleResultPress(item.name)} style={styles.itemContainer}>
-            <Text style={styles.itemText}>{item.name}</Text>
+          <TouchableOpacity onPress={() => handleResultPress(item)} style={styles.itemContainer}>
+            <Text style={styles.itemText}>{item}</Text>
             <Icon name="search" size={20} color="#000000" style={styles.searchIcon} />
           </TouchableOpacity>
         )}

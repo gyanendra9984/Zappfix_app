@@ -3,19 +3,19 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import '../../index.css'
+// import '../../index.css'
 
 import Categories from '../../components/categories';
 import { AuthContext } from '../../context/AuthContext';
 
-// Load the custom font
-async function loadCustomFont() {
-  await Font.loadAsync({
-    'YourCustomFontName': require('../../assets/fonts/Fuzzy Bubbles Regular.ttf'),
-  });
-}
+// // Load the custom font
+// async function loadCustomFont() {
+//   await Font.loadAsync({
+//     'YourCustomFontName': require('../../assets/fonts/Fuzzy Bubbles Regular.ttf'),
+//   });
+// }
 
-loadCustomFont();
+// loadCustomFont();
 
 export default function Home() {
   const { logout } = useContext(AuthContext);
@@ -50,10 +50,10 @@ export default function Home() {
                   <Text className="ml-2 pr-4 text-center">Barber</Text>
                 </View>
               </TouchableOpacity >
-              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Carpenter'}) }}>
+              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Carpentery'}) }}>
               <View className='flex flex-col justify-center items-center'>
                 <Image className='w-20 h-20' source={require('../../assets/icons/Carpenter.png')} />
-                <Text>Carpenter</Text>
+                <Text>Carpentery</Text>
               </View>
               </TouchableOpacity >
               <TouchableOpacity onPress={handleCardClick}>
