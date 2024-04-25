@@ -7,16 +7,16 @@ import { AuthContext } from '../context/AuthContext';
 // Helper function to dynamically resolve image names
 const resolveImage = (imageName) => {
     switch (imageName) {
-        case 'image1': return require('../assets/tp1.jpg');
-        case 'image2': return require('../assets/tp2.jpg');
-        case 'image3': return require('../assets/tp3.jpg');
-        case 'image4': return require('../assets/tp4.jpg');
-        case 'image5': return require('../assets/icon1.jpg');
-        case 'image6': return require('../assets/icon2.jpg');
-        case 'image7': return require('../assets/icon3.jpg');
-        case 'image8': return require('../assets/icon4.jpg');
-        case 'image9': return require('../assets/icon5.jpg');
-        case 'image10': return require('../assets/icon6.jpg');
+        case 'image1': return require('../assets/other_icon/carpenter.png');
+        case 'image2': return require('../assets/other_icon/Barber.png');
+        case 'image3': return require('../assets/other_icon/Car Service.png');
+        case 'image4': return require('../assets/other_icon/chef.png');
+        case 'image5': return require('../assets/other_icon/Chimney Sweep.png');
+        case 'image6': return require('../assets/other_icon/manicure.png');
+        case 'image7': return require('../assets/other_icon/Pest Control.png');
+        case 'image8': return require('../assets/other_icon/plumber.png');
+        // case 'image9': return require('../assets/icon5.jpg');
+        // case 'image10': return require('../assets/icon6.jpg');
         // Add more cases for other image names
         default: return require('../assets/tp1.jpg');
     }
@@ -28,15 +28,15 @@ export default function Categories() {
     const {logout} =useContext(AuthContext)
 
     return (
-        <View style={{ marginTop: 4 }}>
+        <View className='mt-2'>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 15 }}
+                className = 'px-4'
             >
                 {categories.map((category, index) => {
                     let isActive = category.id === activeCategory;
-                    let btnStyle = isActive ? { backgroundColor: 'gray' } : { backgroundColor: 'lightgray' };
+                    let btnStyle = isActive ? { backgroundColor: 'blue' } : { backgroundColor: 'lightgray' };
                     let textStyle = isActive ? { fontWeight: 'bold', color: 'darkgray' } : { color: 'gray' };
 
                     // Resolve image source using the helper function
@@ -46,12 +46,12 @@ export default function Categories() {
                         <TouchableOpacity
                             key={index}
                             onPress={() => { navigation.navigate('WorkerInfo',{service:category.name}) }}
-                            style={{ marginRight: 18, alignItems: 'center' }}
+                            className='align-center mx-2'
                         >
-                            <View style={{ ...btnStyle, padding: 0, borderRadius: 30, shadowColor: 'black', shadowOpacity: 0.2, elevation: 2 }}>
-                                <Image style={{ width: 75, height: 75 }} source={categoryImage} />
+                            <View className='rounded-full border border-gray-300 w-20 h-20 bg-gray-100'>
+                                <Image className='w-12 h-12 m-auto' source={categoryImage} />
                             </View>
-                            <Text style={{ ...textStyle, marginTop: 3 }}>{category.name}</Text>
+                            <Text style={{ ...textStyle, marginTop: 3 }} className='text-center text-xs'>{category.name}</Text>
                         </TouchableOpacity>
                     );
                 })}

@@ -128,14 +128,7 @@ function DrawerNavigator() {
             {/* <Search /> */}
             <Image
             size={5}
-            style={{
-              maxHeight: 40,
-              maxWidth: 40,
-              borderRadius: 50,
-              marginRight: 10,
-              height: 40,
-              width: 40,
-            }}
+            className='h-12 w-12 rounded-full mr-2 '
             source={
               user?.profile_pic ? { uri: imageUri } : require("../assets/Profile.png")
             }
@@ -145,12 +138,7 @@ function DrawerNavigator() {
         headerLeft: () => (
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
-              style={{
-                maxHeight: 50,
-                maxWidth: 50,
-                borderRadius: 50,
-                marginLeft: 5,
-              }}
+              className='radius-full ml-2 w-12 h-12'
               source={require("../assets/icon.png")}
             />
             <Search />
@@ -197,7 +185,7 @@ function TabNavigator() {
           } else if (route.name === 'Profile') {
             iconName = 'person';
           } else if (route.name == 'User History') {
-            iconName = 'person';
+            iconName = '';
           }
 
           // You can return any component that you like here!

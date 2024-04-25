@@ -2,109 +2,128 @@ import { View, Text, TextInput, StyleSheet, Image, ScrollView, Button, Touchable
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
+import * as Font from 'expo-font';
+import '../../index.css'
 
 import Categories from '../../components/categories';
 import { AuthContext } from '../../context/AuthContext';
 
+// Load the custom font
+async function loadCustomFont() {
+  await Font.loadAsync({
+    'YourCustomFontName': require('../../assets/fonts/Fuzzy Bubbles Regular.ttf'),
+  });
+}
+
+loadCustomFont();
 
 export default function Home() {
   const { logout } = useContext(AuthContext);
   const navigation = useNavigation();
 
   const handleCardClick = (workerType) => {
-    navigation.navigate('WorkerInfo', { workerType });
+    console.log("Type",workerType)
+    navigation.navigate('WorkerInfo', { service:workerType });
   };
 
 
   return (
     // <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <SafeAreaView className="bg-white">
-        <ScrollView contentContainerStyle={{ paddingBottom: 70 }}>
+        <ScrollView className='pt-4'>
           {/*main*/}
 
           <View
             horizontal
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 15 }}
+            className='pb-0'
           >
             {/* categories */}
             <Categories />
 
             {/* <Divider width={2} insetType="left"/> */}
-            <Text className='text-2xl mt-8 mx-5'>Featured</Text>
-            <View className='flex flex-row justify-around mt-2'>
-              <TouchableOpacity onPress={handleCardClick}>
+            <Text  className='text-2xl mt-8 mx-5 font-ionicons'>Featured</Text>
+            <View className='flex flex-row justify-around my-2'>
+              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Barber'}) }}>
                 <View className='flex flex-col justify-center items-left ml-1'>
-                  <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon1.jpg')} />
-                  <Text className="ml-1">Salon</Text>
+                  <Image className='w-20 h-20' source={require('../../assets/icons/Barber.png')} />
+                  <Text className="ml-2 pr-4 text-center">Barber</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity >
+              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Carpenter'}) }}>
               <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon2.jpg')} />
-                <Text>Barber</Text>
+                <Image className='w-20 h-20' source={require('../../assets/icons/Carpenter.png')} />
+                <Text>Carpenter</Text>
               </View>
+              </TouchableOpacity >
+              <TouchableOpacity onPress={handleCardClick}>
               <View className='flex flex-col justify-center items-center mr-1'>
-                <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon3.jpg')} />
-                <Text>AC Service</Text>
+                <Image className='w-20 h-20' source={require('../../assets/icons/electrician.png')} />
+                <Text >Electrician</Text>
               </View>
+              </TouchableOpacity >
             </View>
             <View className='flex flex-row justify-around mt-2'>
               <TouchableOpacity onPress={handleCardClick}>
                 <View className='flex flex-col justify-center items-center ml-1'>
-                  <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon4.jpg')} />
-                  <Text>Home Clean</Text>
+                  <Image className='w-20 h-20' source={require('../../assets/icons/House Cleaner.png')} />
+                  <Text >House Cleaner</Text>
                 </View>
               </TouchableOpacity>
+              <TouchableOpacity onPress={handleCardClick}>
               <View className='flex flex-col justify-center items-center'>
-                <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon5.jpg')} />
-                <Text>Carpenter</Text>
+                <Image className='w-20 h-20' source={require('../../assets/icons/Massage Therepist.png')} />
+                <Text >Massage Therepy</Text>
               </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCardClick}>
               <View className='flex flex-col justify-center items-center mr-1'>
-                <Image style={{ width: 120, height: 120 }} source={require('../../assets/icon6.jpg')} />
-                <Text>Painter</Text>
+                <Image className='w-20 h-20' source={require('../../assets/icons/HVAC Technician.png')} />
+                <Text >HVAC Technician</Text>
               </View>
+              </TouchableOpacity>
             </View>
           </View>
 
 
           {/* ------------------------------------- */}
 
-          <Text className='text-2xl mt-10 mx-5'>Top Problems</Text>
+          <Text  className='text-2xl mt-10 mx-5 font-nunito-sans font-normal'>Top Problems</Text>
 
           <View className='flex flex-row justify-around mt-2'>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon5.jpg')} />
-              <Text>Salon</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Locksmith.png')} />
+              <Text >Locksmith</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon6.jpg')} />
-              <Text>Bulb Fix</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/manicure.png')} />
+              <Text >Manicure</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon1.jpg')} />
-              <Text>Salon</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Hair care.png')} />
+              <Text >Hair Care</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon2.jpg')} />
-              <Text>Bulb Fix</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Chef.png')} />
+              <Text >Chef</Text>
             </View>
           </View>
-          <View className='flex flex-row justify-around mt-2'>
+          <View className='flex flex-row justify-around mt-2 mb-6'>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon1.jpg')} />
-              <Text>Salon</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Facial.png')} />
+              <Text >Facial</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon2.jpg')} />
-              <Text>Barber</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Gardener.png')} />
+              <Text >Gardener</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon3.jpg')} />
-              <Text>Salon</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/painter.png')} />
+              <Text >Painter</Text>
             </View>
             <View className='flex flex-col justify-center items-center'>
-              <Image style={{ width: 90, height: 90 }} source={require('../../assets/icon4.jpg')} />
-              <Text>Barber</Text>
+              <Image className='w-16 h-16' source={require('../../assets/icons/Yoga trainer.png')} />
+              <Text >Yoga Trainer</Text>
             </View>
           </View>
         </ScrollView>
