@@ -131,7 +131,7 @@ const RequestPage = (props) => {
       <View style={styles.workerInfo}>
         <Image
           style={styles.workerPhoto}
-          source={require('../../assets/Profile.png')} // Placeholder image URL
+          source={require('../../assets/Profile.jpg')} // Placeholder image URL
         />
         <View style={styles.workerDetails}>
           <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>
