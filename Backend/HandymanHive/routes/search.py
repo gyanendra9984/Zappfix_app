@@ -77,7 +77,7 @@ def get_closest_services(request):
                         "email": worker.email,
                     }
                 )
-            
+            print("Here are the services=",services)
             return JsonResponse({"services": services, "workers": closest_workers}) 
 
         except Exception as e:

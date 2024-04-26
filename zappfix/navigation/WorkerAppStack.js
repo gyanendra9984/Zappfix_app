@@ -9,6 +9,7 @@ import EditProffDetails from "../screens/Worker/EditProffDetails";
 import EditProfile from "../screens/Profile/EditProfile";
 import WorkerHistory from "../screens/Worker/workerHistory";
 import InteractionPage from "../screens/Worker/InteractionPage";
+import TimeLine from "../screens/User/TimeLine";
 
 const Tab = createBottomTabNavigator();
 
@@ -44,6 +45,7 @@ export default function WorkerAppStack() {
       <Tab.Screen name="EditProfile" component={EditProfile} options={{ tabBarButton:()=>null }}/>
       <Tab.Screen name="Worker History" component={WorkerHistory}/>
       <Tab.Screen name="Interaction Page" component={InteractionPage} options={{ tabBarButton:()=>null }}/>
+      <Tab.Screen name="TimeLine" component={TimeLine} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }

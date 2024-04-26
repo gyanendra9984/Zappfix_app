@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useContext } from "react";
 import * as Icon from 'react-native-feather';
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from '../context/AuthContext';
+
 export default function Search() {
   const [showRecentSearches, setShowRecentSearches] = useState(false);
   const textInputRef = useRef(null);
@@ -41,7 +42,7 @@ export default function Search() {
 
       const data = await response.json();
       // Handle API response data
-      console.log(data);
+      console.log("Searched result=",data);
       navigation.navigate("Search", { searchResults: data });
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
@@ -91,7 +92,6 @@ export default function Search() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 0 }}>
           <Icon.MapPin height={20} width={20} stroke="gray" />
           <TouchableOpacity onPress={() => navigation.navigate("Map")}>
-            <Text style={{ color: 'gray' }}>IIT ROPAR</Text>
           </TouchableOpacity>
         </View>
       </View>

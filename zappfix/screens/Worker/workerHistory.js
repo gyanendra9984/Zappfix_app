@@ -44,9 +44,10 @@ const HistoryList = () => {
   const [progress,setProgress]=React.useState(false);
   const {API}= useContext(AuthContext);
   const navigation =useNavigation();
+  
   const handlePress = (item) => {
-    console.log("Item pressed",item.email);
-    console.log("here is the email",item.email);
+    // console.log("Item pressed",item.email);
+    // console.log("here is the email",item.email);
     navigation.navigate("Interaction Page",{email:item.email,service:item.service});
   };
 
@@ -56,7 +57,7 @@ const HistoryList = () => {
     try {
         // setProgress
         setProgress(true);
-        const response = await fetch(`${API}/get_progress_works`, {
+        const response = await fetch(`${API}/get_worker_history`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

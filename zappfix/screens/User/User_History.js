@@ -44,15 +44,16 @@ const HistoryList = () => {
   const [progress,setProgress]=React.useState(false);
   const {API}= useContext(AuthContext);
   const navigation =useNavigation();
+  
   const handlePress = (item) => {
     console.log("Item pressed");
     console.log("here is the email",item.email);
-    // if(item.showingStatus==="In Progress"){
-    //   navigation.navigate("Interaction Page",{email:item.email,service:item.service,status:item.status});
-    // }
-    // else {
+    if(item.showingStatus==="In Progress"){
+      navigation.navigate("Interaction Page",{email:item.email,service:item.service,status:item.status});
+    }
+    else {
       navigation.navigate("TimeLine",{email:item.email,service:item.service});
-    // }
+    }
     
   };
 

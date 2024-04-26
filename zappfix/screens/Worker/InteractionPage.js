@@ -6,6 +6,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { AuthContext } from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import Worker_TimeLine from './Worker_TimeLine';
+
 
 const InteractionPage = (props) => {
   const [location, setLocation] = useState(null);
@@ -15,9 +18,12 @@ const InteractionPage = (props) => {
   const { email , service } = props.route.params;
   const [ latitutepoint, setlatitutepoint ] = useState(-1);
   const [ longitutepoint, setlongitutepoint ] = useState(-1);
+  const [workerEmail,setWorkerEmail]=useState("");
+  const navigation=useNavigation();
   
 
   useEffect(() => {
+    // fetchUserProfile();
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -27,6 +33,8 @@ const InteractionPage = (props) => {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+      const email1=await AsyncStorage.getItem("email");
+      setWorkerEmail(email1)
 
       // Fetch the route between user's location and a fixed point
       const userLocation = { latitude: 30.9, longitude: 75.9 }; // as hardcoded in line 94&95
@@ -35,9 +43,12 @@ const InteractionPage = (props) => {
     })();
   }, []);
 
+  
+
   const UpdateLocation = async () => {
     try {
       const worker_email=await AsyncStorage.getItem('email');
+      setWorkerEmail(worker_email)
       const response = await fetch(`${API}/update_worker_location`, {
         method: 'POST',
         headers: {
@@ -85,9 +96,36 @@ const InteractionPage = (props) => {
   };
   const handleReject= async () =>{
     alert("Reject is pressed");
+    try {
+      
+      const worker_email=await AsyncStorage.getItem("email");
+      const data = {
+        user_email: email,
+        worker_email: worker_email,
+        service: service,
+        status:"Reject",
+      };
+      const response = await fetch(`${API}/update_worker_works`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        console.log("Rejected successfully");
+        alert("Rejected successfully");
+        navigation.navigate("Worker History")
+      } else {
+        alert("Failed to Reject ",data.error);
+      }
+    } catch (error) {
+      alert("Error Rejecting :", error);
+    }
   }
   const submitWorkdone = async () => {
     // console.log("Hi")
+    alert("Accept Pressed!!");
     try {
       const worker_email=await AsyncStorage.getItem("email");
       console.log("Worker email=",worker_email,"user email=",email,"service=",service)
@@ -95,11 +133,9 @@ const InteractionPage = (props) => {
         user_email: email,
         worker_email: worker_email,
         service: service,
-        workerdone: true,
-        // rating: rating,
-        // review: review,
+        status:"Done",
       };
-      const response = await fetch(`${API}/update_work_history`, {
+      const response = await fetch(`${API}/update_worker_works`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,67 +146,24 @@ const InteractionPage = (props) => {
         console.log("Work Done successfully");
         alert("Work Done successfully");
       } else {
-        console.error("Failed To send work done!!");
+        alert("Failed To send work done!!",data.error)
+        // console.error();
       }
     } catch (error) {
-      console.error("Error submitting review:", error);
+      alert("Error submitting review:", error)
     }
   };
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
-        <Text>Loading ...</Text>
-        {location ? (
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            {/* User Location Marker */}
-            <Marker
-              coordinate={{
-                latitude: 30.9,
-                longitude: 75.9
-              }}
-              title={email}
-            >
-              <Image
-                source={require('../../assets/user_icon.png')}
-                style={{ width: 40, height: 40 }}
-              />
-            </Marker>
-            {/* Current Location Marker */}
-            <Marker
-              coordinate={{
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }}
-              title="Current Worker Location"
-            >
-              <Image
-                source={require('../../assets/scooter_icon.png')}
-                style={{ width: 40, height: 40 }}
-              />
-            </Marker>
-            {/* Polyline for route */}
-            <Polyline
-              coordinates={routeCoordinates}
-              strokeWidth={2}
-              strokeColor="red"
-            />
-          </MapView>
-        ) : null}
+        <Worker_TimeLine route={{ params: { email: email, service: service } }}/>
       </View>
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
-          <TouchableOpacity style={styles.infoItem} onPress={openWhatsApp}>
+          {/* <TouchableOpacity style={styles.infoItem} onPress={openWhatsApp}>
             <Icon name="chat" size={42} color="#3498db" />
-          </TouchableOpacity>
-          <Text style={styles.infoItem}>{distance} KM Away</Text>
+          </TouchableOpacity> */}
+          {/* <Text style={styles.infoItem}>{distance} KM Away</Text> */}
         </View>
 
         <View style={styles.infoRow}>

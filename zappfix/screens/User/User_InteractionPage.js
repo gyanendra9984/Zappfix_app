@@ -179,14 +179,7 @@ const User_InteractionPage = (props) => {
   const handleReject= async () =>{
     console.log("Hi")
     try {
-      if (!review.trim()) {
-        console.error("Review cannot be empty");
-        return;
-      }
-      if (rating === 0) {
-        console.error("Rating cannot be zero");
-        return;
-      }
+      
       const user_email=await AsyncStorage.getItem("email");
       const data = {
         user_email: user_email,
