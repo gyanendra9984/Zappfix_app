@@ -81,6 +81,9 @@ def create_request(request):
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
 
+            if Request.objects.filter(user=user, worker=worker, service=service, status= "Pending").exists():
+                return JsonResponse({'status': 'success', 'message': 'Request already exists'})
+            
             Request.objects.create(
                 user=user,
                 worker=worker,

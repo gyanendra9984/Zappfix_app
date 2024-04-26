@@ -24,7 +24,6 @@ def get_user_data(request):
             isWorker = data.get("isWorker")
 
             if isWorker == "True":
-
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
@@ -46,6 +45,10 @@ def get_user_data(request):
             }
             if isWorker == "True":
                 user_details["verified"] = user.verified
+            else:
+                user_details["liveLatitude"] = user.liveLatitude
+                user_details["liveLongitude"] = user.liveLongitude
+                
             return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token expired"}, status=300)
@@ -145,6 +148,32 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def update_user_location(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            email = data.get("email")
+            live_latitude = data.get("liveLatitude")
+            live_longitude = data.get("liveLongitude")
+
+            user = CustomUser.objects.get(email=email)
+
+            user.liveLatitude = live_latitude
+            user.liveLongitude = live_longitude
+            user.save()
+
+            return JsonResponse({"message": "User location updated successfully"})
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating user location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
 
 @csrf_exempt
 def delete_user(request):

@@ -91,6 +91,8 @@ class CustomUser(models.Model):
     notification_token = models.CharField(max_length=25500, null=True, blank=True)
     last_five_queries = models.JSONField(default=list)
     profile_pic = CloudinaryField("image", null=True, blank=True)
+    liveLatitude = models.FloatField(default=0.0)
+    liveLongitude = models.FloatField(default=0.0)
     def get_notification_tokens(self):
         return self.notification_token.split(";") if self.notification_token else []
     def add_notification_token(self, token):
