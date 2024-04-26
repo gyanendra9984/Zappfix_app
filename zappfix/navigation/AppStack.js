@@ -33,7 +33,7 @@ const CustomDrawerContent = (props) => {
         <View style={styles.profileContainer}>
           <Image
             style={styles.profilePicture}
-            source={user?.profile_pic ? { uri: imageUri } : require('../assets/Profile.png')}
+            source={user?.profile_pic ? { uri: imageUri } : require('../assets/Profile.jpg')}
           />
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{user?.first_name} {user?.last_name}</Text>
@@ -130,7 +130,7 @@ function DrawerNavigator() {
             size={5}
             className='h-12 w-12 rounded-full mr-2 '
             source={
-              user?.profile_pic ? { uri: imageUri } : require("../assets/Profile.png")
+              user?.profile_pic ? { uri: imageUri } : require("../assets/Profile.jpg")
             }
           />
           </Pressable>

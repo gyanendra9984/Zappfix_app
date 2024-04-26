@@ -52,8 +52,8 @@ const UserProfile = () => {
 
     return (
         <View style={styles.userProfileContainer}>
-        {user && (<View><Image source={require('../../assets/Profile.png')} style={styles.avatar} />
-        {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage} /> */}
+        {user && (<View><Image source={require('../../assets/Profile.jpg')} style={styles.avatar} />
+        {/* <Image source={require('../assets/Profile.jpg')} style={styles.profileImage} /> */}
         <View style={styles.userInfo}>
             <Text style={styles.name}>{user.first_name}{user.last_name}</Text>
             <Text style={styles.details}>{user.age} years old</Text>
