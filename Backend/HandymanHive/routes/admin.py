@@ -53,5 +53,4 @@ def change_verification_status(request):
     
 @csrf_exempt
 def index(request):
-    if request.method == 'GET':
-        return JsonResponse({"message": "Welcome to HandymanHive!"})
+    return JsonResponse({"message": "Welcome to HandymanHive!"})
