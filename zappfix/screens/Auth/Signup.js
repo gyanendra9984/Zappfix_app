@@ -226,7 +226,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<FontAwesome5 name="user-secret" />}
+                            as={<FontAwesome5 name="user" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -256,7 +256,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<FontAwesome5 name="envelope" />}
+                            as={<FontAwesome5 name="user" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -324,7 +324,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<MaterialCommunityIcons name="phone" />}
+                            as={<MaterialCommunityIcons name="phone-outline" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -360,7 +360,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<MaterialCommunityIcons name="phone" />}
+                            as={<MaterialCommunityIcons name="numeric" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -423,7 +423,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<MaterialCommunityIcons name="phone" />}
+                            as={<MaterialCommunityIcons name="home-outline" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -455,7 +455,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<MaterialCommunityIcons name="phone" />}
+                            as={<MaterialCommunityIcons name="city-variant-outline" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -487,7 +487,7 @@ function Signup() {
                       <Input
                         InputLeftElement={
                           <Icon
-                            as={<MaterialCommunityIcons name="phone" />}
+                            as={<MaterialCommunityIcons name="map-marker-check-outline" />}
                             size="sm"
                             m={2}
                             _light={{
@@ -519,7 +519,7 @@ function Signup() {
                       <Select
                         InputLeftElement={
                           <Icon
-                            as={<FontAwesome5 name="venus-mars" />}
+                            as={<FontAwesome5 name="briefcase" />}
                             size="sm"
                             m={2}
                             _light={{
