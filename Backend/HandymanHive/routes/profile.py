@@ -1,4 +1,5 @@
 import base64
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ..models import (
@@ -12,6 +13,11 @@ from ..models import (
 import jwt
 import json
 import cloudinary.uploader
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+UPLOAD_DIR = os.path.join(BASE_DIR, 'certificates')
 
 
 @csrf_exempt
@@ -24,7 +30,6 @@ def get_user_data(request):
             isWorker = data.get("isWorker")
 
             if isWorker == "True":
-
                 user = CustomWorker.objects.get(email=email)
             else:
                 user = CustomUser.objects.get(email=email)
@@ -46,6 +51,10 @@ def get_user_data(request):
             }
             if isWorker == "True":
                 user_details["verified"] = user.verified
+            else:
+                user_details["liveLatitude"] = user.liveLatitude
+                user_details["liveLongitude"] = user.liveLongitude
+                
             return JsonResponse({"worker_details": user_details})
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token expired"}, status=300)
@@ -145,6 +154,32 @@ def update_worker_location(request):
             return JsonResponse({"error": "Error updating worker location"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def update_user_location(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            email = data.get("email")
+            live_latitude = data.get("liveLatitude")
+            live_longitude = data.get("liveLongitude")
+
+            user = CustomUser.objects.get(email=email)
+
+            user.liveLatitude = live_latitude
+            user.liveLongitude = live_longitude
+            user.save()
+
+            return JsonResponse({"message": "User location updated successfully"})
+        except WorkerDetails.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error updating user location"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
 
 @csrf_exempt
 def delete_user(request):
@@ -264,27 +299,36 @@ def upload_certificate(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-
             email = data.get('email')
             certificate_name = data.get('certificate_name')
-            # issuing_authority = data.get('issuing_authority')
-            certificate_data = data.get('certificate')
-            # print(certificate_data)
-            pdf_data=base64.b64decode(certificate_data)
-            print(1)
+            certificate_data = data.get('certificate')            
+            
+            if not os.path.exists(UPLOAD_DIR):
+                os.makedirs(UPLOAD_DIR)
+            
+            pdf_filename = email + "#" + certificate_name + ".pdf"    
+            pdf_file_path = os.path.join(UPLOAD_DIR, pdf_filename)
+            certificate_bytes = base64.b64decode(certificate_data)
+            
+            with open(pdf_file_path, 'wb') as f:
+                f.write(certificate_bytes)
+            
+                          
+            if Certification.objects.filter(certificate_name=certificate_name, worker_email=email).exists():
+                return JsonResponse({"error": "Certificate already uploaded"}, status=400)
+                      
             certificate = Certification.objects.create(
                 certificate_name=certificate_name,
                 worker_email=email,
-                # issuing_authority=issuing_authority,
-                certificate_data=pdf_data                
+                certificate_data=pdf_filename                
             ) 
-            # print(certificate_data)
-            # certificate.save()
+            
             return JsonResponse({"message": "Certificate uploaded successfully"})       
             
             
 
         except Exception as e:
+            print(e)
             return JsonResponse({"error": "Error uploading certificate"}, status=500)
 
     else:
@@ -302,18 +346,27 @@ def get_certificates(request):
 
             certificate_data = []
             for certificate in certificates:
-                certificate_data.append(
-                    {
-                        "certificate_name": certificate.certificate_name,
-                        "issuing_authority": certificate.issuing_authority,
-                        "certificate_data": certificate.certificate_data,
-                        "added_on": certificate.created_on,
-                        "status": certificate.status,
-                    }
-                )
+                pdf_filename = certificate.certificate_data    
+                pdf_file_path = os.path.join(UPLOAD_DIR, pdf_filename)
+                
+                if os.path.exists(pdf_file_path):
+                    with open(pdf_file_path, 'rb') as f:
+                        pdf_content_bytes = f.read()
+                        pdf_content_base64 = base64.b64encode(pdf_content_bytes).decode('utf-8')
+                        
+                    certificate_data.append(
+                        {
+                            "certificate_name": certificate.certificate_name,
+                            "issuing_authority": certificate.issuing_authority,
+                            "certificate_data": pdf_content_base64,
+                            "added_on": certificate.created_on,
+                            "status": certificate.status,
+                        }
+                    )
 
             return JsonResponse({"certificates": certificate_data})
         except Exception as e:
+            print(e)
             return JsonResponse({"error": "Error fetching certificates"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
