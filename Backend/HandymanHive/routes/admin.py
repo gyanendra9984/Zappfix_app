@@ -49,3 +49,9 @@ def change_verification_status(request):
             return JsonResponse({"error": "Email not provided"}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    
+@csrf_exempt
+def index(request):
+    if request.method == 'GET':
+        return JsonResponse({"message": "Welcome to HandymanHive!"})
