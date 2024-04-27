@@ -102,8 +102,8 @@ const Profile = () => {
                       <View style={styles.profileInfo}>
               <>
               <TouchableOpacity onPress={handleImgUpload}>
-              {user.profile_pic ?(<><Image source={{ uri: user.profile_pic }} style={styles.profileImage} /></>):(<><Image source={require('../../assets/Profile.png')} style={styles.profileImage}/></>)}
-                {/* <Image source={require('../assets/Profile.png')} style={styles.profileImage}/> */}
+              {user.profile_pic ?(<><Image source={{ uri: user.profile_pic }} style={styles.profileImage} /></>):(<><Image source={require('../../assets/Profile.jpg')} style={styles.profileImage}/></>)}
+                {/* <Image source={require('../assets/Profile.jpg')} style={styles.profileImage}/> */}
               </TouchableOpacity>
                 <View style={styles.profileDetails}>
                   <Text style={styles.profileName}>{user.first_name}</Text>

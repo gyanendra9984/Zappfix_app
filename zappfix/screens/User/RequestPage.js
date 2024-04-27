@@ -182,10 +182,6 @@ const RequestPage = (props) => {
             <View style={styles.rating}>
               <Text style={styles.ratingText}>Rating: </Text>
               <StarRating rating={rating} />
-              {/* <FontAwesome name="star" size={20} color="gold" />
-            <FontAwesome name="star" size={20} color="gold" />
-            <FontAwesome name="star" size={20} color="gold" />
-            <FontAwesome name="star-half-full" size={20} color="gold" /> */}
             </View>
           </View>
         </View>
