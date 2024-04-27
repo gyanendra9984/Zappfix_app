@@ -4,16 +4,18 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { AuthContext } from '../../context/AuthContext';
 import LoadingScreen from '../Loading/LoadingScreen';
 
 const RequestPage = (props) => {
   const [selectedTab, setSelectedTab] = useState('Contact Info');
-  const { email,service } = props.route.params;
+  const { email,service,rating } = props.route.params;
   const {API}= useContext(AuthContext);
   const [progress,setProgress]=useState(false);
   const [workerProfile, setWorkerProfile] = useState(null);
+  const [reviews, setReviews] = useState([]);
   
   const handleTabPress = (tabName) => {
     setSelectedTab(tabName);
@@ -70,23 +72,36 @@ const RequestPage = (props) => {
   const fetchWorkerProfile = async () => {
     try {
       setProgress(true);
-      const user_email=await AsyncStorage.getItem("email");
+      const user_email = await AsyncStorage.getItem("email");
       const response = await fetch(`${API}/get_worker_profile`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: user_email,worker_email:email, }),
+        body: JSON.stringify({ email: user_email, worker_email: email }),
       });
       const data = await response.json();
-      // console.log(data,"jhhhhhhh")
       if (response.ok) {
-        setWorkerProfile(data); // Set worker profile data to state
+        setWorkerProfile(data); 
+        const reviewsResponse = await fetch(`${API}/fetch_reviews`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_email: user_email, worker_email: email }),
+        });
+        const reviewsData = await reviewsResponse.json();
+        if (reviewsResponse.ok) {
+          console.log("Reviews data:", reviewsData);
+          setReviews(reviewsData.reviews); 
+        } else {
+          console.error("Failed to fetch reviews:", reviewsData.error);
+        }
       } else {
-        console.error('Failed to fetch worker profile:', data.message);
+        console.error("Failed to fetch worker profile:", data.message);
       }
     } catch (error) {
-      console.error('Error fetching worker profile:', error);
+      console.error("Error fetching worker profile:", error);
     }
     setProgress(false);
   };
@@ -101,87 +116,139 @@ const RequestPage = (props) => {
   );
 
   // Dummy data for reviews
-  const reviews = [
-    { name: 'Alice', review: 'Great service! Highly recommended.' },
-    { name: 'Bob', review: 'Very professional and efficient work.' },
-    { name: 'Charlie', review: 'Good communication and timely service.' },
-    { name: 'David', review: 'Exceeded expectations. Will hire again.' },
-    { name: 'Eve', review: 'Friendly and knowledgeable. Satisfied with the work.' },
-    { name: 'Frank', review: 'Poor quality work. Disappointed with the service.' },
-    { name: 'Grace', review: 'Unreliable. Failed to complete the job as promised.' },
-    { name: 'Harry', review: 'Unprofessional behavior. Avoid at all costs.' },
-    { name: 'Ivy', review: 'Terrible experience. Do not recommend.' },
-    { name: 'Jack', review: 'Waste of money. The job was done poorly.' },
-  ];
+  // const reviews = [
+  //   { name: 'Alice', review: 'Great service! Highly recommended.' },
+  //   { name: 'Bob', review: 'Very professional and efficient work.' },
+  //   { name: 'Charlie', review: 'Good communication and timely service.' },
+  //   { name: 'David', review: 'Exceeded expectations. Will hire again.' },
+  //   { name: 'Eve', review: 'Friendly and knowledgeable. Satisfied with the work.' },
+  //   { name: 'Frank', review: 'Poor quality work. Disappointed with the service.' },
+  //   { name: 'Grace', review: 'Unreliable. Failed to complete the job as promised.' },
+  //   { name: 'Harry', review: 'Unprofessional behavior. Avoid at all costs.' },
+  //   { name: 'Ivy', review: 'Terrible experience. Do not recommend.' },
+  //   { name: 'Jack', review: 'Waste of money. The job was done poorly.' },
+  // ];
   
 
   const renderReviewItem = ({ item }) => (
     <View style={styles.reviewItem}>
-      <Text style={styles.reviewName}>{item.name}</Text>
+      <Text style={styles.reviewName}>{item.user}</Text>
       <Text style={styles.reviewText}>"{item.review}"</Text>
       <View style={styles.separator} />
     </View>
   );
 
+ const StarRating = ({ rating }) => {
+   const fullStars = Math.floor(rating);
+   const decimalPart = rating - fullStars;
+
+   const stars = [];
+   for (let i = 0; i < fullStars; i++) {
+     stars.push(
+       <MaterialCommunityIcons key={i} name="star" size={20} color="gold" />
+     );
+   }
+
+   if (decimalPart > 0) {
+     stars.push(
+       <MaterialCommunityIcons
+         key={fullStars}
+         name="star-half"
+         size={20}
+         color="gold"
+       />
+     );
+   }
+
+   return <View style={{ flexDirection: "row" }}>{stars}</View>;
+ };
   return (
     <View style={styles.container}>
-    {progress || workerProfile===null ? (
+      {progress || workerProfile === null ? (
         <LoadingScreen />
       ) : (
-      <View style={styles.workerInfo}>
-        <Image
-          style={styles.workerPhoto}
-          source={require('../../assets/Profile.png')} // Placeholder image URL
-        />
-        <View style={styles.workerDetails}>
-          <Text style={styles.workerName} className="text-lg">{workerProfile.first_name} {workerProfile.last_name}</Text>
-          <Text style={styles.workerDescription}>
-            {workerProfile.services && workerProfile.services.join(', ')}
-
-          </Text>
-          <View style={styles.rating}>
-            <Text style={styles.ratingText}>Rating: </Text>
+        <View style={styles.workerInfo}>
+          <Image
+            style={styles.workerPhoto}
+            source={require("../../assets/Profile.png")} // Placeholder image URL
+          />
+          <View style={styles.workerDetails}>
+            <Text style={styles.workerName} className="text-lg">
+              {workerProfile.first_name} {workerProfile.last_name}
+            </Text>
+            <Text style={styles.workerDescription}>
+              {workerProfile.services && workerProfile.services.join(", ")}
+            </Text>
+            <View style={styles.rating}>
+              <Text style={styles.ratingText}>Rating: </Text>
+              <StarRating rating={rating} />
+              {/* <FontAwesome name="star" size={20} color="gold" />
             <FontAwesome name="star" size={20} color="gold" />
             <FontAwesome name="star" size={20} color="gold" />
-            <FontAwesome name="star" size={20} color="gold" />
-            <FontAwesome name="star-half-full" size={20} color="gold" />
+            <FontAwesome name="star-half-full" size={20} color="gold" /> */}
+            </View>
           </View>
         </View>
-      </View>
       )}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            selectedTab === 'Contact Info' && { backgroundColor: '#0096FF', borderTopWidth: 0,},
+            selectedTab === "Contact Info" && {
+              backgroundColor: "#0096FF",
+              borderTopWidth: 0,
+            },
           ]}
-          onPress={() => handleTabPress('Contact Info')}
+          onPress={() => handleTabPress("Contact Info")}
         >
-          <Text style={[styles.tabText, selectedTab === 'Contact Info' && { color: '#fff' }]}>Contact Info</Text>
+          <Text
+            style={[
+              styles.tabText,
+              selectedTab === "Contact Info" && { color: "#fff" },
+            ]}
+          >
+            Contact Info
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            selectedTab === 'Reviews' && { backgroundColor: '#0096FF', borderTopWidth: 0 },
+            selectedTab === "Reviews" && {
+              backgroundColor: "#0096FF",
+              borderTopWidth: 0,
+            },
           ]}
-          onPress={() => handleTabPress('Reviews')}
+          onPress={() => handleTabPress("Reviews")}
         >
-          <Text style={[styles.tabText, selectedTab === 'Reviews' && { color: '#fff' }]}>Reviews</Text>
+          <Text
+            style={[
+              styles.tabText,
+              selectedTab === "Reviews" && { color: "#fff" },
+            ]}
+          >
+            Reviews
+          </Text>
         </TouchableOpacity>
       </View>
       {/* Render contact info or reviews based on selected tab */}
-      {selectedTab === 'Contact Info' ? (
-  <View style={styles.tabContent}>
-  {progress || workerProfile===null ? (
-        <LoadingScreen />
-      ) : (
-    <View style={styles.contactInfo}>
-      <Text style={styles.contactLabel}>Email: {workerProfile.email}</Text>
-      <Text style={styles.contactLabel}>Phone: {workerProfile.phone_number}</Text>
-      <Text style={styles.contactLabel}>Address: {workerProfile.address},{workerProfile.state}</Text>
-    </View>
-      )}
-  </View>
+      {selectedTab === "Contact Info" ? (
+        <View style={styles.tabContent}>
+          {progress || workerProfile === null ? (
+            <LoadingScreen />
+          ) : (
+            <View style={styles.contactInfo}>
+              <Text style={styles.contactLabel}>
+                Email: {workerProfile.email}
+              </Text>
+              <Text style={styles.contactLabel}>
+                Phone: {workerProfile.phone_number}
+              </Text>
+              <Text style={styles.contactLabel}>
+                Address: {workerProfile.address},{workerProfile.state}
+              </Text>
+            </View>
+          )}
+        </View>
       ) : (
         <View style={styles.tabContent}>
           {/* Render reviews */}
@@ -192,9 +259,12 @@ const RequestPage = (props) => {
           />
         </View>
       )}
-      <View style={styles.separatorLine}/>
+      <View style={styles.separatorLine} />
       {/* Button at the bottom */}
-      <TouchableOpacity style={styles.fullWidthButton} onPress={handleRequestService}>
+      <TouchableOpacity
+        style={styles.fullWidthButton}
+        onPress={handleRequestService}
+      >
         <Text style={styles.fullWidthButtonText}>Request Service</Text>
       </TouchableOpacity>
     </View>

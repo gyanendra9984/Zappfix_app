@@ -14,7 +14,7 @@ export const AuthProvider =({children}) => {
     const [isAdmin,setIsAdmin]=useState("False");
     const [imageUri,setImageUri]=useState(null);
     const [user, setUser] = useState(null);
-    const API = "http://172.23.7.17:8000";
+    const API = "http://192.168.238.130:8000";
 
     const logout= async ()=>{
         setIsLoading(true);

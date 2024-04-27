@@ -313,9 +313,10 @@ def get_user_history(request):
 
             progressWorks = WorkHistory.objects.filter(user=user, status="In Progress")
             for work in progressWorks:
+                showingStatus="In Progress"
                 status = 'In Progress'
                 if work.userdone:
-                    status = 'Done'
+                    showingStatus = 'Done'
 
                 progress_works.append({
                     "first_name": work.worker.first_name,
@@ -324,7 +325,7 @@ def get_user_history(request):
                     "service": work.service,
                     "started_on": work.started_on,
                     "status": status,
-                    "showingStatus": status
+                    "showingStatus": showingStatus,
                 })
 
             return JsonResponse({"progress_works": progress_works, "done_works": done_works})
@@ -364,7 +365,7 @@ def update_user_works(request):
             worker = CustomWorker.objects.get(email=worker_email)
 
             # Retrieve the work
-            work = WorkHistory.objects.get(user=user, worker=worker, service=service)
+            work = WorkHistory.objects.get(user=user, worker=worker, service=service,status="In Progress")
 
             if status == 'Reject':
                 if work.status != 'In Progress':
@@ -398,6 +399,19 @@ def update_user_works(request):
                     "review": user_review,
                     "time": time_str
                 })
+
+                worker_details.save()
+
+                sum=0
+                counter=0
+
+                for review in worker_details.customer_reviews:
+                    sum+=review['rating']
+                    counter+=1
+
+                worker_details.overall_rating=sum/counter
+
+                print("here is the overall rating=",worker_details.overall_rating,sum/counter)
 
                 worker_details.save()
 
@@ -506,6 +520,7 @@ def fetch_timeline_details(request):
         user_email = request_data.get('user_email')
         worker_email = request_data.get('worker_email')
         service = request_data.get('service')
+        status = request_data.get('status')
         
         if not all([user_email, worker_email, service]):
             raise KeyError("Missing required fields")
@@ -514,8 +529,10 @@ def fetch_timeline_details(request):
         user = CustomUser.objects.get(email=user_email)
         worker = CustomWorker.objects.get(email=worker_email)
         
+        print(1)
         # Retrieve the work history
-        work = WorkHistory.objects.get(user=user, worker=worker, service=service)
+        work = WorkHistory.objects.get(user=user, worker=worker, service=service,status=status)
+        print(2)
 
         timeline_data = []
         timeline_data.append({
@@ -573,7 +590,7 @@ def fetch_timeline_details(request):
     except Exception as e:
         print(e)
         return JsonResponse({'error': 'Error fetching timeline details'}, status=500)
-        
+
 @csrf_exempt
 def fetch_reviews(request):
     if request.method == 'POST':

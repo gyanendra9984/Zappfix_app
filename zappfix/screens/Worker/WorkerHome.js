@@ -61,6 +61,7 @@ const WorkerHome = () => {
                             console.log("data=",data);
                             if (response.ok) {
                               Alert.alert('Success', data.message);
+                              fetchUserRequests();
                               // Handle successful profile update
                             } else {
                               Alert.alert('Error', data.error);
@@ -110,6 +111,7 @@ const WorkerHome = () => {
                             console.log("data=",data);
                             if (response.ok) {
                               Alert.alert('Success', data.message);
+                              fetchUserRequests();
                               // Handle successful profile update
                             } else {
                               Alert.alert('Error', data.error);

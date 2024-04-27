@@ -50,10 +50,10 @@ export default function Home() {
                   <Text className="ml-2 pr-4 text-center">Barber</Text>
                 </View>
               </TouchableOpacity >
-              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Carpentery'}) }}>
+              <TouchableOpacity onPress={() => { navigation.navigate('WorkerInfo',{service:'Carpentry'}) }}>
               <View className='flex flex-col justify-center items-center'>
                 <Image className='w-20 h-20' source={require('../../assets/icons/Carpenter.png')} />
-                <Text>Carpentery</Text>
+                <Text>Carpentry</Text>
               </View>
               </TouchableOpacity >
               <TouchableOpacity onPress={handleCardClick}>

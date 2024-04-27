@@ -1,13 +1,14 @@
 import React, { useCallback, useContext, useState } from "react";
-import { View, StyleSheet} from "react-native";
+import { View, StyleSheet,TouchableOpacity} from "react-native";
 import Timeline from "react-native-timeline-flatlist";
 import { AuthContext } from "../../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const TimeLine = (props) => {
   const { API, logout } = useContext(AuthContext);
-  const { email, service } = props.route.params;
+  const { email, service,status } = props.route.params;
   const [timelineData, setTimelineData] = useState([]);
 
   useFocusEffect(
@@ -28,6 +29,7 @@ const TimeLine = (props) => {
           user_email: user_email,
           worker_email: email,
           service: service,
+          status:status,
         }),
       });
       const data = await response.json();
@@ -74,6 +76,11 @@ const TimeLine = (props) => {
         columnFormat="single-column-left"
         circleInterval={10}
       />
+      <View style={styles.reloadButtonContainer}>
+        <TouchableOpacity style={styles.reloadButton} onPress={fetchTimeline}>
+          <Icon name="refresh" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -113,6 +120,19 @@ const styles = StyleSheet.create({
   },
   description: {
     color: "gray",
+  },
+  reloadButtonContainer: {
+    position: "absolute",
+    bottom: 40,
+    right: 20,
+  },
+  reloadButton: {
+    backgroundColor: "#3498db",
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
