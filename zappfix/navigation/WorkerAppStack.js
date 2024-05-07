@@ -21,17 +21,17 @@ export default function WorkerAppStack() {
           let iconName;
 
           if (route.name === 'DashBoard') {
-            iconName = 'hammer';
+            iconName = 'home-outline';
           } else if (route.name === 'Map') {
             iconName = 'map';
           } else if (route.name === 'Profile') {
-            iconName = 'person';
+            iconName = 'person-outline';
           }  else if (route.name === 'EditProffDetails') {
-            iconName = 'information-circle';
+            iconName = 'create-outline';
           }else if (route.name === 'EditProfile') {
-            iconName = 'person';
+            iconName = 'create-outline';
           }else if (route.name === 'Worker History') {
-            iconName = 'person';
+            iconName = 'albums-outline';
           }
 
           // You can return any component that you like here!

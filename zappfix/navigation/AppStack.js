@@ -175,17 +175,17 @@ function TabNavigator() {
           let iconName;
 
           if (route.name === 'ZappFix') {
-            iconName = 'hammer';
+            iconName = 'flash-outline';
           } else if (route.name === 'Map') {
             iconName = 'map';
           } else if (route.name === 'EditProfile') {
-            iconName = 'person';
+            iconName = 'create-outline';
           } else if (route.name === 'WorkerInfo') {
             iconName = 'information-circle';
           } else if (route.name === 'Profile') {
-            iconName = 'person';
+            iconName = 'person-outline';
           } else if (route.name == 'User History') {
-            iconName = '';
+            iconName = 'albums-outline';
           }
 
           // You can return any component that you like here!
