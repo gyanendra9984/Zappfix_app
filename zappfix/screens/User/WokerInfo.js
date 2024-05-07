@@ -111,12 +111,12 @@ const WorkerInfo = (props) => {
   });
 
 
-  // const filteredWorkers = selectedRating
-  //   ? workers.filter(worker => worker.rating >= selectedRating)
-  //   : workers;
+  const filteredWorkers = selectedRating
+    ? workers.filter(worker => worker.rating >= selectedRating)
+    : workers;
 
     const renderWorkerCard = ({ item }) => (
-      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email,service:service})}}>
+      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email,service:service,rating:item.rating})}}>
       <View style={styles.workerCard}>
         <Image source={require("../../assets/Profile.jpg")} style={styles.profileImage} />
         <View style={styles.workerInfo}>
@@ -210,26 +210,27 @@ const WorkerInfo = (props) => {
       {progress ? (
         <LoadingScreen />
       ) : (
-      <View style={styles.contentContainer}>
-        <Text style={styles.serviceProvidersInfo}>Service Providers Info</Text>
+        <View style={styles.contentContainer}>
+          <Text style={styles.serviceProvidersInfo}>
+            Service Providers Info
+          </Text>
 
-        {/* Filter Dropdown Button */}
-        {renderDropdownButton()}
+          {/* Filter Dropdown Button */}
+          {renderDropdownButton()}
 
-        {/* Dropdown Options */}
-        {isDropdownOpen && renderDropdownOptions()}
+          {/* Dropdown Options */}
+          {isDropdownOpen && renderDropdownOptions()}
 
-        {/* FlatList of Worker Cards */}
-    
-        <FlatList
-          data={workers}
-          keyExtractor={(item) => item.id}
-          renderItem={renderWorkerCard}
-          onScroll={handleScroll}
-          contentContainerStyle={{ paddingBottom: 200 }} // Adjust this value as needed
-          
-        />
-      </View>
+          {/* FlatList of Worker Cards */}
+
+          <FlatList
+            data={filteredWorkers}
+            keyExtractor={(item) => item.id}
+            renderItem={renderWorkerCard}
+            onScroll={handleScroll}
+            contentContainerStyle={{ paddingBottom: 200 }} // Adjust this value as needed
+          />
+        </View>
       )}
     </View>
   );

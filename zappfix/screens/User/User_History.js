@@ -52,7 +52,7 @@ const HistoryList = () => {
       navigation.navigate("Interaction Page",{email:item.email,service:item.service,status:item.status});
     }
     else {
-      navigation.navigate("TimeLine",{email:item.email,service:item.service});
+      navigation.navigate("TimeLine",{email:item.email,service:item.service,status:item.status});
     }
     
   };
@@ -78,7 +78,7 @@ const HistoryList = () => {
         console.log(2)
         if (response.ok) {
             console.log("Requests=",data.worker_histories);
-            setHistoryData(data.progress_works);
+            setHistoryData(data);
         } else {
             console.error('Failed to fetch worker hsitory:', data.error);
         }
@@ -94,32 +94,62 @@ useEffect(() => {
 }, []);
   return (
     <View style={styles.container}>
-    <ScrollView style={styles.container}>
-    {historyData ? (historyData.map((item) => (
+      <ScrollView style={styles.container}>
+        {historyData.progress_works ? (
+          historyData.progress_works.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.item}
+              onPress={() => handlePress(item)}
+            >
+              <View style={styles.rowContainer}>
+                <Text style={styles.workName}>{item.first_name}</Text>
+                <StarRating rating={item.rating} />
+              </View>
+              <Text style={styles.user}>{item.email}</Text>
+              <View style={styles.rowContainer}>
+                <Text style={styles.date}>{item.service}</Text>
+                <Text style={styles.amount}>{item.status}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.centered}>
+            <Text>No current History of requests</Text>
+          </View>
+        )}
+        {historyData.done_works ? (
+          historyData.done_works.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.item}
+              onPress={() => handlePress(item)}
+            >
+              <View style={styles.rowContainer}>
+                <Text style={styles.workName}>{item.first_name}</Text>
+                <StarRating rating={item.rating} />
+              </View>
+              <Text style={styles.user}>{item.email}</Text>
+              <View style={styles.rowContainer}>
+                <Text style={styles.date}>{item.service}</Text>
+                <Text style={styles.amount}>{item.status}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.centered}>
+            <Text>No current History of requests</Text>
+          </View>
+        )}
+      </ScrollView>
+      <View style={styles.reloadButtonContainer}>
         <TouchableOpacity
-          key={item.id}
-          style={styles.item}
-          onPress={() => handlePress(item)}
+          style={styles.reloadButton}
+          onPress={fetchRequestsHistory}
         >
-          <View style={styles.rowContainer}>
-            <Text style={styles.workName}>{item.first_name}</Text>
-            <StarRating rating={item.rating} />
-          </View>
-          <Text style={styles.user}>{item.email}</Text>
-          <View style={styles.rowContainer}>
-            <Text style={styles.date}>{item.service}</Text>
-            <Text style={styles.amount}>{item.status}</Text>
-          </View>
+          <Icon name="refresh" size={20} color="#fff" />
         </TouchableOpacity>
-      ))):(<View style={styles.centered}>
-      <Text>No current  History of requests</Text>
-    </View>)}
-    </ScrollView>
-    <View style={styles.reloadButtonContainer}>
-              <TouchableOpacity style={styles.reloadButton} onPress={fetchRequestsHistory}>
-                <Icon name="refresh" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
+      </View>
     </View>
   );
 };

@@ -40,7 +40,7 @@ const Map = () => {
             }}
             title="Current Location"
           />
-          <Marker
+          {/* <Marker
             coordinate={{
               latitude: location.coords.latitude+0.01,
               longitude: location.coords.longitude,
@@ -72,14 +72,14 @@ const Map = () => {
             title="Pammi salon"
             pinColor="yellow"
           />
-          <Marker
-            coordinate={{
+          <Marker */}
+            {/* coordinate={{
               latitude: location.coords.latitude-0.01,
               longitude: location.coords.longitude-0.01,
             }}
             title="Yadav hair & care"
             pinColor="yellow"
-          />
+          /> */}
           {/* Add more markers if needed */}
           
           {/* Example Polyline */}

@@ -77,8 +77,29 @@ export default function Search() {
     };
   }, [showRecentSearches]);
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 2, marginLeft: 30 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, backgroundColor: '#edf2f7', padding: 10, borderRadius: 50, borderWidth: 1, borderColor: 'gray', height: 40 }}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 4,
+        paddingBottom: 2,
+        marginLeft: 30,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          flex: 1,
+          backgroundColor: "#edf2f7",
+          padding: 10,
+          borderRadius: 50,
+          borderWidth: 1,
+          borderColor: "gray",
+          height: 40,
+        }}
+      >
         <Icon.Search height={25} width={25} stroke="gray" />
         <TextInput
           ref={textInputRef}
@@ -89,13 +110,19 @@ export default function Search() {
           onSubmitEditing={handleEnterPress}
           value={searchText}
         />
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 0 }}>
-          <Icon.MapPin height={20} width={20} stroke="gray" />
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderWidth: 0,
+          }}
+        >
           <TouchableOpacity onPress={() => navigation.navigate("Map")}>
+            <Icon.MapPin height={20} width={20} stroke="gray" />
           </TouchableOpacity>
         </View>
       </View>
     </View>
-
   );
 };
