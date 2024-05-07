@@ -9,6 +9,7 @@ urlpatterns = [
     path("get_user_data", profile.get_user_data, name="get_user_data"),
     path("edit_personal_profile", profile.edit_personal_profile, name="edit_personal_profile"),
     path("upload_profile_pic", profile.upload_profile_pic, name="upload_profile_pic"),
+    path("update_user_location", profile.update_user_location, name="update_user_location"),
     path("update_worker_location", profile.update_worker_location, name="update_worker_location"),
     path("delete_user", profile.delete_user, name='delete_user'),
     path("update_services", profile.update_services, name="update_service"),
