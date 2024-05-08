@@ -1,62 +1,101 @@
-import pytest
 import json
-from django.test import Client, TestCase
+from datetime import timedelta
+from django.utils import timezone
+import pytest
+from django.test import RequestFactory
 from django.urls import reverse
-from HandymanHive.models import AbstractUser, CustomWorker
-from unittest.mock import patch
+from HandymanHive.routes.user_auth import user_login
+from HandymanHive.models import CustomUser, CustomWorker
 
-# @patch('HandymanHive.routes.send_otp_email')
-# @patch('HandymanHive.routes.generate_otp')
+@pytest.fixture
+def factory():
+    return RequestFactory()
+
 @pytest.mark.django_db
-class TestLogin(TestCase):
-    # def test_valid_login(self, mock_generate_otp, mock_send_otp_email):
-    #     client = Client()
-    #     valid_data = {
-    #         "email": "test@example.com",
-    #         "isWorker": False,
-    #     }
-    #     mock_generate_otp.return_value = 123456
-    #     response = client.post(reverse('user_login'), json.dumps(valid_data), content_type='application/json')
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIn("OTP sent successfully", response.json().get("message", ""))
-    #     self.assertTrue(mock_generate_otp.called)
-    #     mock_send_otp_email.assert_called_once_with(valid_data["email"], 123456)
+def test_user_login_post_worker_exists(factory):
+    worker = CustomWorker.objects.create(
+        email="test@example.com",
+        phone_number="1234567890",
+        first_name="Test",
+        last_name="User",
+        age=30,
+        gender="Male",
+        address="Test Address",
+        city="Test City",
+        state="Test State",
+        zip_code="123456",
+    )
+    request = factory.post(
+        reverse("user_login"),
+        data=json.dumps({"email": worker.email, "isWorker": "True"}),
+        content_type="application/json",
+    )
+    response = user_login(request)
+    assert response.status_code == 200
+    data = json.loads(response.content)
+    assert data["message"] == "OTP sent successfully"
+    worker.refresh_from_db()
+    assert worker.otp is not None
+    assert worker.otp_valid_till > timezone.now()
 
-    def test_nonexistent_user(self):
-        client = Client()
-        nonexistent_data = {
-            "email": "none@emaple.com",
-            "isWorker": False,
-        }
-        response = client.post(reverse('user_login'), json.dumps(nonexistent_data), content_type='application/json')
-        self.assertEqual(response.status_code, 404)
-        self.assertIn("User with this email does not exist.", response.json().get("error", ""))
+@pytest.mark.django_db
+def test_user_login_post_user_exists(factory):
+    user = CustomUser.objects.create(
+        email="test@example.com",
+        phone_number="1234567890",
+        first_name="Test",
+        last_name="User",
+        age=30,
+        gender="Male",
+        address="Test Address",
+        city="Test City",
+        state="Test State",
+        zip_code="123456",
+    )
+    request = factory.post(
+        reverse("user_login"),
+        data=json.dumps({"email": user.email, "isWorker": "False"}),
+        content_type="application/json",
+    )
+    response = user_login(request)
+    assert response.status_code == 200
+    data = json.loads(response.content)
+    assert data["message"] == "OTP sent successfully"
+    user.refresh_from_db()
+    assert user.otp is not None
+    assert user.otp_valid_till > timezone.now()
 
-    def test_invalid_request_method(self):
-        client = Client()
-        response = client.get(reverse('user_login'))
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("Invalid request method", response.json().get("error", ""))
+@pytest.mark.django_db
+def test_user_login_post_user_not_exists(factory):
+    request = factory.post(
+        reverse("user_login"),
+        data=json.dumps({"email": "nonexistent@example.com", "isWorker": "False"}),
+        content_type="application/json",
+    )
+    response = user_login(request)
+    assert response.status_code == 404
+    data = json.loads(response.content)
+    assert data["error"] == "User with this email does not exist."
 
-    # @patch('HandymanHive.routes.timezones.now')
-    # def test_expired_otp(self, mock_now):
-    #     mock_now.return_value = datetime.now() + timedelta(minutes=10)
-    #     client = Client()
-        
-    def test_invalid_json(self):
-        client = Client()
-        invalid_data = "This is not JSON"
+def test_user_login_invalid_request_method(factory):
+    request = factory.get(reverse("user_login"))
+    response = user_login(request)
+    assert response.status_code == 400
+    data = json.loads(response.content)
+    assert data["error"] == "Invalid request method"
 
-        response = client.post(reverse('user_login'), invalid_data, content_type='application/json')
-        self.assertEqual(response.status_code, 500)
+def test_user_login_exception(factory, monkeypatch):
+    def mock_generate_otp():
+        raise Exception("Test exception")
 
-    def test_missing_isworker(self):
-        client = Client()
-        invalid_data = {
-            "email": "test@example.com"
-        }
-        response = client.post(reverse('user_login'), json.dumps(invalid_data), content_type='application/json')
-        self.assertGreaterEqual(response.status_code, 400)
+    monkeypatch.setattr("HandymanHive.routes.user_auth.generate_otp", mock_generate_otp)
 
-
-        
+    request = factory.post(
+        reverse("user_login"),
+        data=json.dumps({"email": "test@example.com", "isWorker": "False"}),
+        content_type="application/json",
+    )
+    response = user_login(request)
+    assert response.status_code == 500
+    data = json.loads(response.content)
+    assert data["error"] == "Error sending OTP"

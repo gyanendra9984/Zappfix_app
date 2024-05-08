@@ -295,6 +295,6 @@ def verify_login_otp(request):
             )
         except Exception as e:
             print(e)
-            return JsonResponse({"error": "Invalid OTP"})
+            return JsonResponse({"error": "Invalid OTP"}, status = 404)
     else:
         return JsonResponse({"error": "Invalid request method"})
