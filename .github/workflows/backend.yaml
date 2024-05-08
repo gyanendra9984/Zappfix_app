@@ -30,3 +30,23 @@ jobs:
         source $VENV_PATH
         pip install -r requirements.txt
       working-directory: ./Backend
+
+    # - name: Run migrations
+    #   run: |
+    #     source $VENV_PATH
+    #     python manage.py migrate
+    #   working-directory: ./Backend
+    #   env:
+    #     DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+    # - name: Run tests
+    #   run: |
+    #     source $VENV_PATH
+    #     pytest --cov-report html --cov
+    #   working-directory: ./Backend
+
+    # - name: Upload coverage report
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: coverage-report
+    #     path: ./Backend/htmlcov/
