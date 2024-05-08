@@ -4,11 +4,13 @@ import json
 from unittest.mock import patch
 from django.urls import reverse
 
+
 class GetClosestServicesTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
 
+        
     def test_successful_query_processing(self):
         # Create a CustomUser for testing
         user_email = "test@example.com"
