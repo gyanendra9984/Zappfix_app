@@ -8,7 +8,8 @@ import { AuthContext } from '../../context/AuthContext';
 
 const AdminHome = ({ route }) => {
     const { adminDetails } = route.params;
-    const { API, email, logout } = React.useContext(AuthContext);
+    const { API, email, logout ,isWorker,userToken} = React.useContext(AuthContext);
+    const [user, setUser] = React.useState(null);
     const navigation = useNavigation();
     const isFocused = useIsFocused(); // Use useIsFocused hook
 
@@ -41,7 +42,40 @@ const AdminHome = ({ route }) => {
 
     useEffect(() => {
         fetchSearchResults();
+        fetchUserData();
     }, [isFocused]); // Add isFocused to the dependency array
+
+    const fetchUserData = async () => {
+      try {
+        // SetProgress(true);
+        const response = await fetch(`${API}/get_user_data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            isWorker: isWorker,
+            email: email,
+            token: userToken,
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setUser(data.worker_details);
+        } else {
+          console.error("Failed to fetch user data:", data.error);
+          if (data.error == "Token expired") {
+            alert(data.error);
+            logout();
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+      }
+      SetProgress(false);
+    };
 
     return (
         <View style={styles.container}>
@@ -50,7 +84,7 @@ const AdminHome = ({ route }) => {
             <Image source={adminPhoto} style={styles.photo} />
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Admin Details</Text>
-                <Text style={styles.detailText}>Username: user_admin</Text>
+                {user && <Text style={styles.detailText}>Username: {user.first_name} {user.last_name}</Text>}
                 <Text style={styles.detailText}>Email: {email}</Text>
                 <Text style={styles.detailText}>Role: Admin</Text>
             </View>

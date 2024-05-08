@@ -14,23 +14,25 @@ export const AuthProvider =({children}) => {
     const [isAdmin,setIsAdmin]=useState("False");
     const [imageUri,setImageUri]=useState(null);
     const [user, setUser] = useState(null);
-    const API = "http://192.168.238.130:8000";
+    const API = "http://192.168.218.130:8000";
 
     const logout= async ()=>{
         setIsLoading(true);
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('isWorker');
-        await AsyncStorage.removeItem('email');
+      await AsyncStorage.removeItem('email');
+      await AsyncStorage.removeItem('isAdmin');
+      setIsAdmin("False");
         setUserToken(null);
         setIsWorker("");
         setIsLoading(false);
         setEmail("");
     }
 
-    const verifyLoginOtp = async (email,otp,isAdmin) =>{
+    const verifyLoginOtp = async (email,otp,isAdmin1) =>{
         setIsLoading(true);
         try {
-          if(isAdmin){
+          if(isAdmin1){
             setIsWorker("True");
           }
           else{
@@ -52,13 +54,20 @@ export const AuthProvider =({children}) => {
       
             const result = await response.json();
             console.log("here is the result",result);
-            if(response.ok){
-              alert(result.message)
-              setUserToken(result.token);
-              setEmail(email);
-              AsyncStorage.setItem('userToken',result.token);
-              AsyncStorage.setItem('isWorker',isWorker);
-              AsyncStorage.setItem('email',email);
+          if (response.ok) {
+            alert(result.message)
+            setUserToken(result.token);
+            setEmail(email);
+            AsyncStorage.setItem('userToken', result.token);
+            AsyncStorage.setItem('isWorker', isWorker);
+            AsyncStorage.setItem('email', email);
+            AsyncStorage.setItem("isAdmin", result.isAdmin);
+            if (result.isAdmin == "True") {
+              setIsAdmin("True");
+            } 
+              else { 
+              setIsAdmin("False");
+              } 
             }
             else{
               alert(result.error);
@@ -74,7 +83,9 @@ export const AuthProvider =({children}) => {
             setIsLoading(true);
             const token=await AsyncStorage.getItem('userToken');
             const workerBool = await AsyncStorage.getItem('isWorker');
-            const tempEmail= await AsyncStorage.getItem('email');
+          const tempEmail = await AsyncStorage.getItem('email');
+          const adminBool = await AsyncStorage.getItem('isAdmin');
+          setIsAdmin(adminBool);
             setUserToken(token);
             setIsWorker(workerBool);
             setEmail(tempEmail);
@@ -134,7 +145,7 @@ export const AuthProvider =({children}) => {
     ,[isWorker,email,userToken]);
 
     return (
-        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri, user}}>
+        <AuthContext.Provider value={{logout,verifyLoginOtp,API,userToken,isLoading,test,setIsLoading,isWorker,setIsWorker,email,imageUri,setImageUri, user,isAdmin}}>
             {children}
         </AuthContext.Provider>
     );

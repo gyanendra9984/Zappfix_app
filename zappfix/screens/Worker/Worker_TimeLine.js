@@ -7,7 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const Worker_TimeLine = (props) => {
   const { API, logout } = useContext(AuthContext);
-  const { email, service } = props.route.params;
+  const { email, service,status } = props.route.params;
   const [timelineData, setTimelineData] = useState([]);
 
   useFocusEffect(
@@ -28,6 +28,7 @@ const Worker_TimeLine = (props) => {
           user_email: email,
           worker_email: worker_email,
           service: service,
+          status:status,
         }),
       });
       const data = await response.json();

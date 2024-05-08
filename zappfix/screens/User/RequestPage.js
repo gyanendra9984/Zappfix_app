@@ -170,7 +170,7 @@ const RequestPage = (props) => {
         <View style={styles.workerInfo}>
           <Image
             style={styles.workerPhoto}
-            source={require("../../assets/Profile.png")} // Placeholder image URL
+            source={require("../../assets/Profile.jpg")} // Placeholder image URL
           />
           <View style={styles.workerDetails}>
             <Text style={styles.workerName} className="text-lg">
@@ -233,14 +233,19 @@ const RequestPage = (props) => {
             <LoadingScreen />
           ) : (
             <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>
-                Email: {workerProfile.email}
+              <Text style={styles.contactLabel2}>
+                <Text style={styles.contactLabel}>Email : </Text>
+                {workerProfile.email}
               </Text>
-              <Text style={styles.contactLabel}>
-                Phone: {workerProfile.phone_number}
+              {/* <Text style={styles.contactLabel2}></Text> */}
+
+              <Text style={styles.contactLabel2}>
+                <Text style={styles.contactLabel}>Phone : </Text>
+                {workerProfile.phone_number}
               </Text>
-              <Text style={styles.contactLabel}>
-                Address: {workerProfile.address},{workerProfile.state}
+              <Text style={styles.contactLabel2}>
+                <Text style={styles.contactLabel}>Address : </Text>
+                {workerProfile.address},{workerProfile.state}
               </Text>
             </View>
           )}
@@ -270,21 +275,21 @@ const RequestPage = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    justifyContent: "flex-start",
+    backgroundColor: "#fff",
     paddingTop: 20, // Align items in the upper half of the screen
   },
   workerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
   },
   workerPhoto: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 1,
     marginRight: 20,
   },
@@ -293,7 +298,7 @@ const styles = StyleSheet.create({
   },
   workerName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   workerDescription: {
@@ -301,84 +306,89 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   rating: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   ratingText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 5,
   },
   tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 20,
-    width: '100%',
+    width: "100%",
   },
   tabButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingVertical: 10,
-    alignItems: 'center',
+    alignItems: "center",
     borderBottomWidth: 1,
     borderRightWidth: 1,
-    borderColor: 'black',
+    borderColor: "black",
   },
   tabText: {
-    color: 'black',
+    color: "black",
     fontSize: 16,
   },
   tabContent: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 20,
     marginTop: 15,
   },
   reviewItem: {
     marginBottom: 10,
-},
-reviewName: {
-  fontSize: 16,
-  fontWeight: 'bold',
-},
-reviewText: {
-  fontSize: 14,
-},
-separator: {
-  height: 1,
-  backgroundColor: 'lightgray',
-  width: '100%',
-  marginVertical: 5,
-},
-fullWidthButton: {
-  backgroundColor: '#0096FF',
-  width: '80%', // Adjust width as needed
-  borderRadius: 10,
-  paddingVertical: 15,
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: 20, // Add margin at the bottom
-},
-fullWidthButtonText: {
-  color: '#fff',
-  fontSize: 16,
-  fontWeight: 'bold',
-},
-separatorLine: {
-  width: '90%', // Adjust width as needed
-  borderBottomColor: 'lightgray',
-  borderBottomWidth: 1,
-  marginVertical: 20, // Adjust vertical margin as needed
-},
-contactInfo: {
-  alignItems: 'flex-start',
-  marginTop: -250,
-},
-contactLabel: {
-  fontSize: 16,
-  marginBottom: 5,
-},
+  },
+  reviewName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  reviewText: {
+    fontSize: 14,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "lightgray",
+    width: "100%",
+    marginVertical: 5,
+  },
+  fullWidthButton: {
+    backgroundColor: "#0096FF",
+    width: "80%", // Adjust width as needed
+    borderRadius: 10,
+    paddingVertical: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20, // Add margin at the bottom
+  },
+  fullWidthButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  separatorLine: {
+    width: "90%", // Adjust width as needed
+    borderBottomColor: "lightgray",
+    borderBottomWidth: 1,
+    marginVertical: 20, // Adjust vertical margin as needed
+  },
+  contactInfo: {
+    alignItems: "flex-start",
+    marginTop: -250,
+  },
+  contactLabel: {
+    fontWeight: "bold",
+    fontSize: 20,
+    marginBottom: 5,
+  },
+  contactLabel2: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
 });
 
 export default RequestPage;
