@@ -4,13 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 
 import { AuthContext } from '../../context/AuthContext';
 
-import adminPhoto from '../assets/icon.png';
+import adminPhoto from '../../assets/icon.png';
 const AdminWorkerDetailPage = ({ route }) => {
   const { worker } = route.params;
   const navigation = useNavigation();
   const { API } = React.useContext(AuthContext);
   const [certificates, setCertificates] = useState([]);
   const [isApproved, setIsApproved] = useState(worker.verified);
+  const [rating, setRating] = useState("");
 
   useEffect(() => {
     // Fetch certificates when the component mounts
@@ -28,6 +29,8 @@ const AdminWorkerDetailPage = ({ route }) => {
       });
       const data = await response.json();
       setCertificates(data.certificates);
+      console.log("here is the rating=",data.rating)
+      setRating(data.rating);
     } catch (error) {
       console.error('Error fetching certificates:', error);
     }
@@ -60,7 +63,7 @@ const AdminWorkerDetailPage = ({ route }) => {
         <Text style={styles.workerName}>{worker.name}</Text>
         <Text>Status: {isApproved ? 'Approved' : 'Action Required'}</Text>
         {/* Add more worker details */}
-        <Text>Rating: 4.6</Text>
+        <Text>Rating: {rating}</Text>
       </View>
       {/* <View style={styles.history}>
         <Text style={styles.sectionTitle}>Task History</Text>

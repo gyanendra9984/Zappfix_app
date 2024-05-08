@@ -93,9 +93,15 @@ useEffect(() => {
     fetchRequestsHistory();
 }, []);
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.container}>
-        {historyData.progress_works ? (
+    <View style={styles.container1}>
+      <Text className="mb-2 ml-2 font-bold text-xl">
+        User In Progress Works
+      </Text>
+      <ScrollView
+        style={styles.container}
+        className="border-4 border-gray-400 rounded-lg p-3 "
+      >
+        {historyData.progress_works && historyData.progress_works[0] ? (
           historyData.progress_works.map((item) => (
             <TouchableOpacity
               key={item.id}
@@ -115,10 +121,18 @@ useEffect(() => {
           ))
         ) : (
           <View style={styles.centered}>
-            <Text>No current History of requests</Text>
+            <Text className="text-base">
+              No current History of in Progress requests
+            </Text>
           </View>
         )}
-        {historyData.done_works ? (
+      </ScrollView>
+      <Text className="mb-2 ml-2 font-bold text-xl">User Done Works</Text>
+      <ScrollView
+        style={styles.container}
+        className="border-4 border-gray-400 rounded-lg p-3 "
+      >
+        {historyData.done_works && historyData.done_works[0] ? (
           historyData.done_works.map((item) => (
             <TouchableOpacity
               key={item.id}
@@ -138,7 +152,9 @@ useEffect(() => {
           ))
         ) : (
           <View style={styles.centered}>
-            <Text>No current History of requests</Text>
+            <Text className="text-base">
+              No current History of Done requests
+            </Text>
           </View>
         )}
       </ScrollView>
@@ -157,7 +173,13 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
+    paddingTop: 16,
+    marginBottom: 16,
+  },
+  container1: {
+    flex: 1,
+    paddingHorizontal: 5,
     paddingTop: 16,
   },
   starContainer: {
@@ -169,6 +191,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: "#ccc",
+    backgroundColor: "#fff",
+    width: "100%",
   },
   rowContainer: {
     flexDirection: "row",
@@ -201,21 +225,21 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   reloadButtonContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
   },
   reloadButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 50,
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

@@ -82,7 +82,7 @@ def create_request(request):
             worker = CustomWorker.objects.get(email=worker_email)
 
             if Request.objects.filter(user=user, worker=worker, service=service, status= "Pending").exists():
-                return JsonResponse({'status': 'success', 'message': 'Request already exists'})
+                return JsonResponse({'status': 'error', 'message': 'Request already exists'})
             
             Request.objects.create(
                 user=user,
@@ -463,13 +463,18 @@ def update_worker_works(request):
             # Check if the user and worker exist
             user = CustomUser.objects.get(email=user_email)
             worker = CustomWorker.objects.get(email=worker_email)
-
             # Retrieve the work
-            work = WorkHistory.objects.get(user=user, worker=worker, service=service)
-
+            work = WorkHistory.objects.get(
+                user=user, worker=worker, service=service, status="In Progress"
+            )
+            print("ggggggnu")
             if status == 'Reject':
                 if work.status != 'In Progress':
                     raise ValueError("Work is not in progress, cannot reject")
+                if work.workerdone == True:
+                    return JsonResponse(
+                        {"error": "Work is already done by worker"}, status=400
+                    )
 
                 work.delete()
                 return JsonResponse({'message': 'Work deleted successfully'})
@@ -477,6 +482,9 @@ def update_worker_works(request):
             if status == 'Done':
                 if work.status != 'In Progress':
                     raise ValueError("Work is not in progress, cannot mark as done")
+
+                if(work.workerdone==True):
+                    return JsonResponse({'error':"Work is already done by worker"},status=400)
 
                 work.workerdone = True
                 work.worker_done_on = timezone.now()

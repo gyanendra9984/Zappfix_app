@@ -21,6 +21,8 @@ adminlist = [
     "2021csb1062@iitrpr.ac.in",
     "2021csb1124@iitrpr.ac.in",
     "alankritkadian@gmail.com",
+    "2021csb1090@iitrpr.ac.in",
+    # "mani15102002@gmail.com",
 ]
 
 

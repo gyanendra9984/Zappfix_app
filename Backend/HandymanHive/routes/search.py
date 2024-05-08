@@ -30,6 +30,7 @@ def get_closest_services(request):
             query = data.get("query")
             email = data.get("email")
             user = CustomUser.objects.get(email=email)
+            
             # Add the query using the add_query method
             user.add_query(query)
             user.save()           

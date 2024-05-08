@@ -15,7 +15,7 @@ const InteractionPage = (props) => {
   const { API } = useContext(AuthContext);
   const [distance, setDistance] = useState(0);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const { email , service } = props.route.params;
+  const { email , service ,status} = props.route.params;
   const [ latitutepoint, setlatitutepoint ] = useState(-1);
   const [ longitutepoint, setlongitutepoint ] = useState(-1);
   const [workerEmail,setWorkerEmail]=useState("");
@@ -71,6 +71,7 @@ const InteractionPage = (props) => {
     }
   };
 
+  
   const openWhatsApp = () => {
     Linking.openURL('whatsapp://send?phone=+1234567890'); // Replace +1234567890 with your WhatsApp number
   };
@@ -115,7 +116,7 @@ const InteractionPage = (props) => {
       if (response.ok) {
         console.log("Rejected successfully");
         alert("Rejected successfully");
-        navigation.navigate("Worker History")
+        navigation.navigate("Worker History");
       } else {
         alert("Failed to Reject ",data.error);
       }
@@ -145,6 +146,7 @@ const InteractionPage = (props) => {
       if (response.ok) {
         console.log("Work Done successfully");
         alert("Work Done successfully");
+        navigation.navigate("Worker History");
       } else {
         alert("Failed To send work done!!",data.error)
         // console.error();
@@ -156,7 +158,9 @@ const InteractionPage = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
-        <Worker_TimeLine route={{ params: { email: email, service: service } }}/>
+        <Worker_TimeLine
+          route={{ params: { email: email, service: service, status: status } }}
+        />
       </View>
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
@@ -168,16 +172,16 @@ const InteractionPage = (props) => {
 
         <View style={styles.infoRow}>
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, styles.button2]}
             onPress={() => submitWorkdone()}
           >
-            <Icon name="done" size={20} color="#fff" />
+            <Text style={styles.infoItem}> Mark as done</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, styles.button1]}
             onPress={handleReject}
           >
-            <Icon name="close" size={20} color="#fff"/>
+            <Text style={styles.infoItem}>Decline</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -193,7 +197,7 @@ const InteractionPage = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   mapContainer: {
     flex: 6,
@@ -203,32 +207,32 @@ const styles = StyleSheet.create({
   },
   whatsappContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
   },
   whatsappText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   reloadButtonContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 120,
     right: 20,
   },
   reloadButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 50,
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#3498db",
+    // backgroundColor: "#3498db",
     borderRadius: 5,
     padding: 10,
     marginHorizontal: 5,
@@ -236,18 +240,27 @@ const styles = StyleSheet.create({
   infoContainer: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    textColor: "white",
   },
   infoItem: {
     marginHorizontal: 10,
     fontSize: 16,
     fontWeight: "bold",
+    color:"white"
+  },
+  button1: {
+    backgroundColor:"red",
+  },
+  button2: {
+    backgroundColor:"green",
   },
 });
 

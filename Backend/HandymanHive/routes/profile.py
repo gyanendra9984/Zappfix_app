@@ -31,6 +31,8 @@ def get_user_data(request):
 
             if isWorker == "True":
                 user = CustomWorker.objects.get(email=email)
+                worker=WorkerDetails.objects.get(email=email)
+                
             else:
                 user = CustomUser.objects.get(email=email)
             
@@ -51,6 +53,7 @@ def get_user_data(request):
             }
             if isWorker == "True":
                 user_details["verified"] = user.verified
+                user_details["rating"]=worker.overall_rating
             else:
                 user_details["liveLatitude"] = user.liveLatitude
                 user_details["liveLongitude"] = user.liveLongitude
@@ -180,7 +183,6 @@ def update_user_location(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-
 @csrf_exempt
 def delete_user(request):
     if request.method == "POST":
@@ -205,7 +207,7 @@ def delete_user(request):
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-#-----------------WORKER PROFESSIONAL PROFILE ------------------------
+# -----------------WORKER PROFESSIONAL PROFILE ------------------------
 
 ######################## SERVICES #############################
 
@@ -343,17 +345,18 @@ def get_certificates(request):
             email = data.get("email")
 
             certificates = Certification.objects.filter(worker_email=email)
+            worker_details= WorkerDetails.objects.get(email=email)
 
             certificate_data = []
             for certificate in certificates:
                 pdf_filename = certificate.certificate_data    
                 pdf_file_path = os.path.join(UPLOAD_DIR, pdf_filename)
-                
+
                 if os.path.exists(pdf_file_path):
                     with open(pdf_file_path, 'rb') as f:
                         pdf_content_bytes = f.read()
                         pdf_content_base64 = base64.b64encode(pdf_content_bytes).decode('utf-8')
-                        
+
                     certificate_data.append(
                         {
                             "certificate_name": certificate.certificate_name,
@@ -364,7 +367,12 @@ def get_certificates(request):
                         }
                     )
 
-            return JsonResponse({"certificates": certificate_data})
+            return JsonResponse(
+                {
+                    "certificates": certificate_data,
+                    "rating": worker_details.overall_rating,
+                }
+            )
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Error fetching certificates"}, status=500)

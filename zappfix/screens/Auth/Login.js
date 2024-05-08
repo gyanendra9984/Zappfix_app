@@ -40,7 +40,7 @@ function Login() {
   const [isOtpSent, setIsOtpSent] = React.useState(0);
   // const [otp, setOtp] = React.useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isAdmin, setIsAdmin] = React.useState(false); // Default to user
+  const [isAdmin1, setIsAdmin1] = React.useState(false); // Default to user
   const [progress, setProgress] = React.useState(false);
   const inputsarray = [];
   const [indexbutton,setindexbutton] = React.useState(0) ;
@@ -51,23 +51,23 @@ function Login() {
   };
 
   const handleUserToggle = () => {
-    setIsAdmin(false);
+    setIsAdmin1(false);
     setIsWorker("False");
   };
   const handleWorkerToggle = () => {
-    setIsAdmin(true);
+    setIsAdmin1(true);
     setIsWorker("True");
   };
   const sendOtp = async () => {
     try {
       // Send a POST request to the backend with the user's information
       setProgress(true);
-      if (isAdmin) {
+      if (isAdmin1) {
         await setIsWorker("True");
       } else {
         await setIsWorker("False");
       }
-      console.log(email, isAdmin);
+      console.log(email, isAdmin1);
       const response = await fetch(`${API}/user_login`, {
         method: "POST",
         headers: {
@@ -114,7 +114,7 @@ function Login() {
     const otpString = otp.join('');
     try {
       setProgress(true);
-      await verifyLoginOtp(email, otpString, isAdmin);
+      await verifyLoginOtp(email, otpString, isAdmin1);
     } catch (error) {
       console.error("Error verifying OTP:", error);
       // Handle error if needed
@@ -171,14 +171,18 @@ function Login() {
                   value={digit}
                   ref={(input) => {
                     inputsarray[index] = input;
-                    console.log('input: ',otp);
+                    console.log("input: ", otp);
                   }}
                 />
               ))}
             </View>
           </View>
           <View style={styles.buttonStyle}>
-            <Button style={styles.buttonDesign} onPress={handleVerifyOTP} disabled={indexbutton < 5}>
+            <Button
+              style={styles.buttonDesign}
+              onPress={handleVerifyOTP}
+              disabled={indexbutton < 5}
+            >
               VERIFY OTP
             </Button>
           </View>
@@ -191,6 +195,12 @@ function Login() {
         </View>
       ) : (
         <View>
+          <View style={styles.login}>
+            <Image
+              style={styles.image}
+              source={require("../../assets/icon.png")}
+            />
+          </View>
           <View style={styles.Middle}>
             <Text style={styles.LoginText}>Login as</Text>
           </View>
@@ -198,13 +208,13 @@ function Login() {
           <View style={styles.toggleContainer}>
             <ToggleButton
               label="User"
-              active={!isAdmin}
+              active={!isAdmin1}
               onPress={handleUserToggle}
             />
             <Text style={styles.orText}> OR </Text>
             <ToggleButton
               label="Worker"
-              active={isAdmin}
+              active={isAdmin1}
               onPress={handleWorkerToggle}
             />
           </View>
@@ -293,17 +303,17 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   containerbox: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   box: {
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: "black",
     width: 40,
     height: 40,
     margin: 10,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 20,
   },
   signupText: {
@@ -361,5 +371,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginLeft: 15,
+  },
+  login: {
+    flex: 1,
+    justifyContent: 'center', 
+    marginTop:120,
+    alignItems: 'center', 
+  },
+  image: {
+    width: 150,
+    height: 150,
   },
 });

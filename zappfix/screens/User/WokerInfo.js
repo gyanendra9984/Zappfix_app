@@ -116,16 +116,30 @@ const WorkerInfo = (props) => {
     : workers;
 
     const renderWorkerCard = ({ item }) => (
-      <TouchableOpacity onPress={() =>{ navigation.navigate("RequestPage",{email:item.email,service:service,rating:item.rating})}}>
-      <View style={styles.workerCard}>
-        <Image source={require("../../assets/Profile.jpg")} style={styles.profileImage} />
-        <View style={styles.workerInfo}>
-          <Text style={styles.workerName}>{item.first_name} {item.last_name}</Text>
-          <Text >{item.email}</Text>
-          {/* <Text style={styles.ratingText}>Rating: </Text> */}
-          <StarRating rating={item.rating} />
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate("RequestPage", {
+            email: item.email,
+            service: service,
+            rating: item.rating,
+          });
+        }}
+      >
+        <View style={styles.workerCard}>
+          <Image
+            source={require("../../assets/Profile.jpg")}
+            style={styles.profileImage}
+          />
+          <View style={styles.workerInfo}>
+            <Text style={styles.workerName}>
+              {item.first_name} {item.last_name}
+            </Text>
+            <Text>{item.email}</Text>
+            {/* <Text style={styles.ratingText}>Rating: </Text> */}
+            <StarRating rating={item.rating} />
+          </View>
         </View>
-      </View>
+        
       </TouchableOpacity>
     );
 
@@ -232,6 +246,11 @@ const WorkerInfo = (props) => {
           />
         </View>
       )}
+      <View style={styles.reloadButtonContainer}>
+          <TouchableOpacity style={styles.reloadButton} onPress={fetchNearestWorkers}>
+            <Icon name="refresh" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
     </View>
   );
 };
@@ -255,7 +274,7 @@ const StarRating = ({ rating }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 1,
   },
   map: {
@@ -263,35 +282,35 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
   },
   serviceProvidersInfo: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   filterDropdownButton: {
     height: 50,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'black',
+    borderBottomColor: "black",
     paddingHorizontal: 10,
   },
   dropdownButtonText: {
     fontSize: 16,
   },
   dropdownOptions: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     right: 10,
     width: 120,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 5,
     elevation: 5,
     zIndex: 1,
@@ -299,18 +318,18 @@ const styles = StyleSheet.create({
   dropdownOption: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'black',
+    borderBottomColor: "black",
   },
   workerCard: {
-    width: '100%',
-    flexDirection: 'row',
+    width: "100%",
+    flexDirection: "row",
     padding: 20,
     marginBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     elevation: 5,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   profileImage: {
     width: 80,
@@ -324,16 +343,30 @@ const styles = StyleSheet.create({
   },
   workerName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   starContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   ratingText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
+  reloadButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+  },
+  reloadButton: {
+    backgroundColor: "#3498db",
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  
 });
 
 export default WorkerInfo;
