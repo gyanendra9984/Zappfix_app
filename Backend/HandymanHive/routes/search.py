@@ -57,8 +57,43 @@ def get_closest_services(request):
             Output: {'services': ['plumbing', 'appliance repair']}                     
             
             '''
-            llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
-            response = llm(prompt)            
+            # llm = HCA(email=os.getenv("HF_EMAIL"), psw=os.getenv("HF_PASSWORD"), cookie_path="./cookies_snapshot")
+            # response = llm(prompt)   
+            
+            query_list = query.split(' ')
+            query_list = [word.lower() for word in query_list]
+            response=''
+            if any(term in query_list for term in ["hair", "salon", "barber", "haircut", "hairdresser", "hairstyle"]):
+                response = "['Barber', 'Salon', 'Hair Care', 'Beauty Services']"
+            if any(term in query_list for term in ["plumbing", "leak", "pipes", "faucet", "sink", "pipe"]):
+                response = "['Plumbing', 'Home Repair', 'Maintenance Services']"
+            if any(term in query_list for term in ["bulb", "light", "switch", "electric", "power", "socket"]):
+                response = "['Electrical', 'Appliance Repair', 'HVAC']"
+            if any(term in query_list for term in ["carpentry", "wood", "furniture"]):
+                response = "['Carpentry', 'Furniture Assembly', 'Home Renovation']"
+            if any(term in query_list for term in ["painting", "color", "wall"]):
+                response = "['Painting', 'Interior Design', 'Exterior Painting', 'Wallpaper Removal']"
+            if any(term in query_list for term in ["landscaping", "garden", "plant", "lawn"]):
+                response = "['Landscaping', 'Gardening', 'Tree Trimming', 'Deck Construction']"
+            if any(term in query_list for term in ["roof", "leak", "shingles"]):
+                response = "['Roofing', 'Water Damage Restoration', 'Home Renovation', 'Foundation Repair']"
+            if any(term in query_list for term in ["floor", "tile", "carpet", "hardwood"]):
+                response = "['Flooring', 'Carpet Cleaning', 'Home Renovation', 'Basement Waterproofing']"
+            if any(term in query_list for term in ["heat", "cold", "temperature", "HVAC"]):
+                response = "['HVAC (Heating, Ventilation, and Air Conditioning)', 'Home Insulation', 'Home Automation', 'Solar Panel Installation']"
+            if any(term in query_list for term in ["appliance", "fridge", "oven", "washer"]):
+                response = "['Appliance Repair', 'Home Renovation', 'Kitchen Remodeling']"
+            if any(term in query_list for term in ["window", "glass", "curtain", "blinds"]):
+                response = "['Window Cleaning', 'Interior Design', 'Home Cleaning', 'Home Renovation']"
+            if any(term in query_list for term in ["pressure", "wash", "clean", "dirt"]):
+                response = "['Pressure Washing', 'Home Cleaning', 'Carpet Cleaning', 'Deck Construction']"
+            if any(term in query_list for term in ["pest", "bug", "insect", "rodent"]):
+                response = "['Pest Control', 'Home Cleaning']"    
+             
+            if response =='':
+               response = "['Home Clean', 'Carpentry', 'Barber', 'Salon', 'Painter']"
+            
+                     
             response = response.split("[")[1].split("]")[0]
             response = '[' + response + ']'
             response_json = response.replace("'", "\"")
